@@ -26,4 +26,4 @@ back_en: Memory Owner
   <p><code>{{ roadmap.sequence }}</code></p>
   <blockquote><span class="lang zh">{{ roadmap.principle_zh }}</span><span class="lang en">{{ roadmap.principle_en }}</span></blockquote>
 </section>
-<p><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/owners/memory.md"><span class="lang zh">查看完整 Memory owner Markdown →</span><span class="lang en">Open complete Memory owner Markdown →</span></a></p>
+<p><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/owners/memory.archive.md"><span class="lang zh">查看完整 Memory owner Markdown →</span><span class="lang en">Open complete Memory owner Markdown →</span></a></p>
