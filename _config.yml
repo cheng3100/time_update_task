@@ -6,13 +6,20 @@ url: https://cheng3100.github.io
 markdown: kramdown
 encoding: utf-8
 
-# Content/archive Markdown under kmd_owner_direction/ is source-of-truth data,
-# not a Jekyll page source. Excluding it prevents permalink/output collisions
-# such as kmd_owner_direction/owners/memory.md overwriting the generated
-# /kmd_owner_direction/owners/memory.html Owner page.
+# Archive/source Markdown stays in GitHub but must not be rendered into Pages.
+# Exclude only archive source files/directories, not the whole kmd_owner_direction
+# target path, otherwise pages with permalinks under /kmd_owner_direction/ can be
+# filtered out as well.
 exclude:
   - docs
-  - kmd_owner_direction
+  - kmd_owner_direction/HOME.md
+  - kmd_owner_direction/README.md
+  - kmd_owner_direction/archive_audit_2026-08-08.md
+  - kmd_owner_direction/owners
+  - kmd_owner_direction/resources
+  - kmd_owner_direction/raw_updates
+  - kmd_owner_direction/updates
+  - kmd_owner_direction/public_future_topic.md
   - README.md
   - UPDATE_RULES.md
   - vendor
