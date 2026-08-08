@@ -1,0 +1,8 @@
+tasks:
+  - id: kmd_owner_direction
+    title_zh: GPU KMD Owner 方向
+    title_en: GPU KMD Owner Direction
+    summary_zh: 稳定 Owner 划分、持续演进的切入 Feature、业界最新动态与长期学习资料。
+    summary_en: Stable owner taxonomy, evolving entry features, industry updates and durable learning resources.
+    url: /kmd_owner_direction/
+    raw_archive_url: /kmd_owner_direction/raw-updates.html
