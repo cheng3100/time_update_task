@@ -18,27 +18,39 @@ Own software-event tracing, hardware performance monitoring, cross-layer correla
 - long-term gpu_ext-like verified programmable policy
 
 ## Current Entry Feature
-eBPF-based GPU KMD dynamic tracing. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling.
+Stable GPU event/object identity + eBPF-based KMD dynamic tracing. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
 
 ### Near-term feature path
 Stable tracepoints → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
 
 ## Industry Updates
+### 2026-08-08 · Test #4
+1. **SysOM-AI demonstrates continuous cross-layer observability at production scale.**
+   - Source: https://arxiv.org/abs/2603.29235
+   - Change: combines CPU stack profiling, GPU kernel tracing and NCCL instrumentation with eBPF-based mechanisms; reports <0.4% overhead and deployment across more than 80,000 GPUs.
+   - KMD impact: stable object IDs, timestamps and cross-layer correlation are durable infrastructure; build them before one-off profiler-specific interfaces.
+   - Priority: **Trace/object model now.**
+
+2. **Radeon GPU Profiler 2.7 reinforces the unified timeline + hardware-counter consumption model.**
+   - Source: https://gpuopen.com/rgp/
+   - KMD impact: GPU PMU should not become an isolated register-reading tool; counter discovery/sampling should correlate with queue/job/context timelines.
+   - Priority: **6–12 months if HW PMU is mature.**
+
+3. **`gpu_ext` / `fabric_ext` remain long-term programmable-policy signals.**
+   - Sources: https://arxiv.org/abs/2512.12615 and https://arxiv.org/abs/2607.26335
+   - KMD impact: build stable hooks and correlation now; do not expose programmable scheduling/memory policy until verifier/security/uAPI boundaries are mature.
+   - Priority: **Long-term watch.**
+
 ### 2026-08-08 · Test #2
 1. **ProfInfer strengthens the unified trace + hardware-counter direction.**
    - Source: https://arxiv.org/abs/2601.20755
-   - Change: uses eBPF probes to correlate runtime functions/operator timelines with hardware-counter trends at low overhead.
-   - KMD impact: avoid separate “debug trace” and “performance profiling” data models; define one timestamp/object identity model that PMU samples can join later.
+   - KMD impact: avoid separate debug-trace and performance-profiling object models.
    - Priority: **Trace now; unified timeline in 6–12 months.**
 
 2. **AMD uProf 5.3 shows production profiling consuming GPU hardware events through ROCm/rocprofiler.**
-   - Source: https://docs.amd.com/r/en-US/57368-uProf-user-guide/7.13.1.-GPU-Profiling
-   - KMD impact: PMU counter discovery, naming, grouping/multiplexing and per-context attribution should be treated as first-class KMD interfaces when hardware supports them.
    - Priority: **6–12 months.**
 
 3. **`gpu_ext` / `fabric_ext` remain research signals, not immediate product APIs.**
-   - Sources: https://arxiv.org/abs/2512.12615 and https://arxiv.org/abs/2607.26335
-   - KMD impact: build stable hooks and correlation primitives now; postpone programmable policy until verifier/security/uAPI constraints are much clearer.
    - Priority: **Long-term policy watch.**
 
 ### 2026-08-08 · Test #1
