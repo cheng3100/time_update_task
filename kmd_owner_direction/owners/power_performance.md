@@ -1,21 +1,24 @@
 # GPU Power / Performance
 
-## Summary (stable)
-Own GPU power-state control and performance-management policy from utilization measurement through DVFS, runtime PM, thermal and power-budget control.
+## Stable Summary
+Own GPU power-state control and performance-management policy from measurement through DVFS, runtime PM, thermal and power budget.
 
-## Candidate sub-directions
+## Living Sub-directions
 - busy/idle and per-engine utilization accounting
-- runtime PM and system suspend/resume
-- clock gating, power gating and idle residency
-- DVFS, OPP/performance states and firmware PM protocol
-- thermal throttling and emergency thermal handling
-- power telemetry and power cap
+- runtime PM and suspend/resume
+- clock/power gating and idle residency
+- DVFS, OPP/performance states and FW PM protocol
+- thermal throttling and power cap
 - frequency residency and memory-bandwidth utilization
-- utilization-based and workload-aware boost/throttle policy
-- PCIe ASPM/link-power integration
+- workload-aware boost/throttle
+- PCIe ASPM/link power
 
-## Current entry feature
-**GPU busy/idle + utilization accounting → basic DVFS/runtime PM closed loop.**
+## Current Entry Feature
+GPU busy/idle + utilization accounting → basic DVFS/runtime PM.
 
-## Living focus
-Track which counters and PM controls are available in hardware/firmware, then expand only when measurement and actuation are both reliable.
+## Industry Updates
+### 2026-08-08
+- Upstream GPU drivers such as Intel Xe combine runtime PM, low-power residency and firmware-managed frequency policy into a complete PM architecture, reinforcing the measurement → policy → FW/HW-control model.
+- Follow-up: **Now** — establish verifiable utilization accounting before introducing complex governors.
+
+> This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
