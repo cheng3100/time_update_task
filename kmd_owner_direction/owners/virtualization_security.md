@@ -20,22 +20,23 @@ SR-IOV PF/VF bring-up + provisioning/isolation when ASIC capability exists; othe
 First confirm ASIC capabilities: SR-IOV extended capability, VF BAR/interrupt model, VMID/resource partitioning, reset semantics, IOMMU isolation and PF↔VF control path. Only then decide whether virtualization is a real feature project or just platform integration.
 
 ## Industry Updates
-### 2026-08-08
+### 2026-08-08 · Test #2
+1. **No high-value new GPU-specific SR-IOV kernel mechanism was found in this short second-test window.**
+   - Baseline source: https://origin.kernel.org/doc/html/latest/PCI/pci-iov-howto.html
+   - KMD impact: keep the project hardware-gated; do not manufacture work around generic PCI SR-IOV enable/disable mechanics.
+   - Priority: **Capability assessment first.**
 
-1. **Nova is explicitly separating hardware/firmware abstraction from upper DRM/VFIO consumers.**
-   - Source: Linux Nova documentation: https://docs.kernel.org/gpu/nova/index.html
-   - Change: `nova-core` is designed as a first-level driver that abstracts GPU hardware/firmware interfaces and can serve second-level drivers such as `nova-drm` and a vGPU manager VFIO driver.
-   - KMD impact: for a self-developed GPU, virtualization should reuse a common control/resource abstraction rather than grow a separate PF/VF-only hardware path.
-   - Priority: **6–12 months** architecture reference; especially relevant together with Firmware/Control Plane.
+2. **Nova continues to validate a shared lower hardware/FW abstraction usable by DRM and VFIO/vGPU upper drivers.**
+   - Source: https://docs.kernel.org/gpu/nova/index.html
+   - KMD impact: resource ownership, reset and firmware protocol should be common lower-layer capabilities that virtualization consumes rather than duplicates.
+   - Priority: **6–12 months architecture reference.**
 
+### 2026-08-08 · Test #1
+1. **Nova separates hardware/firmware abstraction from upper DRM/VFIO consumers.**
+   - Priority: **6–12 months** architecture reference.
 2. **SR-IOV kernel mechanics remain commodity; GPU-specific value is resource isolation.**
-   - Source: Linux PCI SR-IOV documentation: https://origin.kernel.org/doc/html/latest/PCI/pci-iov-howto.html
-   - Change: Linux PCI core already provides standard PF/VF discovery and enable/disable mechanics. The differentiating KMD work is VMID/doorbell/interrupt/memory/engine provisioning, VF reset and PF↔VF ABI.
-   - KMD impact: do not treat `pci_enable_sriov()` as the project. Define the project around real GPU resource provisioning and recovery semantics.
-   - Priority: **Now, only if ASIC supports SR-IOV**.
-
-3. **No high-value new GPU-specific SR-IOV patchset was found in this update window that changes the direction.**
-   - KMD impact: keep SR-IOV as a hardware-gated candidate rather than forcing implementation based on taxonomy alone.
-   - Priority: **Capability assessment first**.
+   - Priority: **Now, only if ASIC supports SR-IOV.**
+3. **No high-value new GPU-specific SR-IOV patchset changed the direction.**
+   - Priority: **Capability assessment first.**
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
