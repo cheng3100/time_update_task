@@ -33,6 +33,7 @@ owners:
         impact_en: Do not conflate CPU range identity, device residency, DMA mapping and GPU PTE state.
         priority_zh: 架构兼容现在
         priority_en: Design compatibility now
+
   - id: virt
     tab_zh: 虚拟化 / 安全
     tab_en: Virt / Security
@@ -63,6 +64,7 @@ owners:
         impact_en: Virtualization should consume common resource/control services rather than duplicate FW/reset paths.
         priority_zh: 6–12 个月
         priority_en: 6–12 months
+
   - id: power
     tab_zh: 功耗 / 性能
     tab_en: Power / Perf
@@ -86,6 +88,7 @@ owners:
         impact_en: Keep measurement/lifetime/constraint layers first; telemetry should serve both DVFS and profiling.
         priority_zh: 现在
         priority_en: Now
+
   - id: ras
     tab_zh: 可靠性 / RAS
     tab_en: Reliability / RAS
@@ -109,6 +112,7 @@ owners:
         impact_en: Freeze evidence before recovery; include FW logs and early probe/boot failures in the same crash object.
         priority_zh: 现在
         priority_en: Now
+
   - id: multi
     tab_zh: Multi-GPU
     tab_en: Multi-GPU
@@ -132,6 +136,7 @@ owners:
         impact_en: Separate CPU VA identity from each GPU residency/mapping; topology/P2P before shared VM.
         priority_zh: 现在
         priority_en: Now
+
   - id: obs
     tab_zh: 可观测性 / Profiling
     tab_en: Observability / Profiling
@@ -155,6 +160,7 @@ owners:
         impact_en: Unify timestamp/object identity first, then join PMU and crash snapshots.
         priority_zh: Trace 现在；PMU 6–12 个月
         priority_en: Trace now; PMU 6–12 months
+
   - id: fw
     tab_zh: Firmware / Control Plane
     tab_en: Firmware / Control Plane
@@ -195,8 +201,9 @@ history:
       - Durable resources now use one Markdown document + Pages URL per stable sub-direction.
       - Technical Owner conclusions remain unchanged from Test #3.
       - Industry Updates continue to refresh at top-level Owner scope.
-    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3-r2.md
-    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3-r2.md
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3-r2.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3-r2.raw.md
+
   - id: test-3
     date: "2026-08-08"
     title_zh: Test #3
@@ -209,8 +216,9 @@ history:
       - Formalized complete chat report + GitHub archive rules.
       - Deep dive: Stable GPU Event/Object Identity.
       - Memory focuses on N:1 GPU SVM representation and per-device state.
-    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3.md
-    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3.md
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3.raw.md
+
   - id: test-2
     date: "2026-08-08"
     title_zh: Test #2
@@ -223,8 +231,9 @@ history:
       - Migration granularity promoted to a Memory stage-two architecture item.
       - Structured Industry Updates added for all seven Owners.
       - Firmware/RAS/Multi-GPU/Observability priorities clarified.
-    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-2.md
-    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-2.md
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-2.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-2.raw.md
+
   - id: test-1
     date: "2026-08-08"
     title_zh: Test #1
@@ -237,23 +246,5 @@ history:
       - Established seven top-level Owners + one public future topic.
       - Memory entry fixed as recoverable fault + HMM + migration + replay.
       - Firmware Control Plane promoted to a long-term independent Owner.
-    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08.md
-    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-1.md
-
-memory_stages:
-  - title_zh: 1 · 切入
-    title_en: 1 · Entry
-    body_zh: Recoverable fault → PASID/VM/context → mm_struct/HMM → migration → GPU PTE → TLB invalidate → replay。目标是单 GPU 完整 correctness 闭环。
-    body_en: Recoverable fault → PASID/VM/context → mm_struct/HMM → migration → GPU PTE → TLB invalidate → replay. Build a complete single-GPU correctness loop.
-  - title_zh: 2 · 深化
-    title_en: 2 · Deepen
-    body_zh: GPUVM lifetime + migration granularity + large/compound pages + oversubscription/eviction/reclaim。4K correctness 后进入 batched/64K/2M。
-    body_en: GPUVM lifetime + migration granularity + large/compound pages + oversubscription/eviction/reclaim. Move from 4K correctness to batched/64K/2M.
-  - title_zh: 3 · 拓展
-    title_en: 3 · Expand
-    body_zh: SVA/IOMMU/ATS/PRI + NUMA + dma-buf/P2P memory。形成 CPU VA、GPUVM、IOMMU 与 peer memory 的统一 ownership 边界。
-    body_en: SVA/IOMMU/ATS/PRI + NUMA + dma-buf/P2P memory. Unify ownership boundaries across CPU VA, GPUVM, IOMMU and peer memory.
-  - title_zh: 4 · 演进
-    title_en: 4 · Evolve
-    body_zh: Multi-GPU UVM + tiered/CXL memory + preferred-location/access-counter/migration/QoS policy，最终成为 heterogeneous-memory architecture owner。
-    body_en: Multi-GPU UVM + tiered/CXL memory + preferred-location/access-counter/migration/QoS policy, evolving into heterogeneous-memory architecture ownership.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-1.raw.md
