@@ -20,6 +20,18 @@ GPU busy/idle + utilization accounting → basic DVFS/runtime PM.
 Reliable busy/idle accounting → per-engine utilization → frequency/residency telemetry → basic firmware-controlled DVFS → runtime PM → thermal/power-cap policy.
 
 ## Industry Updates
+### 2026-08-08 · Test #4
+1. **No high-value direction-changing mechanism appeared in this short window; keep measurement/lifetime-first.**
+   - Reference: https://docs.kernel.org/gpu/xe/xe_pm.html
+   - KMD impact: telemetry should be a reusable substrate shared by DVFS and profiling; runtime PM must first solve active references, resource ordering and resume correctness.
+   - Priority: **Now.**
+
+2. **V3D Runtime PM remains a useful current implementation case study.**
+   - Source: https://lwn.net/Articles/1059534/
+   - Change: the upstream series shows the concrete work needed to disable GPU clocks while idle, including firmware-clock hooks and driver resource ordering.
+   - KMD impact: treat first PM enablement as a lifecycle/correctness project, not simply a register programming task.
+   - Priority: **Implementation reference now.**
+
 ### 2026-08-08 · Test #2
 1. **Keep PM telemetry reusable by both policy and profiling.**
    - Source: AMD uProf 5.3 GPU Profiling (2026-06-17): https://docs.amd.com/r/en-US/57368-uProf-user-guide/7.13.1.-GPU-Profiling
