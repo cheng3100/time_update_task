@@ -1,0 +1,20 @@
+title: Time Update Tasks
+description: Long-term archive and living pages for scheduled technical update tasks.
+theme: jekyll-theme-architect
+baseurl: /time_update_task
+url: https://cheng3100.github.io
+markdown: kramdown
+encoding: utf-8
+
+exclude:
+  - docs
+  - README.md
+  - UPDATE_RULES.md
+  - vendor
+
+collections:
+  pages:
+    output: true
+
+plugins:
+  - jekyll-seo-tag
