@@ -20,6 +20,18 @@ Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
 Hang detection → freeze diagnostic state → structured snapshot → devcoredump → reset → state restore → progressively finer queue/context/engine recovery.
 
 ## Industry Updates
+### 2026-08-08 · Test #4
+1. **Production GPU crash tooling is converging on richer structured post-mortem artifacts.**
+   - Sources: AMD Radeon GPU Detective hardware crash analysis and NVIDIA Nsight Aftermath.
+   - Reference: https://gpuopen.com/learn/radeon-developer-tool-suite-amd-rdna4/
+   - KMD impact: coredump schema should evolve beyond register/ring dumps to versioned sections for execution/workload markers, MMU/page-fault state, FW logs and relevant HW state, with offline tooling as a separate consumer.
+   - Priority: **Snapshot schema now; richer correlation in 6–12 months.**
+
+2. **Snapshot-before-reset remains the hard recovery invariant.**
+   - Source: https://docs.kernel.org/gpu/xe/xe_devcoredump.html
+   - KMD impact: destructive recovery must not begin before the only useful crash evidence has been frozen; early boot/probe failure evidence should share the same architecture where possible.
+   - Priority: **Now.**
+
 ### 2026-08-08 · Test #2
 1. **Firmware log retention should be part of crash infrastructure, including probe/boot failures.**
    - Source: Nova task list: https://docs.kernel.org/gpu/nova/core/todo.html
