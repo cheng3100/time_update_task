@@ -1,0 +1,49 @@
+---
+layout: default
+---
+{% assign kmd = site.data.kmd_owner_direction %}
+{% assign owner = nil %}
+{% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
+{% assign resources = site.data.kmd_resources[page.owner_id] %}
+
+<nav class="nav-tabs">
+  <a href="{{ '/kmd_owner_direction/' | relative_url }}"><span class="lang zh">首页</span><span class="lang en">Home</span></a>
+  {% for item in kmd.owners %}
+  <a{% if item.id == page.owner_id %} class="active"{% endif %} href="{{ '/kmd_owner_direction/owners/' | append: item.id | append: '.html' | relative_url }}"><span class="lang zh">{{ item.tab_zh }}</span><span class="lang en">{{ item.tab_en }}</span></a>
+  {% endfor %}
+  <a href="{{ '/kmd_owner_direction/future.html' | relative_url }}"><span class="lang zh">公共未来 Topic</span><span class="lang en">Future Topic</span></a>
+</nav>
+
+{% if owner %}
+<section class="owner-card">
+  <h2>{{ owner.name }} <span class="badge">Stable</span></h2>
+  <p class="lang zh">{{ owner.summary_zh }}</p><p class="lang en">{{ owner.summary_en }}</p>
+  <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
+</section>
+
+<section class="owner-card">
+  <h2 class="lang zh">子方向与长期高价值资料</h2><h2 class="lang en">Sub-directions & Durable Learning Resources</h2>
+  <p class="task-meta"><span class="lang zh">资料按稳定子方向长期累积，不随单次业界新闻覆盖。每个条目指向对应的独立 Markdown 资料档案。</span><span class="lang en">Resources accumulate under stable sub-directions and are not overwritten by one-off news. Each item links to its dedicated Markdown archive.</span></p>
+  <ul class="resource-list">
+  {% for resource in resources %}
+    <li><strong>{{ resource.title }}</strong><br><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/resources/{{ page.owner_id }}/{{ resource.slug }}.md"><span class="lang zh">打开长期资料档案</span><span class="lang en">Open durable resource archive</span></a></li>
+  {% endfor %}
+  </ul>
+  <p><a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">查看全部长期资料索引</span><span class="lang en">Open full learning-resource index</span></a></p>
+</section>
+
+<section class="owner-card">
+  <h2 class="lang zh">本期业界最新动态</h2><h2 class="lang en">Industry Updates — This Run</h2>
+  {% for update in owner.updates %}
+  <article class="history-item">
+    <h3><a href="{{ update.url }}"><span class="lang zh">{{ update.title_zh }}</span><span class="lang en">{{ update.title_en }}</span></a></h3>
+    <p><strong><span class="lang zh">KMD 影响：</span><span class="lang en">KMD impact: </span></strong><span class="lang zh">{{ update.impact_zh }}</span><span class="lang en">{{ update.impact_en }}</span></p>
+    <p class="task-meta"><strong><span class="lang zh">优先级：</span><span class="lang en">Priority: </span></strong><span class="lang zh">{{ update.priority_zh }}</span><span class="lang en">{{ update.priority_en }}</span></p>
+  </article>
+  {% endfor %}
+</section>
+
+{% if page.owner_id == 'memory' %}
+<section class="owner-card"><h2 class="lang zh">Memory 专属纵深路线</h2><h2 class="lang en">Memory Depth Roadmap</h2><p><a href="{{ '/kmd_owner_direction/memory-roadmap.html' | relative_url }}"><span class="lang zh">切入 → 深化 → 拓展 → 演进详细路线</span><span class="lang en">Entry → Deepen → Expand → Evolve detailed roadmap</span></a></p></section>
+{% endif %}
+{% endif %}
