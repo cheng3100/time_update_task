@@ -1,25 +1,26 @@
 # Multi-GPU / P2P / Fabric
 
-## Summary (stable)
-Own the multi-device GPU model, topology/connectivity mechanisms and peer/fabric infrastructure. Memory residency and migration policy remain under the Memory owner; this domain owns device/topology/connectivity mechanisms.
+## Stable Summary
+Own the multi-device model, topology/connectivity mechanisms and peer/fabric infrastructure. Memory residency/migration policy stays with Memory.
 
-## Candidate sub-directions
-- multi-GPU enumeration and stable physical/logical GPU identity
-- logical index ↔ BDF/minor mapping
-- device visibility, allowed GPU masks and affinity
-- process/container/namespace/cgroup interaction
-- PCIe/NUMA/switch topology discovery and distance matrix
-- P2P capability discovery and capability matrix
-- peer BAR/VRAM mapping and peer page-table mappings
+## Living Sub-directions
+- multi-GPU enumeration and stable physical/logical identity
+- logical index↔BDF/minor mapping
+- device visibility, allowed masks and affinity
+- container/namespace/cgroup resource-control integration
+- PCIe/NUMA/switch topology and distance matrix
+- P2P capability discovery/matrix
+- peer BAR/VRAM mapping and peer PTE
 - P2P DMA and cross-GPU dma-buf
-- shared VA / multi-GPU VM mechanisms
-- topology-aware placement hooks
-- multi-GPU UVM integration with Memory owner
-- fabric/link discovery, health, reset and RAS
-- collective-aware groundwork
+- shared VA/multi-GPU VM
+- fabric/link health, reset and RAS
 
-## Current entry feature
-**Multi-GPU enumeration + topology + visibility/affinity + P2P capability matrix.**
+## Current Entry Feature
+Multi-GPU enumeration + topology + visibility/affinity + P2P capability matrix.
 
-## Living focus
-After the device/topology model is stable, advance to peer mapping/P2P DMA, then shared VM/fabric. Do not start with complex fabric scheduling.
+## Industry Updates
+### 2026-08-08
+- DRM GPU SVM public design explicitly includes multi-GPU and device-to-device fast interconnect as future work, indicating stronger coupling between shared VM/migration and topology/P2P mechanisms.
+- Follow-up: **Now** — establish a robust device/topology/P2P capability model before shared-VM work.
+
+> This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
