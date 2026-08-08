@@ -4,7 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
+      - '_config.yml'
+      - '_data/**'
+      - '_layouts/**'
+      - '_includes/**'
+      - 'assets/**'
+      - 'pages/**'
+      - 'index.md'
+      - 'kmd_owner_direction/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -18,7 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,10 +35,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload static site
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs
+          path: ./_site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
