@@ -26,7 +26,7 @@ layout: default
   <p class="task-meta"><span class="lang zh">资料按稳定子方向长期累积，不随单次业界新闻覆盖。每个条目指向对应的独立 Markdown 资料档案。</span><span class="lang en">Resources accumulate under stable sub-directions and are not overwritten by one-off news. Each item links to its dedicated Markdown archive.</span></p>
   <ul class="resource-list">
   {% for resource in resources %}
-    <li><strong>{{ resource.title }}</strong><br><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/resources/{{ page.owner_id }}/{{ resource.slug }}.md"><span class="lang zh">打开长期资料档案</span><span class="lang en">Open durable resource archive</span></a></li>
+    <li><strong>{{ resource.title }}</strong><br><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/resources/{{ page.owner_id }}/{{ resource.slug }}.resource.md"><span class="lang zh">打开长期资料档案</span><span class="lang en">Open durable resource archive</span></a></li>
   {% endfor %}
   </ul>
   <p><a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">查看全部长期资料索引</span><span class="lang en">Open full learning-resource index</span></a></p>
