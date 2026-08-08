@@ -1,0 +1,259 @@
+current_run: "2026-08-08 Test #3 · Resource Model R2"
+
+owners:
+  - id: memory
+    tab_zh: Memory
+    tab_en: Memory
+    name: GPU Memory / Virtual Memory / Unified Memory
+    summary_zh: 负责从 GPUVM、Linux MM 集成到 unified/heterogeneous memory 的完整内存架构，是 KMD Leader 的纵深主线。
+    summary_en: Own the full memory architecture from GPUVM and Linux MM integration to unified/heterogeneous memory; the KMD leader depth line.
+    entry_zh: Recoverable fault + HMM + migration + replay；第二阶段进入 migration granularity。
+    entry_en: Recoverable fault + HMM + migration + replay; stage two moves into migration granularity.
+    topics:
+      - GPUVM / Page Tables / VMID / PASID / TLB
+      - Recoverable GPU Page Fault / Fault Replay
+      - mmu_notifier / HMM / SVM / Device-private Memory
+      - CPU↔GPU Migration / Oversubscription / Eviction
+      - NUMA / Large & Compound Pages / Migration Granularity
+      - IOMMU / ATS / PRI / PASID / SVA
+      - dma-buf / P2P Memory
+      - Multi-GPU Unified Memory
+    updates:
+      - title_zh: GPU SVM / drm_pagemap 继续成为 shared-memory 公共层核心信号
+        title_en: GPU SVM / drm_pagemap remains the core common-layer signal
+        url: https://docs.kernel.org/gpu/rfc/gpusvm.html
+        impact_zh: 保持 Linux-MM-facing SVM 与 HW-specific GPUVM/fault 分层；mixed residency、multi-GPU、compound pages、higher-order DMA 都应可演进。
+        impact_en: Keep Linux-MM-facing SVM separate from HW-specific GPUVM/fault mechanisms; mixed residency, multi-GPU, compound pages and higher-order DMA should remain evolvable.
+        priority_zh: 现在
+        priority_en: Now
+      - title_zh: N:1 per-device state 对 multi-GPU 数据模型很关键
+        title_en: N:1 per-device state is important for multi-GPU data models
+        url: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+        impact_zh: 不要把 CPU range identity、device residency、DMA mapping、GPU PTE state 合成一个对象。
+        impact_en: Do not conflate CPU range identity, device residency, DMA mapping and GPU PTE state.
+        priority_zh: 架构兼容现在
+        priority_en: Design compatibility now
+  - id: virt
+    tab_zh: 虚拟化 / 安全
+    tab_en: Virt / Security
+    name: GPU Virtualization / Security
+    summary_zh: 负责 GPU 虚拟化、资源/租户隔离以及安全机制。
+    summary_en: Own GPU virtualization, resource/tenant isolation and security mechanisms.
+    entry_zh: ASIC 支持 SR-IOV 时做 PF/VF provisioning/isolation；否则先 capability assessment。
+    entry_en: When SR-IOV exists on the ASIC, do PF/VF provisioning/isolation; otherwise start with capability assessment.
+    topics:
+      - VFIO Passthrough / Ownership / IOMMU Isolation
+      - SR-IOV PF/VF Lifecycle
+      - GPU Resource Partition / VMID / Queue / Doorbell / Memory
+      - PF↔VF ABI / VF FLR / Reset / Accounting
+      - vGPU / Live Migration Groundwork
+      - Secure Boot / Measurement / Scrub / Attestation
+    updates:
+      - title_zh: Xe configfs 明确 SR-IOV max_vfs / PF mode 的 probe 前配置模型
+        title_en: Xe configfs documents pre-probe SR-IOV max_vfs / PF-mode configuration
+        url: https://docs.kernel.org/gpu/xe/xe_configfs.html
+        impact_zh: GPU SR-IOV 不只是 pci_enable_sriov()；PF mode、VF 数量、resource lifecycle 与 probe/bind 必须一起设计。
+        impact_en: GPU SR-IOV is more than pci_enable_sriov(); PF mode, VF count, resource lifecycle and probe/bind must be designed together.
+        priority_zh: ASIC 支持时参考
+        priority_en: Reference when supported
+      - title_zh: Nova 继续验证共享 lower control layer 服务 DRM 与 VFIO/vGPU
+        title_en: Nova continues to validate a shared lower control layer for DRM and VFIO/vGPU
+        url: https://docs.kernel.org/gpu/nova/index.html
+        impact_zh: 虚拟化应消费通用 resource/control service，而不是复制第二套 FW/reset 路径。
+        impact_en: Virtualization should consume common resource/control services rather than duplicate FW/reset paths.
+        priority_zh: 6–12 个月
+        priority_en: 6–12 months
+  - id: power
+    tab_zh: 功耗 / 性能
+    tab_en: Power / Perf
+    name: GPU Power / Performance
+    summary_zh: 负责 GPU measurement、DVFS、runtime PM、thermal 与 power budget。
+    summary_en: Own GPU measurement, DVFS, runtime PM, thermal and power budget.
+    entry_zh: busy/idle + reusable utilization telemetry → DVFS → runtime PM。
+    entry_en: busy/idle + reusable utilization telemetry → DVFS → runtime PM.
+    topics:
+      - Busy/Idle / Per-engine Utilization
+      - Runtime PM / Suspend-Resume / PCI D-states
+      - Clock / Power Gating / Idle Residency
+      - DVFS / OPP / Firmware PM Protocol
+      - Thermal Throttling / Power Cap
+      - Frequency Residency / Memory-bandwidth Telemetry
+    updates:
+      - title_zh: 本期无新的方向级变化
+        title_en: No new direction-level change this run
+        url: https://docs.kernel.org/gpu/xe/xe_pm.html
+        impact_zh: 继续 measurement/lifetime/constraint layer 优先；telemetry 同时供 DVFS 与 Profiling 使用。
+        impact_en: Keep measurement/lifetime/constraint layers first; telemetry should serve both DVFS and profiling.
+        priority_zh: 现在
+        priority_en: Now
+  - id: ras
+    tab_zh: 可靠性 / RAS
+    tab_en: Reliability / RAS
+    name: GPU Reliability / Recovery / RAS
+    summary_zh: 负责故障 detect → diagnose → contain → recover，并形成生产级 RAS。
+    summary_en: Own fault detect → diagnose → contain → recover, ultimately forming production-grade RAS.
+    entry_zh: Hang snapshot + devcoredump + FW log + reset reason + heartbeat/watchdog。
+    entry_en: Hang snapshot + devcoredump + FW logs + reset reason + heartbeat/watchdog.
+    topics:
+      - Heartbeat / Watchdog / Hang Detection
+      - Hang Snapshot / devcoredump / Reset Reason
+      - Job Abort / Queue Kill / Context Kill / Engine Reset
+      - Post-reset Restore / Replay
+      - Firmware Crash Recovery / FW Log Retention
+      - ECC / Bad-page Retirement / PCIe AER / Fault Injection
+    updates:
+      - title_zh: snapshot-before-reset 仍是硬约束
+        title_en: snapshot-before-reset remains the hard invariant
+        url: https://docs.kernel.org/gpu/xe/xe_devcoredump.html
+        impact_zh: 恢复动作前冻结证据；FW log 与 early probe/boot failure 应进入统一 crash object。
+        impact_en: Freeze evidence before recovery; include FW logs and early probe/boot failures in the same crash object.
+        priority_zh: 现在
+        priority_en: Now
+  - id: multi
+    tab_zh: Multi-GPU
+    tab_en: Multi-GPU
+    name: Multi-GPU / P2P / Fabric
+    summary_zh: 负责 multi-device model、topology/connectivity、P2P 与 fabric；page residency/migration policy 归 Memory。
+    summary_en: Own the multi-device model, topology/connectivity, P2P and fabric; page residency/migration policy belongs to Memory.
+    entry_zh: Enumeration + stable identity + topology + visibility/affinity + P2P capability matrix。
+    entry_en: Enumeration + stable identity + topology + visibility/affinity + P2P capability matrix.
+    topics:
+      - Multi-GPU Enumeration / Stable Identity
+      - Device Visibility / Affinity / Namespace / Cgroup
+      - PCIe / NUMA / Switch Topology
+      - P2P Capability / Peer BAR / Peer PTE
+      - P2P DMA / Cross-GPU dma-buf
+      - Shared VA / Multi-GPU VM / Fabric Health
+    updates:
+      - title_zh: GPU SVM N:1 per-device state 支持 topology-first 设计
+        title_en: GPU SVM N:1 per-device state supports a topology-first design
+        url: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+        impact_zh: CPU VA identity 与每个 GPU residency/mapping 分离；先 topology/P2P，再 shared VM。
+        impact_en: Separate CPU VA identity from each GPU residency/mapping; topology/P2P before shared VM.
+        priority_zh: 现在
+        priority_en: Now
+  - id: obs
+    tab_zh: 可观测性 / Profiling
+    tab_en: Observability / Profiling
+    name: GPU Observability / Profiling / Programmable Driver Infrastructure
+    summary_zh: 负责 software trace + hardware PMU + 跨层 timeline/attribution + programmable diagnostics。
+    summary_en: Own software trace + hardware PMU + cross-layer timeline/attribution + programmable diagnostics.
+    entry_zh: Stable event/object identity + eBPF KMD tracing；HW PMU 成熟后加入同一 timeline。
+    entry_en: Stable event/object identity + eBPF KMD tracing; join HW PMU into the same timeline when mature.
+    topics:
+      - Stable KMD Tracepoint / Event Model
+      - BTF / CO-RE / eBPF Dynamic Tracing
+      - PID / PASID / VM / Context / Queue / Job Correlation
+      - UMD→KMD→FW→GPU Unified Timeline
+      - GPU PMU / Counter Discovery / Sampling / Multiplexing
+      - perf_event / Dynamic Diagnostics / Programmable Hooks
+    updates:
+      - title_zh: 统一 trace + PMU 数据模型仍是主线
+        title_en: A unified trace + PMU data model remains the main line
+        url: https://arxiv.org/abs/2601.20755
+        impact_zh: 先统一 timestamp/object identity，再接 PMU 与 crash snapshot。
+        impact_en: Unify timestamp/object identity first, then join PMU and crash snapshots.
+        priority_zh: Trace 现在；PMU 6–12 个月
+        priority_en: Trace now; PMU 6–12 months
+  - id: fw
+    tab_zh: Firmware / Control Plane
+    tab_en: Firmware / Control Plane
+    name: GPU Firmware / Control Plane Architecture
+    summary_zh: 负责 KMD↔GPU system firmware 的 protocol、lifecycle、capability、resource ownership 与 state reconciliation。
+    summary_en: Own KMD↔GPU system-firmware protocol, lifecycle, capability, resource ownership and state reconciliation.
+    entry_zh: Versioned async protocol + capability negotiation + restart generation/state reconciliation。
+    entry_en: Versioned async protocol + capability negotiation + restart generation/state reconciliation.
+    topics:
+      - Versioned Firmware ABI / Command & Event Namespace
+      - Shared-memory / Ring / Mailbox Transport
+      - Sequence ID / Async Completion / Timeout / Error
+      - Capability Negotiation / Forward-Backward Compatibility
+      - Boot / Restart / Upgrade / Rollback Lifecycle
+      - Resource Ownership / State Reconciliation
+      - FW-centric Init / PM / Reset / HW Scheduler Services
+      - FW Health / Logs / Authentication / Measurement
+    updates:
+      - title_zh: Nova guidelines 把 firmware-version-independent API 明确成架构规则
+        title_en: Nova guidelines make firmware-version-independent APIs an explicit architecture rule
+        url: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
+        impact_zh: 二级 driver 不应看到 FW-version-specific 结构/语义；version translation/capability 应位于稳定 service API 以下。
+        impact_en: Second-level drivers should not see FW-version-specific structures/semantics; keep version translation/capability below stable service APIs.
+        priority_zh: 现在
+        priority_en: Now
+
+history:
+  - id: test-3-r2
+    date: "2026-08-08"
+    title_zh: Test #3 · Resource Model R2
+    title_en: Test #3 · Resource Model R2
+    latest: true
+    summary_zh:
+      - 长期资料改为每个稳定子方向一个独立 Markdown 文档 + Pages URL。
+      - 技术 Owner 结论保持 Test #3，不因资料模型调整而变化。
+      - Industry Updates 继续按一级 Owner 刷新。
+    summary_en:
+      - Durable resources now use one Markdown document + Pages URL per stable sub-direction.
+      - Technical Owner conclusions remain unchanged from Test #3.
+      - Industry Updates continue to refresh at top-level Owner scope.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3-r2.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3-r2.md
+  - id: test-3
+    date: "2026-08-08"
+    title_zh: Test #3
+    title_en: Test #3
+    summary_zh:
+      - 固化完整聊天报告 + GitHub 归档规则。
+      - 深挖 Stable GPU Event/Object Identity。
+      - Memory 聚焦 N:1 GPU SVM 表示与 per-device state。
+    summary_en:
+      - Formalized complete chat report + GitHub archive rules.
+      - Deep dive: Stable GPU Event/Object Identity.
+      - Memory focuses on N:1 GPU SVM representation and per-device state.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-3.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-3.md
+  - id: test-2
+    date: "2026-08-08"
+    title_zh: Test #2
+    title_en: Test #2
+    summary_zh:
+      - Migration granularity 提升为 Memory 第二阶段架构项。
+      - 7 个 Owner 均补充结构化 Industry Updates。
+      - Firmware/RAS/Multi-GPU/Observability 优先级进一步明确。
+    summary_en:
+      - Migration granularity promoted to a Memory stage-two architecture item.
+      - Structured Industry Updates added for all seven Owners.
+      - Firmware/RAS/Multi-GPU/Observability priorities clarified.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-2.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-2.md
+  - id: test-1
+    date: "2026-08-08"
+    title_zh: Test #1
+    title_en: Test #1
+    summary_zh:
+      - 建立 7 个一级 Owner + 1 个公共未来 Topic。
+      - Memory 当前入口确定为 recoverable fault + HMM + migration + replay。
+      - Firmware Control Plane 被提升为长期独立 Owner。
+    summary_en:
+      - Established seven top-level Owners + one public future topic.
+      - Memory entry fixed as recoverable fault + HMM + migration + replay.
+      - Firmware Control Plane promoted to a long-term independent Owner.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-1.md
+
+memory_stages:
+  - title_zh: 1 · 切入
+    title_en: 1 · Entry
+    body_zh: Recoverable fault → PASID/VM/context → mm_struct/HMM → migration → GPU PTE → TLB invalidate → replay。目标是单 GPU 完整 correctness 闭环。
+    body_en: Recoverable fault → PASID/VM/context → mm_struct/HMM → migration → GPU PTE → TLB invalidate → replay. Build a complete single-GPU correctness loop.
+  - title_zh: 2 · 深化
+    title_en: 2 · Deepen
+    body_zh: GPUVM lifetime + migration granularity + large/compound pages + oversubscription/eviction/reclaim。4K correctness 后进入 batched/64K/2M。
+    body_en: GPUVM lifetime + migration granularity + large/compound pages + oversubscription/eviction/reclaim. Move from 4K correctness to batched/64K/2M.
+  - title_zh: 3 · 拓展
+    title_en: 3 · Expand
+    body_zh: SVA/IOMMU/ATS/PRI + NUMA + dma-buf/P2P memory。形成 CPU VA、GPUVM、IOMMU 与 peer memory 的统一 ownership 边界。
+    body_en: SVA/IOMMU/ATS/PRI + NUMA + dma-buf/P2P memory. Unify ownership boundaries across CPU VA, GPUVM, IOMMU and peer memory.
+  - title_zh: 4 · 演进
+    title_en: 4 · Evolve
+    body_zh: Multi-GPU UVM + tiered/CXL memory + preferred-location/access-counter/migration/QoS policy，最终成为 heterogeneous-memory architecture owner。
+    body_en: Multi-GPU UVM + tiered/CXL memory + preferred-location/access-counter/migration/QoS policy, evolving into heterogeneous-memory architecture ownership.
