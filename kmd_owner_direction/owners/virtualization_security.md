@@ -1,21 +1,24 @@
 # GPU Virtualization / Security
 
-## Summary (stable)
-Own GPU virtualization, tenant/resource isolation and the security mechanisms that make multi-tenant GPU use safe. Security may split into a separate owner only after the domain grows.
+## Stable Summary
+Own GPU virtualization, tenant/resource isolation and security mechanisms for safe multi-tenant GPU use.
 
-## Candidate sub-directions
-- VFIO passthrough, device ownership switching, reset semantics, BAR/MSI/IOMMU isolation
-- SR-IOV PF/VF bring-up and lifecycle
-- VF resource provisioning: VMID, queue, doorbell, interrupt, memory aperture
-- PF↔VF mailbox/ABI, VF FLR/reset, per-VF accounting and isolation
+## Living Sub-directions
+- VFIO passthrough, ownership switching, reset/BAR/MSI/IOMMU isolation
+- SR-IOV PF/VF lifecycle and resource provisioning
+- VMID/queue/doorbell/interrupt/memory partition
+- PF↔VF ABI, VF FLR/reset, per-VF accounting/isolation
 - vGPU/resource partition, tenant quota, virtual interrupts
-- live-migration groundwork and state save/restore
-- firmware secure boot/measurement
-- memory scrub, secure reset, command/uAPI hardening
-- attestation and confidential GPU
+- live-migration groundwork
+- secure boot/measurement, memory scrub, secure reset
+- attestation/confidential GPU
 
-## Current entry feature
-If the ASIC exposes SR-IOV: **PF/VF bring-up + VF resource provisioning/isolation**. Otherwise: **VFIO passthrough/reset/ownership assessment** as a preparatory feature, not automatically a full long-term owner workload.
+## Current Entry Feature
+SR-IOV PF/VF bring-up + provisioning/isolation when ASIC capability exists; otherwise VFIO/reset/ownership assessment.
 
-## Living focus
-Re-evaluate whenever hardware virtualization capabilities, confidential-computing requirements, or upstream VFIO/SR-IOV GPU mechanisms change.
+## Industry Updates
+### 2026-08-08
+- Nova-style Linux architectures are moving toward hardware/firmware abstraction layers that can serve both DRM and VFIO/vGPU managers, increasing the control-plane/virtualization intersection.
+- Follow-up: **6–12 months** — first verify ASIC SR-IOV/resource-partition capability before committing to a full virtualization roadmap.
+
+> This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
