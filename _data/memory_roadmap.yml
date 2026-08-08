@@ -1,0 +1,64 @@
+stages:
+  - title_zh: "阶段 1 · 切入：Recoverable GPU Fault + HMM + Migration + Replay"
+    title_en: "Stage 1 · Entry: Recoverable GPU Fault + HMM + Migration + Replay"
+    goal_zh: "建立一条完整可恢复 shared-memory fault 路径，而不是零散 memory helper。"
+    goal_en: "Build one complete recoverable shared-memory fault path rather than isolated memory helpers."
+    items:
+      - GPU fault packet / recoverable vs unrecoverable classification
+      - PASID / VM / context / process lifetime and lookup
+      - mm_struct / mmu_notifier / HMM / CPU PTE state
+      - CPU↔VRAM migration and copy-engine interaction
+      - GPU PTE update / TLB invalidation ordering / replay
+      - duplicate/concurrent fault, teardown, reset and failure rollback
+    deliverable_zh: "3–6 个月：完成一个可调试的单 GPU pageable-memory fault → resolve → migrate/map → replay 闭环，并具备稳定 tracepoint、lifetime 与错误回滚。"
+    deliverable_en: "3–6 months: complete a debuggable single-GPU pageable-memory fault → resolve → migrate/map → replay loop with stable tracepoints, lifetime rules and rollback."
+    capability_zh: "形成跨 Linux MM、GPUVM、FW fault delivery、DMA/migration 与 GPU MMU 的端到端问题分析能力。"
+    capability_en: "Gain end-to-end ownership across Linux MM, GPUVM, firmware fault delivery, DMA/migration and the GPU MMU."
+  - title_zh: "阶段 2 · 深化：GPUVM + Migration Granularity + Oversubscription"
+    title_en: "Stage 2 · Deepen: GPUVM + Migration Granularity + Oversubscription"
+    goal_zh: "把第一条可工作的 fault/migration 路径升级为可扩展 memory subsystem。"
+    goal_en: "Turn the first working fault/migration path into a scalable memory subsystem."
+    items:
+      - GPU VA lifecycle / VMID / PASID / sparse mapping / mixed page sizes
+      - page-table hierarchy / protection / VM_BIND compatibility
+      - TLB invalidate granularity and batching
+      - "CPU base page ≠ migration unit ≠ DMA mapping unit ≠ GPU PTE unit ≠ TLB unit"
+      - "4K correctness → batched 4K → 64K/HW-native → 2M/compound/higher-order DMA"
+      - VRAM pressure accounting / eviction / reclaim / oversubscription / working-set protection
+    deliverable_zh: "6–18 个月：支持在压力下反复 fault/migrate/evict/repopulate，并为 large/compound migration 保留清晰的架构抽象。"
+    deliverable_en: "6–18 months: sustain repeated fault/migrate/evict/repopulate cycles under pressure while preserving clean abstractions for large/compound migration."
+    capability_zh: "从 shared-VA enablement 扩展为 memory correctness、scalability 与 pressure behavior 的 Owner。"
+    capability_en: "Expand from shared-VA enablement into ownership of memory correctness, scalability and pressure behavior."
+  - title_zh: "阶段 3 · 拓展：SVA/IOMMU + NUMA + Cross-device Memory"
+    title_en: "Stage 3 · Expand: SVA/IOMMU + NUMA + Cross-device Memory"
+    goal_zh: "从 GPU 本地 MMU 扩展到 CPU + GPU + IOMMU 的系统地址空间和 placement topology。"
+    goal_en: "Expand from the GPU-local MMU to the system address space and placement topology across CPU + GPU + IOMMU."
+    items:
+      - PASID / SVA / ATS / PRI / device-TLB invalidation
+      - IOMMU page table vs GPU page table ownership
+      - NUMA-aware host allocation and topology-aware migration
+      - dma-buf export/import / attachment / map-unmap lifetime
+      - peer-visible memory and cross-device invalidation
+      - "Boundary: Multi-GPU owns topology/connectivity/peer transport; Memory owns residency/lifetime/migration/shared-VM policy"
+    deliverable_zh: "1–2 年：形成 CPU VA、GPUVM、IOMMU/SVA 与 peer-visible memory 之间清晰的 ownership、translation 与 placement 架构。"
+    deliverable_en: "1–2 years: establish clear ownership, translation and placement architecture across CPU VA, GPUVM, IOMMU/SVA and peer-visible memory."
+    capability_zh: "成为 CPU/GPU/IOMMU 跨域 address translation 与 residency 的系统级 Owner。"
+    capability_en: "Become the system-level owner of address translation and residency across CPU/GPU/IOMMU domains."
+  - title_zh: "阶段 4 · 演进：Multi-GPU UVM + Tiered/CXL + Policy"
+    title_en: "Stage 4 · Evolve: Multi-GPU UVM + Tiered/CXL + Policy"
+    goal_zh: "从机制 Owner 演进为 heterogeneous-memory architecture Owner。"
+    goal_en: "Evolve from mechanism owner into a heterogeneous-memory architecture owner."
+    items:
+      - one CPU VA visible to multiple GPUs / per-GPU residency metadata
+      - GPU↔GPU migration / replication / preferred GPU / access affinity
+      - shared VA / shared VM / concurrent multi-GPU faults
+      - CPU DRAM / local VRAM / peer VRAM / CXL or pooled-memory tiers
+      - hot/cold placement / access counters / migration threshold / replication policy
+      - memory QoS / tenant accounting / future programmable policy hooks
+    deliverable_zh: "2–5 年：掌握 unified heterogeneous memory 在 CPU、多个 GPU 与未来 memory tier 之间的完整架构与策略边界。"
+    deliverable_en: "2–5 years: own unified heterogeneous-memory architecture and policy boundaries across CPU, multiple GPUs and future memory tiers."
+    capability_zh: "最终角色：GPU Memory / UVM / Heterogeneous Memory Architecture Owner。"
+    capability_en: "Final role: GPU Memory / UVM / Heterogeneous Memory Architecture Owner."
+principle_zh: "推进原则：mechanism before policy；lifetime/correctness before optimization；single-GPU closure before multi-GPU policy。"
+principle_en: "Progression principle: mechanism before policy; lifetime/correctness before optimization; single-GPU closure before multi-GPU policy."
+sequence: "GPUVM → mmu_notifier/HMM → recoverable fault → migration/replay → migration granularity → eviction/oversubscription → IOMMU/SVA → NUMA/P2P memory → multi-GPU UVM → tiered/CXL → policy/QoS"
