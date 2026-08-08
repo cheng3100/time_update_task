@@ -45,11 +45,15 @@ back_en: All tasks
   <h2 class="lang zh">历次更新摘要</h2><h2 class="lang en">Update History</h2>
   <p class="task-meta"><span class="lang zh">按时间从新到旧。当前：{{ kmd.current_run }}</span><span class="lang en">Newest first. Current: {{ kmd.current_run }}</span></p>
   {% for run in kmd.history %}
+  {% assign raw_name = run.raw | split: '/' | last | replace: '.raw.md', '.html' %}
+  {% assign curated_name = run.curated | split: '/' | last | replace: '.update.md', '.html' %}
+  {% capture raw_page %}/kmd_owner_direction/raw_updates/{{ raw_name }}{% endcapture %}
+  {% capture curated_page %}/kmd_owner_direction/updates/{{ curated_name }}{% endcapture %}
   <article class="history-item{% if run.latest %} latest{% endif %}">
     <h3>{{ run.date }} · <span class="lang zh">{{ run.title_zh }}</span><span class="lang en">{{ run.title_en }}</span>{% if run.latest %} <span class="badge"><span class="lang zh">最新</span><span class="lang en">Latest</span></span>{% endif %}</h3>
     <ul class="lang zh">{% for item in run.summary_zh %}<li>{{ item }}</li>{% endfor %}</ul>
     <ul class="lang en">{% for item in run.summary_en %}<li>{{ item }}</li>{% endfor %}</ul>
-    <div class="history-links"><a href="{{ run.curated }}"><span class="lang zh">结构化更新</span><span class="lang en">Curated update</span></a><a href="{{ run.raw }}"><span class="lang zh">原始输出</span><span class="lang en">Raw output</span></a></div>
+    <div class="history-links"><a href="{{ curated_page | relative_url }}"><span class="lang zh">结构化更新</span><span class="lang en">Curated update</span></a><a href="{{ raw_page | relative_url }}"><span class="lang zh">原始输出</span><span class="lang en">Raw output</span></a></div>
   </article>
   {% endfor %}
 </section>
