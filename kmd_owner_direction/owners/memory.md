@@ -1,21 +1,24 @@
 # GPU Memory / Virtual Memory / Unified Memory
 
-## Summary (stable)
-Own GPU memory architecture from GPUVM through Linux MM integration and unified/heterogeneous memory. This is the KMD leader's fixed depth direction.
+## Stable Summary
+Own GPU memory architecture from GPUVM through Linux MM integration and unified/heterogeneous memory. This is the KMD leader depth line.
 
-## Candidate sub-directions
-- GPUVM/page tables, VMID/PASID, TLB invalidation, sparse/large pages
-- recoverable GPU page fault and fault replay
-- mmu_notifier, HMM, SVM, device-private memory
-- CPU↔GPU migration, eviction and VRAM oversubscription
-- NUMA placement and compound/large device pages
-- IOMMU, ATS, PRI, PASID, SVA
-- dma-buf/P2P memory integration
-- multi-GPU unified memory and GPU↔GPU migration policy
+## Living Sub-directions
+- GPUVM/page tables, VMID/PASID, TLB, sparse/large pages
+- recoverable GPU page fault and replay
+- mmu_notifier, HMM/SVM, device-private memory
+- CPU↔GPU migration, oversubscription and eviction
+- NUMA and compound/large device pages
+- IOMMU/ATS/PRI/PASID/SVA
+- dma-buf/P2P memory and multi-GPU unified memory
 - heterogeneous/tiered/CXL memory and memory QoS
 
-## Current entry feature
-**Recoverable GPU fault + HMM + CPU/GPU migration + replay.**
+## Current Entry Feature
+Recoverable GPU fault + HMM + CPU/GPU migration + replay.
 
-## Living focus
-Track Linux DRM GPU SVM/drm_pagemap evolution, migration granularity, compound device pages, oversubscription and multi-GPU memory semantics.
+## Industry Updates
+### 2026-08-08
+- Linux DRM GPU SVM / drm_pagemap is pushing common abstractions for system RAM ↔ device memory migration, device-private pages, and future multi-GPU/compound-page support.
+- Follow-up: **Now** — keep HMM/migration architecture compatible with emerging common abstractions.
+
+> This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
