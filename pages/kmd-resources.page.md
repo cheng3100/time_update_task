@@ -19,7 +19,7 @@ back_en: GPU KMD Owner Direction
   {% assign resources = resource_map[owner.id] %}
   <ul class="resource-list">
   {% for resource in resources %}
-    <li><strong>{{ resource.title }}</strong><br><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/resources/{{ owner.id }}/{{ resource.slug }}.md"><span class="lang zh">独立长期资料档案 →</span><span class="lang en">Dedicated durable resource archive →</span></a></li>
+    <li><strong>{{ resource.title }}</strong><br><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/resources/{{ owner.id }}/{{ resource.slug }}.resource.md"><span class="lang zh">独立长期资料档案 →</span><span class="lang en">Dedicated durable resource archive →</span></a></li>
   {% endfor %}
   </ul>
 </section>
