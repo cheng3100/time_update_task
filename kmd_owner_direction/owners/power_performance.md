@@ -20,23 +20,24 @@ GPU busy/idle + utilization accounting → basic DVFS/runtime PM.
 Reliable busy/idle accounting → per-engine utilization → frequency/residency telemetry → basic firmware-controlled DVFS → runtime PM → thermal/power-cap policy.
 
 ## Industry Updates
-### 2026-08-08
+### 2026-08-08 · Test #2
+1. **Keep PM telemetry reusable by both policy and profiling.**
+   - Source: AMD uProf 5.3 GPU Profiling (2026-06-17): https://docs.amd.com/r/en-US/57368-uProf-user-guide/7.13.1.-GPU-Profiling
+   - Change: production profiling stacks consume GPU hardware events and derived metrics through ROCm/rocprofiler.
+   - KMD impact: utilization/performance counters should not be hard-wired only into DVFS; expose a clean counter/telemetry layer reusable by Observability/Profiling.
+   - Priority: **6–12 months if PMU counters exist.**
 
-1. **Intel Xe keeps runtime PM integrated with PCI D-states and VRAM constraints.**
-   - Source: Linux Xe Runtime Power Management: https://www.kernel.org/doc/html/latest/gpu/xe/xe_pm.html
-   - Change: Xe models system suspend and opportunistic D3hot/D3cold runtime suspend, and can gate D3cold based on runtime conditions such as VRAM usage. The docs also emphasize taking PM references at outer call paths such as ioctl, dma-buf and GPU execution.
-   - KMD impact: PM is not just clock programming; it needs clear lifetime/refcount boundaries around MM, execution and PCI state transitions.
-   - Priority: **Now** for architecture, after utilization accounting is trustworthy.
+2. **Firmware-managed actuation remains the safer architecture boundary.**
+   - Sources: Linux Xe firmware/GT-frequency docs and Nova architecture.
+   - KMD impact: host KMD should own measurement, constraints and policy contract while FW/HW can own low-level actuation where appropriate.
+   - Priority: **Now for interface design.**
 
-2. **Firmware-managed frequency policy remains a mainstream GPU architecture.**
-   - Source: Xe GuC firmware / GT frequency documentation: https://www.kernel.org/doc/html/next/gpu/xe/xe_firmware.html and https://www.kernel.org/doc/html/latest/gpu/xe/xe_gt_freq.html
-   - Change: GuC SLPC handles connected power-conservation features while PCODE remains the final frequency decision maker; host KMD exposes min/max and telemetry instead of implementing every control loop itself.
-   - KMD impact: define a clean KMD↔FW PM protocol and keep policy ownership explicit; this also intersects the Firmware/Control Plane owner.
+### 2026-08-08 · Test #1
+1. **Intel Xe integrates runtime PM with PCI D-states and VRAM constraints.**
+   - Priority: **Now** for architecture.
+2. **Firmware-managed frequency policy remains mainstream.**
    - Priority: **6–12 months** if FW frequency control is available.
-
 3. **Do not start with a complex governor.**
-   - Industry implication: upstream designs reinforce a layered sequence: measurement first, then bounded host policy, then firmware/hardware actuation.
-   - KMD impact: first deliver reproducible busy/idle/utilization and frequency residency metrics so DVFS decisions can be validated.
-   - Priority: **Now**.
+   - Priority: **Now** — measurement first.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
