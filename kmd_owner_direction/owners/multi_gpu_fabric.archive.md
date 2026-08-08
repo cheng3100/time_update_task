@@ -22,6 +22,17 @@ Multi-GPU enumeration + topology + visibility/affinity + P2P capability matrix.
 Stable device identity → topology graph → process-visible GPU set/affinity → P2P capability matrix → peer mapping → P2P DMA → shared VM → multi-GPU UVM/fabric.
 
 ## Industry Updates
+### 2026-08-08 · Test #4
+1. **`fabric_ext` elevates movement, ordering and ownership into explicit fabric semantics.**
+   - Source: https://arxiv.org/abs/2607.26335 (2026-07-28)
+   - KMD impact: long-term Fabric interfaces may need movement/ownership/ordering/link-health metadata, not only a boolean peer-copy capability.
+   - Priority: **Long-term watch; do not productize programmable policy now.**
+
+2. **GPU SVM N:1 per-device mapping state reinforces topology-first / shared-VA-later sequencing.**
+   - Source: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+   - KMD impact: Multi-GPU owns identity/topology/peer capability; Memory can then layer per-device residency/migration/shared-VA semantics on top.
+   - Priority: **Design compatibility now.**
+
 ### 2026-08-08 · Test #2
 1. **`fabric_ext` strengthens the case for treating movement/ownership telemetry as part of future Fabric architecture.**
    - Source: https://arxiv.org/abs/2607.26335 (2026-07-28)
