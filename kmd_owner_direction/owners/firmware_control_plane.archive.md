@@ -25,6 +25,23 @@ Deliver protocol version, capability query, command/event IDs, sequence number, 
 Versioned message contract → capability negotiation → async request/completion → timeout/error semantics → FW generation/restart detection → re-handshake → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-08-08 · Test #4
+1. **Nova continues to make firmware-version-independent lower APIs an explicit architectural invariant.**
+   - Source: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
+   - KMD impact: second-level DRM/VFIO clients should never see firmware-version-specific structures or semantics; centralize translation/capability below a stable service API.
+   - Priority: **Now.**
+
+2. **Initial NVK→Nova backend work is an early signal that upper clients are beginning to wire against nova-drm while the KMD/uAPI remains young.**
+   - Secondary mirror of draft Mesa MR description: https://www.reddit.com/r/linux_gaming/comments/1vbighb/draft_nvk_add_initial_support_for_nova_driver/
+   - Change: the initial backend is limited to physical-device enumeration and basic VRAM properties, so this is not evidence of a frozen ABI.
+   - KMD impact: stable lower contracts, explicit capabilities and version isolation become more valuable when upper clients and KMD evolve in parallel.
+   - Priority: **Architecture watch; do not bind to early uAPI details.**
+
+3. **A current source walkthrough makes Nova's two-layer control architecture easier to study.**
+   - Source: https://hectorzelaya.dev/posts/nova-driver/part1-architecture-initialization-hardware-discovery/ (2026-06-27)
+   - KMD impact: useful durable implementation reference for nova-core/nova-drm separation, GSP-centric control and resource lifetime; not a substitute for upstream docs.
+   - Priority: **Learning/reference now.**
+
 ### 2026-08-08 · Test #2
 1. **Firmware-version isolation should be an explicit architectural invariant.**
    - Source: Nova task list: https://docs.kernel.org/gpu/nova/core/todo.html
@@ -39,7 +56,6 @@ Versioned message contract → capability negotiation → async request/completi
 
 3. **`nova-core` continues to validate a reusable lower control layer for DRM and VFIO/vGPU clients.**
    - Source: https://docs.kernel.org/gpu/nova/index.html
-   - KMD impact: keep resource ownership and FW lifecycle beneath client/uAPI layers so future virtualization or alternate upper drivers reuse the same control plane.
    - Priority: **Now for architecture.**
 
 ### 2026-08-08 · Test #1
