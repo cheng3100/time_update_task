@@ -1,0 +1,53 @@
+memory:
+  - {title: "GPUVM / Page Tables / VMID / PASID / TLB", slug: gpuvm}
+  - {title: "Recoverable GPU Page Fault / Fault Replay", slug: fault-replay}
+  - {title: "mmu_notifier / HMM / SVM / Device-private Memory", slug: hmm-svm}
+  - {title: "CPU↔GPU Migration / Oversubscription / Eviction", slug: migration}
+  - {title: "NUMA / Large & Compound Pages / Migration Granularity", slug: large-pages}
+  - {title: "IOMMU / ATS / PRI / PASID / SVA", slug: iommu-sva}
+  - {title: "dma-buf / P2P Memory", slug: dmabuf-p2p}
+  - {title: "Multi-GPU Unified Memory", slug: multigpu-uvm}
+virt:
+  - {title: "VFIO Passthrough / Ownership / IOMMU Isolation", slug: vfio}
+  - {title: "SR-IOV PF/VF Lifecycle", slug: sriov}
+  - {title: "GPU Resource Partition / VMID / Queue / Doorbell / Memory", slug: resource-partition}
+  - {title: "PF↔VF ABI / VF FLR / Reset / Accounting", slug: pfvf-reset}
+  - {title: "vGPU / Live Migration Groundwork", slug: vgpu-live}
+  - {title: "Secure Boot / Measurement / Scrub / Attestation", slug: security}
+power:
+  - {title: "Busy/Idle / Per-engine Utilization", slug: utilization}
+  - {title: "Runtime PM / Suspend-Resume / PCI D-states", slug: runtime-pm}
+  - {title: "Clock / Power Gating / Idle Residency", slug: clock-gating}
+  - {title: "DVFS / OPP / Firmware PM Protocol", slug: dvfs}
+  - {title: "Thermal Throttling / Power Cap", slug: thermal}
+  - {title: "Frequency Residency / Memory-bandwidth Telemetry", slug: telemetry}
+ras:
+  - {title: "Heartbeat / Watchdog / Hang Detection", slug: heartbeat}
+  - {title: "Hang Snapshot / devcoredump / Reset Reason", slug: snapshot}
+  - {title: "Job Abort / Queue Kill / Context Kill / Engine Reset", slug: recovery}
+  - {title: "Post-reset Restore / Replay", slug: restore}
+  - {title: "Firmware Crash Recovery / FW Log Retention", slug: fw-crash}
+  - {title: "ECC / Bad-page Retirement / PCIe AER / Fault Injection", slug: ecc-aer}
+multi:
+  - {title: "Multi-GPU Enumeration / Stable Identity", slug: identity}
+  - {title: "Device Visibility / Affinity / Namespace / Cgroup", slug: visibility}
+  - {title: "PCIe / NUMA / Switch Topology", slug: topology}
+  - {title: "P2P Capability / Peer BAR / Peer PTE", slug: p2p}
+  - {title: "P2P DMA / Cross-GPU dma-buf", slug: p2p-dma}
+  - {title: "Shared VA / Multi-GPU VM / Fabric Health", slug: shared-vm}
+obs:
+  - {title: "Stable KMD Tracepoint / Event Model", slug: tracepoints}
+  - {title: "BTF / CO-RE / eBPF Dynamic Tracing", slug: ebpf}
+  - {title: "PID / PASID / VM / Context / Queue / Job Correlation", slug: correlation}
+  - {title: "UMD→KMD→FW→GPU Unified Timeline", slug: timeline}
+  - {title: "GPU PMU / Counter Discovery / Sampling / Multiplexing", slug: pmu}
+  - {title: "perf_event / Dynamic Diagnostics / Programmable Hooks", slug: perf-policy}
+fw:
+  - {title: "Versioned Firmware ABI / Command & Event Namespace", slug: abi}
+  - {title: "Shared-memory / Ring / Mailbox Transport", slug: transport}
+  - {title: "Sequence ID / Async Completion / Timeout / Error", slug: async}
+  - {title: "Capability Negotiation / Forward-Backward Compatibility", slug: capability}
+  - {title: "Boot / Restart / Upgrade / Rollback Lifecycle", slug: lifecycle}
+  - {title: "Resource Ownership / State Reconciliation", slug: ownership}
+  - {title: "FW-centric Init / PM / Reset / HW Scheduler Services", slug: services}
+  - {title: "FW Health / Logs / Authentication / Measurement", slug: health-security}
