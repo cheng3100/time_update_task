@@ -1,22 +1,24 @@
 # GPU Reliability / Recovery / RAS
 
-## Summary (stable)
-Own detection, diagnosis, containment and recovery of GPU faults, plus production RAS mechanisms. The goal is progressively finer recovery rather than always resetting the whole device.
+## Stable Summary
+Own detection, diagnosis, containment and recovery of GPU faults plus production RAS, with progressively finer recovery granularity.
 
-## Candidate sub-directions
-- firmware/GPU heartbeat and watchdog
-- job/queue/engine/firmware hang detection
-- hang snapshot: registers, rings, queues, contexts, VM/PTE and firmware state
-- devcoredump and structured crash reports
-- persistent reset reason and fault attribution
+## Living Sub-directions
+- heartbeat/watchdog and hang detection
+- register/ring/queue/context/VM/FW hang snapshots
+- devcoredump, structured crash report, reset reason
 - job abort, queue/context kill, engine/partial/full reset
-- post-reset state restore and job replay
+- post-reset restore and job replay
 - firmware crash recovery coordination
-- ECC CE/UE, poison, bad-page retirement/remapping
-- PCIe AER, error counters and fault injection
+- ECC CE/UE, bad-page retirement/remap, PCIe AER
+- fault injection and per-context fault attribution
 
-## Current entry feature
-**Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.**
+## Current Entry Feature
+Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
 
-## Living focus
-Evolve from global reset toward context/queue/engine-level fault containment and recovery, while keeping boundaries clear with Firmware Control Plane.
+## Industry Updates
+### 2026-08-08
+- Intel Xe uses devcoredump to capture hang state before reset, while AMD RAS demonstrates production block-level CE/UE, bad-page and fault-injection models.
+- Follow-up: **Now** — build snapshot/devcoredump first, then evolve toward fine-grained recovery.
+
+> This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
