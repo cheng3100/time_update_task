@@ -20,24 +20,33 @@ Recoverable GPU fault + HMM + CPU/GPU migration + replay.
 Recoverable fault → PASID/VM lookup → HMM/CPU PTE resolution → CPU↔VRAM migration → GPU PTE update → TLB invalidate → fault replay.
 
 ## Industry Updates
-### 2026-08-08
+### 2026-08-08 · Test #2
+1. **Migration granularity is promoted to an explicit second-stage architecture item.**
+   - Source: Linux DRM GPU SVM RFC / `drm_pagemap`: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
+   - Change: the current roadmap explicitly includes compound device pages and higher-order DMA mapping for migration; NVIDIA/AMD/Intel are recorded as agreeing that migrate-device core-MM calls are a performance bottleneck.
+   - KMD impact: do not encode 4 KiB as the lifetime/ownership unit. Separate CPU base-page size, migration unit, DMA mapping unit and GPU PTE unit.
+   - Priority: **Architecture now; prototype 64K/2M or batched migration in 6–12 months.**
 
+2. **Multi-GPU and mixed system/device residency remain active common-SVM targets.**
+   - Source: same GPU SVM RFC.
+   - KMD impact: keep fault/migration metadata capable of representing mixed residency and future per-device residency without rewriting the single-GPU fault path.
+   - Priority: **6–12 months / longer-term depending on multi-GPU hardware.**
+
+3. **Driver-side migration policy remains open above common mechanisms.**
+   - KMD impact: preserve mechanism/policy separation for future eviction, NUMA, preferred-location and workload-hint policies.
+   - Priority: **Boundary now; policy later.**
+
+### 2026-08-08 · Test #1
 1. **Linux DRM GPU SVM is converging on a common shared-memory layer.**
-   - Source: Linux kernel GPU SVM RFC / `drm_pagemap`: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
-   - Change: the common design covers notifiers/ranges, system↔device migration and device-private memory, and explicitly lists concurrent GPU faults, mixed system/device pages and common userptr as follow-on work.
-   - KMD impact: avoid baking HMM/SVM semantics entirely into a vendor-private layer; keep a clear hardware-specific GPUVM/fault layer underneath a Linux-MM-facing abstraction.
+   - Source: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
+   - Change: common design covers notifiers/ranges, system↔device migration and device-private memory, with concurrent GPU faults, mixed pages and common userptr in follow-on work.
+   - KMD impact: keep a clear hardware-specific GPUVM/fault layer underneath a Linux-MM-facing abstraction.
    - Priority: **Now**.
 
 2. **Multi-GPU and compound device pages are explicit follow-on targets.**
-   - Source: same GPU SVM RFC.
-   - Change: multi-GPU support is work in progress; NVIDIA/AMD/Intel agree that migrate-device core-MM costs are a bottleneck and compound device pages can reduce that overhead. Higher-order DMA mapping (for example 2 MiB) is also called out for migration performance.
-   - KMD impact: after the basic 4 KiB migration loop works, migration granularity and page-size abstraction should become a second-stage architecture feature rather than an afterthought.
-   - Priority: **6–12 months** after baseline migration.
+   - Priority: **6–12 months after baseline migration.**
 
 3. **Driver-side migration policy remains intentionally open.**
-   - Source: same GPU SVM RFC.
-   - Change: driver-side madvise and migration policies are listed as future work rather than fixed common policy.
-   - KMD impact: retain policy/mechanism separation so residency, eviction, NUMA and workload hints can evolve without rewriting the fault/migration mechanism.
    - Priority: **Longer-term**, but design the boundary now.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
