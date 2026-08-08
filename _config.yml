@@ -6,16 +6,16 @@ url: https://cheng3100.github.io
 markdown: kramdown
 encoding: utf-8
 
-# Archive/source Markdown stays in GitHub but must not be rendered into Pages.
-# Exclude only archive source files/directories, not the whole kmd_owner_direction
-# target path, otherwise pages with permalinks under /kmd_owner_direction/ can be
-# filtered out as well.
+# Jekyll pages and archive Markdown are separated by semantic filenames.
+# Owner archive files use *.archive.md, so they can coexist with generated
+# /kmd_owner_direction/owners/*.html pages without output-path collisions.
+# Other archive families remain explicitly excluded until their historical
+# files are migrated to *.resource.md / *.raw.md / *.update.md.
 exclude:
   - docs
   - kmd_owner_direction/HOME.md
   - kmd_owner_direction/README.md
   - kmd_owner_direction/archive_audit_2026-08-08.md
-  - kmd_owner_direction/owners
   - kmd_owner_direction/resources
   - kmd_owner_direction/raw_updates
   - kmd_owner_direction/updates
