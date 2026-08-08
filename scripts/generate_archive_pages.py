@@ -20,6 +20,27 @@ def first_heading(text: str, fallback: str) -> str:
     return fallback
 
 
+def linkify_bare_urls(text: str) -> str:
+    """Make bare http(s) URLs clickable without changing archive source files.
+
+    Kramdown does not reliably autolink a URL that appears after labels such as
+    `- **链接:** https://...`.  Generated Pages therefore normalize bare URLs to
+    Markdown autolinks (`<https://...>`). Existing Markdown links/autolinks are
+    left untouched.
+    """
+    url_re = re.compile(r"(?<!\()(?<!<)(https?://[^\s<>]+)")
+
+    def repl(match: re.Match) -> str:
+        url = match.group(1)
+        trailing = ""
+        while url and url[-1] in ".,;:!?，。；：！？":
+            trailing = url[-1] + trailing
+            url = url[:-1]
+        return f"<{url}>{trailing}"
+
+    return url_re.sub(repl, text)
+
+
 def emit(source: Path, permalink: str, back_url: str, back_zh: str, back_en: str) -> None:
     text = source.read_text(encoding="utf-8")
     title = first_heading(text, source.name)
@@ -38,7 +59,7 @@ def emit(source: Path, permalink: str, back_url: str, back_zh: str, back_en: str
         "---",
         "",
     ])
-    target.write_text(front + text, encoding="utf-8")
+    target.write_text(front + linkify_bare_urls(text), encoding="utf-8")
 
 
 def main() -> None:
