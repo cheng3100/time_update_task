@@ -20,23 +20,24 @@ Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
 Hang detection → freeze diagnostic state → structured snapshot → devcoredump → reset → state restore → progressively finer queue/context/engine recovery.
 
 ## Industry Updates
-### 2026-08-08
+### 2026-08-08 · Test #2
+1. **Firmware log retention should be part of crash infrastructure, including probe/boot failures.**
+   - Source: Nova task list: https://docs.kernel.org/gpu/nova/core/todo.html
+   - Change: Nova explicitly tracks exporting GSP-RM log buffers through debugfs even when driver probe fails.
+   - KMD impact: hang/devcoredump design should include FW logs and early-init state, not only runtime rings/registers.
+   - Priority: **Now / 6–12 months.**
 
-1. **Xe devcoredump reinforces “snapshot at hang, read later” as the right recovery boundary.**
-   - Source: Linux Xe Device Coredump: https://www.kernel.org/doc/html/latest/gpu/xe/xe_devcoredump.html
-   - Change: Xe captures HW/driver state at hang time because recovery/reset can alter state before userspace reads the dump. It also prioritizes the first failure and ties snapshot collection to serialized reset flow.
-   - KMD impact: diagnostic capture must happen before destructive recovery. Build a frozen snapshot object rather than generating debug output lazily from live registers after reset.
+2. **Snapshot-before-reset remains unchanged and should be treated as the hard recovery invariant.**
+   - Source: Linux Xe devcoredump documentation.
+   - KMD impact: recovery code must never destroy the only useful evidence before snapshot collection completes.
+   - Priority: **Now.**
+
+### 2026-08-08 · Test #1
+1. **Xe devcoredump reinforces “snapshot at hang, read later”.**
    - Priority: **Now**.
-
-2. **Standard devcoredump infrastructure is preferable to a vendor-only error-state channel.**
-   - Source: Xe merge/RFC documentation and current devcoredump implementation.
-   - Change: Xe intentionally aligned with common `dev_coredump` rather than inventing a Xe-only error-state interface.
-   - KMD impact: use standard Linux crash-delivery mechanisms where possible, while keeping GPU-specific binary/structured sections inside the dump payload.
+2. **Standard devcoredump infrastructure is preferable to a vendor-only channel.**
    - Priority: **Now**.
-
 3. **Production RAS should evolve beyond global reset.**
-   - Industry signal: modern GPU drivers expose error attribution, CE/UE handling, bad-page retirement, reset reason and fault injection as separate mechanisms.
-   - KMD impact: after snapshot infrastructure lands, define a recovery ladder: job abort → queue kill → context kill → engine reset → partial/full GPU reset, with clear criteria and post-reset state restoration.
    - Priority: **6–12 months** after baseline hang capture.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
