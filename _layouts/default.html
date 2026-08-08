@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% seo %}
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <h1>{{ page.hero_title | default: site.title }}</h1>
+    {% if page.hero_subtitle_zh %}<p class="lang zh">{{ page.hero_subtitle_zh }}</p>{% endif %}
+    {% if page.hero_subtitle_en %}<p class="lang en">{{ page.hero_subtitle_en }}</p>{% endif %}
+  </div>
+</header>
+<main class="inner main-content">
+  <div class="utility-bar">
+    {% if page.back_url %}<a href="{{ page.back_url | relative_url }}" class="lang zh">← {{ page.back_zh | default: '返回' }}</a><a href="{{ page.back_url | relative_url }}" class="lang en">← {{ page.back_en | default: 'Back' }}</a>{% endif %}
+    <button id="langToggle" type="button">English</button>
+  </div>
+  {{ content }}
+</main>
+<script>
+(function(){
+  const key='site-lang';
+  let lang=localStorage.getItem(key)||'zh';
+  const button=document.getElementById('langToggle');
+  function apply(){
+    document.documentElement.lang=lang==='zh'?'zh-CN':'en';
+    document.querySelectorAll('.lang.zh').forEach(e=>e.hidden=lang!=='zh');
+    document.querySelectorAll('.lang.en').forEach(e=>e.hidden=lang!=='en');
+    if(button) button.textContent=lang==='zh'?'English':'中文';
+    localStorage.setItem(key,lang);
+  }
+  if(button) button.addEventListener('click',()=>{lang=lang==='zh'?'en':'zh';apply();});
+  apply();
+})();
+</script>
+</body>
+</html>
