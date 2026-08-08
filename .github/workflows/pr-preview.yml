@@ -43,8 +43,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p site
-          cp -a main-tree/docs/. site/
+
+          # The first Pages PR may run before main has a docs/ directory.
+          # In that case keep the root site empty and publish only the PR preview.
+          if [[ -d main-tree/docs ]]; then
+            cp -a main-tree/docs/. site/
+          else
+            echo "main has no docs/ yet; building preview-only site"
+          fi
+
           if [[ "${{ github.event.action }}" != "closed" ]]; then
+            if [[ ! -d pr-tree/docs ]]; then
+              echo "PR branch has no docs/ directory" >&2
+              exit 1
+            fi
             preview_dir="site/pr-preview/pr-${{ github.event.pull_request.number }}"
             mkdir -p "$preview_dir"
             cp -a pr-tree/docs/. "$preview_dir/"
@@ -79,7 +91,7 @@ jobs:
           script: |
             const marker = '<!-- pages-pr-preview -->';
             const url = '${{ steps.preview_url.outputs.url }}';
-            const body = `${marker}\n### GitHub Pages preview\n\n[Open PR preview](${url})\n\nThis preview mirrors the PR's \`docs/\` under an isolated path. The site root remains the current \`main\` version.`;
+            const body = `${marker}\n### GitHub Pages preview\n\n[Open PR preview](${url})\n\nThis preview mirrors the PR's \`docs/\` under an isolated path. The site root remains the current \`main\` version when one exists.`;
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
             const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
