@@ -16,7 +16,13 @@
 .badge{display:inline-block;padding:2px 7px;border-radius:3px;background:#2e7bcf;color:#fff;font-size:11px;font-weight:700}
 .entry{padding:10px 14px;border-left:4px solid #2e7bcf;background:#f7f7f7}
 .history-item.latest{border-left:5px solid #2e7bcf}
-.history-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.history-intro{font-size:1.02em;margin-bottom:18px}
+.history-highlights{margin-top:10px}
+.history-highlight{padding:13px 0;border-top:1px solid #e5e5e5}
+.history-highlight:first-child{border-top:0;padding-top:4px}
+.history-highlight h4{margin:0 0 6px;font-size:1.03em}
+.history-highlight p{margin:4px 0 0}
+.history-links{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid #ddd;font-weight:700}
 .site-header{padding:28px 0;background:#2b2b2b;color:#fff}
 .site-header .inner,.main-content.inner{max-width:1000px;margin:0 auto;padding:0 20px}
 .site-header h1{margin:0;color:#fff}
