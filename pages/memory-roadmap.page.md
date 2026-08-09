@@ -2,8 +2,8 @@
 layout: default
 title: GPU Memory Owner Roadmap
 hero_title: GPU Memory / Virtual Memory / Unified Memory
-hero_subtitle_zh: Memory Owner 的长期纵深路线：切入 → 深化 → 拓展 → 演进。
-hero_subtitle_en: Long-term Memory Owner depth path: Entry → Deepen → Expand → Evolve.
+hero_subtitle_zh: "Memory Owner 的长期纵深路线：切入 → 深化 → 拓展 → 演进。"
+hero_subtitle_en: "Long-term Memory Owner depth path: Entry → Deepen → Expand → Evolve."
 permalink: /kmd_owner_direction/memory-roadmap.html
 back_url: /kmd_owner_direction/owners/memory.html
 back_zh: Memory Owner
