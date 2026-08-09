@@ -1,0 +1,161 @@
+runs:
+  - id: test-4
+    date: "2026-08-08"
+    title_zh: Test #4 · Deep Resource Mix
+    title_en: Test #4 · Deep Resource Mix
+    latest: true
+    intro_zh: 本期在保持 7 个 Owner 稳定不变的前提下，重点提升长期资料质量，并把 Memory 的 recoverable fault 进一步收敛成可实现、可验证的 service contract。
+    intro_en: This run keeps the seven Owner taxonomy stable, upgrades the durable resource mix, and turns the Memory recoverable-fault direction into a more concrete and testable service contract.
+    highlights:
+      - title_zh: Recoverable GPU Fault Service Contract：把 generation / notifier race 变成第一版硬约束
+        title_en: Recoverable GPU Fault Service Contract: generation and notifier races become first-version invariants
+        body_zh: fault packet → PASID/VM/context → generation 校验 → HMM/MMU-notifier sequence → residency/migration → GPU PTE/TLB → 再校验 generation → replay/terminate。第一版就覆盖 munmap、mprotect、COW、process exit、VM destroy 与 GPU/FW reset 竞态。
+        body_en: The fault path is defined as packet → PASID/VM/context → generation validation → HMM/MMU-notifier sequencing → residency/migration → GPU PTE/TLB → generation revalidation → replay/terminate, including munmap, mprotect, COW, teardown and reset races from the first version.
+        url: https://docs.kernel.org/mm/hmm.html
+      - title_zh: GPU SVM N:1 per-device state：为未来 multi-GPU shared VA 保留正确数据模型
+        title_en: GPU SVM N:1 per-device state: preserve the right data model for future multi-GPU shared VA
+        body_zh: 一个 logical CPU range 可以共享 notifier，但每个 GPU 仍需要独立 residency、DMA mapping 与 PTE state；因此 range identity、device residency、DMA mapping、GPU PTE ownership 不应合成一个对象。
+        body_en: A logical CPU range can share notifier state while each GPU retains separate residency, DMA mapping and PTE state, so range identity, residency, DMA mappings and GPU PTE ownership must stay distinct.
+        url: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+      - title_zh: 长期资料从“官方文档列表”升级为 Canonical + Explanation + Practice + Research
+        title_en: Durable resources move from official-doc lists to Canonical + Explanation + Practice + Research
+        body_zh: 新增长期学习资料时，不再默认只收 kernel.org；Memory/HMM、VFIO、Power、RAS、Multi-GPU、Observability、Firmware 都补入高质量解释文章、实现案例或研究材料，并保留学习价值说明。
+        body_en: New durable resources no longer default to kernel.org-only lists; Memory/HMM, VFIO, Power, RAS, Multi-GPU, Observability and Firmware now mix authoritative docs with explanatory, implementation and research material.
+        url: /kmd_owner_direction/resources.html
+      - title_zh: Observability：SysOM-AI 强化 stable object ID + timestamp 是长期基础设施
+        title_en: Observability: SysOM-AI strengthens the case for stable object IDs + timestamps as durable infrastructure
+        body_zh: 大规模 GPU 生产环境中的 continuous cross-layer tracing 说明，PID/PASID/VM/context/queue/job 等稳定 identity 不应只是一次性 debug script，而应成为后续 PMU、FW timeline 和 crash snapshot 的公共关联层。
+        body_en: Large-scale continuous cross-layer tracing reinforces that stable PID/PASID/VM/context/queue/job identities should become a shared correlation layer for PMU, firmware timelines and crash snapshots rather than one-off scripts.
+        url: https://arxiv.org/abs/2603.29235
+      - title_zh: RAS：跨厂商 crash tooling 继续向结构化 post-mortem artifact 演进
+        title_en: RAS: cross-vendor crash tooling keeps moving toward structured post-mortem artifacts
+        body_zh: Snapshot schema 应逐步容纳 workload marker、MMU/page-fault、FW log 与 HW state 的 versioned section，离线分析工具独立消费；snapshot-before-reset 仍是硬约束。
+        body_en: Snapshot schemas should evolve toward versioned workload-marker, MMU/page-fault, firmware-log and hardware-state sections consumed by offline tools; snapshot-before-reset remains the hard invariant.
+        url: https://docs.kernel.org/gpu/xe/xe_devcoredump.html
+    curated: /kmd_owner_direction/updates/2026-08-08-test-4.html
+    raw: /kmd_owner_direction/raw_updates/2026-08-08-test-4.html
+
+  - id: test-3-r2
+    date: "2026-08-08"
+    title_zh: Test #3 · Resource Model R2
+    title_en: Test #3 · Resource Model R2
+    intro_zh: 本期不改变技术结论，而是重构长期学习资料的数据模型，使“稳定子方向”和“长期资料页面”形成一一对应关系。
+    intro_en: This run keeps the technical conclusions unchanged and restructures the durable-resource model so each stable sub-direction maps to a dedicated long-lived learning page.
+    highlights:
+      - title_zh: 每个稳定子方向一个独立长期资料页
+        title_en: One durable learning page per stable sub-direction
+        body_zh: 资料从“每个 Owner 一个大文件”拆成 Owner → stable sub-direction → dedicated resource page，每页记录是什么、价值点、学习重点、注意事项和来源。
+        body_en: Resources move from one large file per Owner to Owner → stable sub-direction → dedicated resource page, with what-it-is, value, focus, cautions and sources captured per page.
+        url: /kmd_owner_direction/resources.html
+      - title_zh: Stable-growth 规则：长期资料默认追加，不随每期新闻整体重写
+        title_en: Stable-growth rule: durable resources append by default instead of being rewritten every run
+        body_zh: Industry Updates 继续在一级 Owner 页面每期刷新；长期资料则独立增长，只在资料过时、被替代或子方向本身重新定义时重写。
+        body_en: Industry Updates continue to refresh at Owner scope, while durable resources grow independently and are rewritten only when obsolete, superseded or the sub-direction itself changes.
+        url: /kmd_owner_direction/resources/memory/gpuvm.html
+      - title_zh: 技术 Owner 结论保持 Test #3：Memory / Firmware / RAS / Multi-GPU / Observability 主线不变
+        title_en: Test #3 technical conclusions retained across Memory, Firmware, RAS, Multi-GPU and Observability
+        body_zh: 这次只是 content architecture 调整，不因为资料组织方式变化而制造新的 Owner 或改动 feature priority。
+        body_en: This is a content-architecture revision only; it does not create new Owners or change feature priorities merely because resource organization changed.
+        url: /kmd_owner_direction/updates/2026-08-08-test-3-r2.html
+    curated: /kmd_owner_direction/updates/2026-08-08-test-3-r2.html
+    raw: /kmd_owner_direction/raw_updates/2026-08-08-test-3-r2.html
+
+  - id: test-3
+    date: "2026-08-08"
+    title_zh: Test #3
+    title_en: Test #3
+    intro_zh: 本期重点把“Owner 方向”继续落到可长期复用的 KMD 基础设施：Stable GPU Event/Object Identity、N:1 GPU SVM 数据模型，以及 firmware-version-independent control layer。
+    intro_en: This run turns Owner directions into reusable KMD infrastructure: stable GPU event/object identity, an N:1 GPU SVM data model, and firmware-version-independent control layers.
+    highlights:
+      - title_zh: Stable GPU Event/Object Identity：先统一身份，再统一 trace / PMU / crash
+        title_en: Stable GPU Event/Object Identity: unify identity before trace, PMU and crash correlation
+        body_zh: 定义 device/client/PID/PASID/VM/context/queue/job/fault/migration/FW/reset 等稳定 ID，并先为 lifetime edge 建立 tracepoints；后续 PMU、FW timestamp、crash snapshot 复用同一 identity。
+        body_en: Define stable IDs for device/client/PID/PASID/VM/context/queue/job/fault/migration/firmware/reset and lifetime-edge tracepoints first, then reuse them for PMU, firmware timestamps and crash snapshots.
+        url: https://arxiv.org/abs/2601.20755
+      - title_zh: Memory：N:1 GPU SVM 表示支持一个 CPU VA/range 对应多个 per-device state
+        title_en: Memory: N:1 GPU SVM lets one CPU VA/range map to multiple per-device states
+        body_zh: CPU range identity、device residency、DMA mapping 和 GPU PTE state 分层，是避免未来 multi-GPU UVM 重构的关键。
+        body_en: Separating CPU range identity, device residency, DMA mapping and GPU PTE state is key to avoiding a future multi-GPU UVM redesign.
+        url: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+      - title_zh: Firmware：Nova 明确 firmware-version-independent API 是 lower-layer invariant
+        title_en: Firmware: Nova makes firmware-version-independent APIs a lower-layer invariant
+        body_zh: 上层 DRM/VFIO client 不应看到 firmware-version-specific 结构和语义；version translation、capability negotiation 与 lifecycle 应集中在稳定 service API 以下。
+        body_en: Upper DRM/VFIO clients should not see firmware-version-specific structures or semantics; version translation, capability negotiation and lifecycle belong below stable service APIs.
+        url: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
+      - title_zh: Multi-GPU：topology/P2P capability 仍应先于 shared VM
+        title_en: Multi-GPU: topology/P2P capability still comes before shared VM
+        body_zh: Stable identity、topology、visibility/affinity 和 P2P capability 是未来 shared-VA / migration policy 的输入，不应和 Memory residency policy 混成一个 Owner。
+        body_en: Stable identity, topology, visibility/affinity and P2P capability are inputs to future shared-VA and migration policy and should remain distinct from Memory residency policy.
+        url: https://arxiv.org/abs/2607.26335
+    curated: /kmd_owner_direction/updates/2026-08-08-test-3.html
+    raw: /kmd_owner_direction/raw_updates/2026-08-08-test-3.html
+
+  - id: test-2
+    date: "2026-08-08"
+    title_zh: Test #2
+    title_en: Test #2
+    intro_zh: 本期第一次把 7 个 Owner 的 Industry Updates 全部结构化，并把 Memory migration granularity 从“实现细节”提升为第二阶段架构项。
+    intro_en: This run structures Industry Updates across all seven Owners and promotes Memory migration granularity from an implementation detail to a stage-two architecture concern.
+    highlights:
+      - title_zh: Memory migration granularity：4K correctness 不应绑死未来 migration unit
+        title_en: Memory migration granularity: 4K correctness must not hard-code the future migration unit
+        body_zh: fault range、residency decision、migration unit、DMA mapping unit、GPU PTE unit 与 TLB invalidation unit 应可独立演进，为 64K/2M/compound device pages 留出空间。
+        body_en: Fault range, residency decision, migration unit, DMA mapping unit, GPU PTE unit and TLB invalidation unit should evolve independently to leave room for 64K/2M/compound device pages.
+        url: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
+      - title_zh: Virtualization：Nova lower control layer 强化“resource service 复用”而非复制 vGPU 路径
+        title_en: Virtualization: Nova lower control layers favor reusable resource services over duplicated vGPU paths
+        body_zh: VFIO/vGPU 应消费公共 HW/FW/resource service；如果 ASIC 没有真实 SR-IOV/resource partition 能力，不应为了 pci_enable_sriov() 本身制造 Owner 项目。
+        body_en: VFIO/vGPU should consume common HW/FW/resource services; without real ASIC SR-IOV/resource-partition capability, pci_enable_sriov() alone is not an Owner project.
+        url: https://docs.kernel.org/gpu/nova/index.html
+      - title_zh: RAS：snapshot-before-reset + FW log retention 成为最强两条架构约束
+        title_en: RAS: snapshot-before-reset + firmware-log retention become the two strongest architectural constraints
+        body_zh: devcoredump 需要在 destructive recovery 前冻结 hang state，Nova 的 GSP log export 又说明 early boot/probe failure 同样要进入统一 crash object。
+        body_en: devcoredump needs to freeze hang state before destructive recovery, while Nova GSP log export shows early boot/probe failures should enter the same crash object.
+        url: https://docs.kernel.org/gpu/xe/xe_devcoredump.html
+      - title_zh: Observability：eBPF trace 先行，PMU 后接入统一 timeline
+        title_en: Observability: eBPF trace first, PMU later joins the same timeline
+        body_zh: gpu_ext / ProfInfer 等信号支持先建立稳定 tracepoint/object correlation，再在硬件 counter 成熟后补 PMU discovery、sampling、per-context attribution。
+        body_en: gpu_ext / ProfInfer support establishing stable tracepoint/object correlation first, then adding PMU discovery, sampling and per-context attribution once hardware counters mature.
+        url: https://arxiv.org/abs/2601.20755
+      - title_zh: Firmware：版本、capability、restart generation 应集中在 control plane
+        title_en: Firmware: versioning, capability and restart generation belong in the control plane
+        body_zh: 避免散落的 fw_version 条件判断；version-specific translation、async error、restart/re-handshake 与 state reconciliation 应形成统一 contract。
+        body_en: Avoid scattered fw_version checks; version-specific translation, async errors, restart/re-handshake and state reconciliation should form one control-plane contract.
+        url: https://docs.kernel.org/gpu/nova/core/todo.html
+    curated: /kmd_owner_direction/updates/2026-08-08-test-2.html
+    raw: /kmd_owner_direction/raw_updates/2026-08-08-test-2.html
+
+  - id: test-1
+    date: "2026-08-08"
+    title_zh: Test #1
+    title_en: Test #1
+    intro_zh: 初始测试建立 7 个稳定 Owner、当前 5–6 人 feature project 映射，以及“当前可做 feature + 长期演进方向”的基本框架。
+    intro_en: The initial test establishes seven stable Owners, the current 5–6 person feature-project mapping, and the basic framework of actionable entry features plus long-term evolution.
+    highlights:
+      - title_zh: 建立 7 个稳定 Owner + 1 个公共 Future Topic
+        title_en: Establish seven stable Owners + one public Future Topic
+        body_zh: Memory、Virtualization、Power、RAS、Multi-GPU、Observability、Firmware 成为长期一级 Owner；DRM/Accel/uAPI/upstream 作为跨 Owner 的公共未来主题，而不是第八个 Owner。
+        body_en: Memory, Virtualization, Power, RAS, Multi-GPU, Observability and Firmware become stable top-level Owners; DRM/Accel/uAPI/upstream remains a cross-Owner future topic rather than an eighth Owner.
+        url: /kmd_owner_direction/
+      - title_zh: Memory P0：Recoverable fault + HMM + migration + replay
+        title_en: Memory P0: Recoverable fault + HMM + migration + replay
+        body_zh: 这条 feature 能同时覆盖 GPUVM、Linux MM/HMM、page migration、PTE/TLB ordering 和 fault replay，是 Memory Owner 最适合的第一条完整 correctness 闭环。
+        body_en: This feature spans GPUVM, Linux MM/HMM, page migration, PTE/TLB ordering and fault replay, making it the best first end-to-end correctness loop for the Memory Owner.
+        url: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
+      - title_zh: Firmware P0：从 mailbox helper 升级为 versioned async control protocol
+        title_en: Firmware P0: move from mailbox helpers to a versioned async control protocol
+        body_zh: protocol version、command/event namespace、sequence、capability、timeout/error、restart generation、re-handshake 和 state reconciliation 被定义为 3–6 个月基础交付。
+        body_en: Protocol version, command/event namespaces, sequence IDs, capabilities, timeout/error semantics, restart generations, re-handshake and state reconciliation become 3–6 month foundation deliverables.
+        url: https://docs.kernel.org/gpu/nova/index.html
+      - title_zh: RAS P0/P1：先 frozen snapshot，再谈更细粒度恢复
+        title_en: RAS P0/P1: frozen snapshot first, finer-grained recovery later
+        body_zh: Hang snapshot + devcoredump + reset reason + watchdog 先建立证据链；之后再扩展 job abort → queue/context kill → engine/partial/full reset 的 recovery ladder。
+        body_en: Hang snapshot + devcoredump + reset reason + watchdog establish the evidence path first, followed by a job-abort → queue/context-kill → engine/partial/full-reset recovery ladder.
+        url: https://www.kernel.org/doc/html/latest/gpu/xe/xe_devcoredump.html
+      - title_zh: 5–6 人团队不按 7 个 Owner 机械拆人，而按真实 feature readiness 分配
+        title_en: A 5–6 person team should map to real feature readiness, not mechanically one person per Owner
+        body_zh: Leader 做 Memory；A 做 Firmware；B 做 RAS；C 做 Multi-GPU；D 做 Observability；E 只有 ASIC 真正支持 SR-IOV 时做 Virtualization，否则优先 Power telemetry。
+        body_en: Leader takes Memory; A Firmware; B RAS; C Multi-GPU; D Observability; E takes Virtualization only when SR-IOV is real, otherwise Power telemetry.
+        url: /kmd_owner_direction/updates/2026-08-08.html
+    curated: /kmd_owner_direction/updates/2026-08-08.html
+    raw: /kmd_owner_direction/raw_updates/2026-08-08-test-1.html
