@@ -2,8 +2,8 @@
 layout: default
 title: GPU KMD Owner Direction
 hero_title: GPU KMD Owner Direction
-hero_subtitle_zh: 稳定 Owner 定义 + 独立 Owner 页面 + 长期资料 + 历次更新摘要。数据来自 Jekyll _data。
-hero_subtitle_en: Stable Owner definitions + independent Owner pages + durable resources + update history, rendered from Jekyll data.
+hero_subtitle_zh: 稳定 Owner 定义 + 独立 Owner 页面 + 长期资料 + 历次更新摘要。方向定义默认稳定，Living 内容按期更新。
+hero_subtitle_en: Stable Owner definitions + independent Owner pages + durable resources + update history. Direction definitions stay stable while Living content refreshes per run.
 permalink: /kmd_owner_direction/
 back_url: /
 back_zh: 所有任务
@@ -11,6 +11,7 @@ back_en: All tasks
 ---
 
 {% assign kmd = site.data.kmd_owner_direction %}
+{% assign stable = site.data.kmd_stable_directions %}
 {% assign history = site.data.kmd_history.runs %}
 
 <nav class="nav-tabs">
@@ -21,14 +22,38 @@ back_en: All tasks
   <a href="{{ '/kmd_owner_direction/future.html' | relative_url }}"><span class="lang zh">公共未来 Topic</span><span class="lang en">Future Topic</span></a>
 </nav>
 
+<section class="owner-card stable-definition-note">
+  <h2 class="lang zh">稳定方向定义</h2><h2 class="lang en">Stable Direction Definitions</h2>
+  <p class="lang zh">{{ stable.policy.zh }}</p>
+  <p class="lang en">{{ stable.policy.en }}</p>
+</section>
+
 <section class="owner-card">
-  <h2 class="lang zh">Owner 大方向</h2><h2 class="lang en">Owner Map</h2>
-  <p class="task-meta lang zh">每个一级 Owner 已恢复为独立页面；点击 Owner 名称进入该方向的 Stable Summary、当前切入、长期资料和 Industry Updates。</p>
-  <p class="task-meta lang en">Each top-level Owner is again an independent page containing the stable summary, current entry, durable resources and Industry Updates.</p>
-  <table>
-    <thead><tr><th>Owner</th><th><span class="lang zh">当前切入</span><span class="lang en">Current entry</span></th></tr></thead>
-    <tbody>{% for owner in kmd.owners %}<tr><td><a href="{{ '/kmd_owner_direction/owners/' | append: owner.id | append: '.html' | relative_url }}">{{ owner.name }}</a></td><td><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></td></tr>{% endfor %}</tbody>
-  </table>
+  <h2 class="lang zh">Owner 大方向与子方向</h2><h2 class="lang en">Owner Map & Sub-directions</h2>
+  <p class="task-meta lang zh">这里展示长期稳定的职责定义，而不是本期新闻摘要。当前切入 Feature、Industry Updates 和资料新增会随定期任务变化，但下面的 Owner/子方向含义默认保持不变。</p>
+  <p class="task-meta lang en">This section shows long-lived responsibility definitions rather than this run's news. Entry features, Industry Updates, and new resources may change, while the Owner/sub-direction meanings below remain stable by default.</p>
+
+  {% for owner in kmd.owners %}
+  {% assign definition = stable.owners[owner.id] %}
+  <article class="direction-overview">
+    <h3><a href="{{ '/kmd_owner_direction/owners/' | append: owner.id | append: '.html' | relative_url }}">{{ owner.name }}</a> <span class="badge">Stable</span></h3>
+    <p class="lang zh">{{ definition.description_zh }}</p>
+    <p class="lang en">{{ definition.description_en }}</p>
+    <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
+
+    <h4 class="lang zh">稳定子方向</h4><h4 class="lang en">Stable Sub-directions</h4>
+    <ul class="subdirection-summary-list">
+      {% for sub in definition.subdirections %}
+      <li>
+        <strong>{{ sub.title }}</strong>
+        <span class="lang zh"> — {{ sub.short_zh }}</span>
+        <span class="lang en"> — {{ sub.short_en }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    <p><a href="{{ '/kmd_owner_direction/owners/' | append: owner.id | append: '.html' | relative_url }}"><span class="lang zh">进入该 Owner 的完整方向定义、边界与长期资料 →</span><span class="lang en">Open full Owner definition, boundaries, and durable resources →</span></a></p>
+  </article>
+  {% endfor %}
 </section>
 
 <section class="owner-card">
@@ -37,9 +62,9 @@ back_en: All tasks
 </section>
 
 <section class="owner-card">
-  <h2 class="lang zh">本期知识结构</h2><h2 class="lang en">Knowledge Structure This Run</h2>
-  <p class="lang zh">业界动态按一级 Owner 每期刷新；长期学习资料按 Owner → 稳定子方向累积。每个 Owner 页面同时呈现这两类内容，避免“新闻”和“长期学习资料”混为一体。</p>
-  <p class="lang en">Industry updates refresh per top-level Owner, while durable learning resources accumulate by Owner → stable sub-direction. Each Owner page shows both without mixing news and long-lived learning material.</p>
+  <h2 class="lang zh">Living 内容如何更新</h2><h2 class="lang en">How Living Content Updates</h2>
+  <p class="lang zh">稳定方向定义与 Living 内容分离：上面的 Owner / 子方向职责默认不变；当前切入 Feature、业界动态、长期资料新增、每期摘要按任务运行持续更新。</p>
+  <p class="lang en">Stable direction definitions are separated from Living content: Owner/sub-direction responsibilities above remain stable, while entry features, Industry Updates, resource additions, and run summaries refresh with the scheduled task.</p>
 </section>
 
 <section class="owner-card update-history">
