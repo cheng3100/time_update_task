@@ -15,6 +15,17 @@
 .owner-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .badge{display:inline-block;padding:2px 7px;border-radius:3px;background:#2e7bcf;color:#fff;font-size:11px;font-weight:700}
 .entry{padding:10px 14px;border-left:4px solid #2e7bcf;background:#f7f7f7}
+.stable-definition-note{border-left:5px solid #2e7bcf}
+.direction-overview{padding:20px 0;border-top:1px solid #ddd}
+.direction-overview:first-of-type{border-top:0;padding-top:4px}
+.direction-overview h3{margin-bottom:8px}
+.direction-overview h4{margin:16px 0 7px}
+.subdirection-summary-list{margin:8px 0 12px;padding-left:22px}
+.subdirection-summary-list li{margin:7px 0;line-height:1.45}
+.subdirection-detail{margin:0;padding:18px 0;border-top:1px solid #ddd}
+.subdirection-detail:first-of-type{border-top:0;padding-top:4px}
+.subdirection-detail h3{margin-bottom:5px}
+.subdirection-short{font-weight:700;margin:4px 0 8px}
 .history-item.latest{border-left:5px solid #2e7bcf}
 .history-intro{font-size:1.02em;margin-bottom:18px}
 .history-highlights{margin-top:10px}
@@ -27,4 +38,4 @@
 .site-header .inner,.main-content.inner{max-width:1000px;margin:0 auto;padding:0 20px}
 .site-header h1{margin:0;color:#fff}
 .site-header p{margin:6px 0 0;color:#ddd}
-@media(max-width:650px){.utility-bar{align-items:flex-start}.owner-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.utility-bar{align-items:flex-start}.owner-grid{grid-template-columns:1fr}.direction-overview,.subdirection-detail{padding-left:0;padding-right:0}}
