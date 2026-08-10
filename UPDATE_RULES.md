@@ -53,9 +53,16 @@ Rules:
 - top-level category resource files, if retained, should mainly act as indexes/compatibility pointers.
 
 ## 5. Stable structure vs living content
-Stable content includes top-level taxonomy, owner/category definitions, scope boundaries, long-term capability loops and enduring roadmap stages. It changes only on explicit user direction.
+Stable content includes top-level taxonomy, owner/category definitions, scope boundaries, **detailed owner descriptions, sub-direction definitions/descriptions**, long-term capability loops and enduring roadmap stages. It changes only on explicit user direction.
 
 Living content includes current entry feature/recommendation, near-term priorities, Industry Updates, current projects and dated judgments. Weekly news must not silently rewrite stable structure.
+
+Additional rules for stable direction definitions:
+- keep a dedicated source-of-truth data/document layer when the site supports it;
+- the task homepage should summarize every stable top-level direction and its stable sub-directions;
+- each direction page should give the fuller long-term responsibility, ownership boundary, and a detailed description of every stable sub-direction;
+- routine scheduled runs may update entry features, news, references and history, but must not rewrite these descriptions just because new sources or projects appeared;
+- only explicit taxonomy/scope/boundary changes justify editing the stable descriptions.
 
 ## 6. GitHub archival model
 Every task should maintain equivalent logical layers, while exact filenames/paths are determined by that task's **current README/layout**:
