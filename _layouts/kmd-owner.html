@@ -2,8 +2,10 @@
 layout: default
 ---
 {% assign kmd = site.data.kmd_owner_direction %}
+{% assign stable = site.data.kmd_stable_directions %}
 {% assign owner = nil %}
 {% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
+{% assign definition = stable.owners[page.owner_id] %}
 {% assign resources = site.data.kmd_resources[page.owner_id] %}
 
 <nav class="nav-tabs">
@@ -15,26 +17,37 @@ layout: default
 </nav>
 
 {% if owner %}
-<section class="owner-card">
+<section class="owner-card stable-definition-note">
   <h2>{{ owner.name }} <span class="badge">Stable</span></h2>
-  <p class="lang zh">{{ owner.summary_zh }}</p><p class="lang en">{{ owner.summary_en }}</p>
+  <p class="lang zh">{{ definition.description_zh }}</p>
+  <p class="lang en">{{ definition.description_en }}</p>
+  <p><strong><span class="lang zh">职责边界：</span><span class="lang en">Ownership boundary: </span></strong><span class="lang zh">{{ definition.boundary_zh }}</span><span class="lang en">{{ definition.boundary_en }}</span></p>
+  <p class="task-meta"><span class="lang zh">该方向定义默认长期稳定，只有明确调整 taxonomy / Owner 边界时才修改。</span><span class="lang en">This definition is stable by default and changes only when taxonomy or Owner boundaries are explicitly revised.</span></p>
   <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
 </section>
 
 <section class="owner-card">
-  <h2 class="lang zh">子方向与长期高价值资料</h2><h2 class="lang en">Sub-directions & Durable Learning Resources</h2>
-  <p class="task-meta"><span class="lang zh">资料按稳定子方向长期累积，不随单次业界新闻覆盖。每个条目打开对应的 GitHub Pages 文档页。</span><span class="lang en">Resources accumulate under stable sub-directions and are not overwritten by one-off news. Each item opens its rendered GitHub Pages document.</span></p>
-  <ul class="resource-list">
-  {% for resource in resources %}
-    {% capture resource_url %}/kmd_owner_direction/resources/{{ page.owner_id }}/{{ resource.slug }}.html{% endcapture %}
-    <li><strong>{{ resource.title }}</strong><br><a href="{{ resource_url | relative_url }}"><span class="lang zh">打开长期资料档案</span><span class="lang en">Open durable resource archive</span></a></li>
+  <h2 class="lang zh">稳定子方向定义</h2><h2 class="lang en">Stable Sub-direction Definitions</h2>
+  <p class="task-meta"><span class="lang zh">下面描述的是长期职责，不是本期新闻。每个子方向的资料页长期累积，定义本身默认不随定时任务变化。</span><span class="lang en">The following are long-lived responsibilities, not this run's news. Resource pages grow over time while these definitions remain stable by default.</span></p>
+
+  {% for sub in definition.subdirections %}
+  {% capture resource_url %}/kmd_owner_direction/resources/{{ page.owner_id }}/{{ sub.slug }}.html{% endcapture %}
+  <article class="subdirection-detail">
+    <h3>{{ sub.title }}</h3>
+    <p class="subdirection-short lang zh">{{ sub.short_zh }}</p>
+    <p class="subdirection-short lang en">{{ sub.short_en }}</p>
+    <p class="lang zh">{{ sub.detail_zh }}</p>
+    <p class="lang en">{{ sub.detail_en }}</p>
+    <p><a href="{{ resource_url | relative_url }}"><span class="lang zh">打开该子方向的长期高价值资料档案 →</span><span class="lang en">Open durable learning resources for this sub-direction →</span></a></p>
+  </article>
   {% endfor %}
-  </ul>
+
   <p><a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">查看全部长期资料索引</span><span class="lang en">Open full learning-resource index</span></a></p>
 </section>
 
 <section class="owner-card">
   <h2 class="lang zh">本期业界最新动态</h2><h2 class="lang en">Industry Updates — This Run</h2>
+  <p class="task-meta"><span class="lang zh">这一部分属于 Living 内容，会随每期任务刷新；它不会自动修改上面的 Stable Direction Definition。</span><span class="lang en">This is Living content and refreshes per run; it does not automatically modify the Stable Direction Definition above.</span></p>
   {% for update in owner.updates %}
   <article class="history-item">
     <h3><a href="{{ update.url }}"><span class="lang zh">{{ update.title_zh }}</span><span class="lang en">{{ update.title_en }}</span></a></h3>
