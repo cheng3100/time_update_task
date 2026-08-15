@@ -20,6 +20,13 @@ SR-IOV PF/VF bring-up + provisioning/isolation when ASIC capability exists; othe
 First confirm ASIC capabilities: SR-IOV extended capability, VF BAR/interrupt model, VMID/resource partitioning, reset semantics, IOMMU isolation and PF↔VF control path. Only then decide whether virtualization is a real feature project or just platform integration.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **No high-value direction-level new item was found after the previous run.**
+   - Current reference: https://docs.kernel.org/next/gpu/xe/xe_configfs.html
+   - Observation: Xe configfs still provides a concrete GPU SR-IOV lifecycle model where PF mode / `max_vfs` are selected before bind/probe; current `next` also exposes admin-only PF configuration internally.
+   - KMD impact: the value remains GPU-specific resource mode, provisioning, PF↔VF ABI, reset and isolation rather than generic `pci_enable_sriov()` mechanics.
+   - Priority: **ASIC capability first.**
+
 ### 2026-08-08 · Test #4
 1. **VFIO CXL Type-2 passthrough v3 extends the problem beyond ordinary PCI passthrough.**
    - Source: https://lwn.net/Articles/1079613/ (2026-06-25)
