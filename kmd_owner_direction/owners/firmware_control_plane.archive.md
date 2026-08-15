@@ -17,14 +17,26 @@ Own the long-term KMD↔GPU system-firmware control plane. This is not basic fir
 - firmware authentication and measurement mechanisms
 
 ## Current entry feature
-**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation.**
+**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation Model.**
 
-Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, firmware restart detection, re-handshake and state resynchronization.
+Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, firmware boot/reset phases, restart detection, generation isolation, re-handshake and state resynchronization.
 
 ### Near-term feature path
-Versioned message contract → capability negotiation → async request/completion → timeout/error semantics → FW generation/restart detection → re-handshake → state reconciliation → resource ownership → HW-management offload.
+Versioned message contract → capability negotiation → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → re-handshake → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **Nova devinit makes reset-time firmware phase boundaries concrete.**
+   - Source: https://docs.kernel.org/next/gpu/nova/core/devinit.html
+   - Change: the documented flow covers secure firmware, devinit on GPU microcontrollers, VRAM timing/power/clock/thermal initialization, `GFW_BOOT`, and reuse of initialization during suspend/resume.
+   - KMD impact: model control-plane state explicitly as RESET → SECURE_FW → DEVINIT → FW_BOOT_COMPLETE/GFW_BOOT → KMD_HANDSHAKE → SERVICE_READY rather than a single `fw_ready` bit. Reset/restart must advance a generation so stale request/completion traffic cannot mutate new state.
+   - Priority: **Design now.**
+
+2. **nova-core continues to define a firmware-version-independent lower API for second-level drivers.**
+   - Sources: https://docs.kernel.org/next/gpu/nova/index.html and https://docs.kernel.org/next/gpu/nova/core/guidelines.html
+   - KMD impact: keep version translation, capabilities and firmware lifecycle below DRM/VFIO/other client layers.
+   - Priority: **Now.**
+
 ### 2026-08-08 · Test #4
 1. **Nova continues to make firmware-version-independent lower APIs an explicit architectural invariant.**
    - Source: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
