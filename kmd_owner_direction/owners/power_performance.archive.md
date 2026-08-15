@@ -20,6 +20,13 @@ GPU busy/idle + utilization accounting → basic DVFS/runtime PM.
 Reliable busy/idle accounting → per-engine utilization → frequency/residency telemetry → basic firmware-controlled DVFS → runtime PM → thermal/power-cap policy.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **No high-value direction-changing mechanism appeared after the previous run; keep measurement/lifetime-first.**
+   - Reference: https://docs.kernel.org/next/gpu/xe/xe_pm.html
+   - Observation: current Xe Runtime PM documentation continues to emphasize outer-layer PM references around IOCTL, sysfs/debugfs, dma-buf sharing and GPU execution; D3Cold eligibility is also constrained by VRAM and PCI hierarchy state.
+   - KMD impact: solve PM-reference lifetime, reclaim/suspend interaction, resource ordering and resume correctness before complex governors. Telemetry remains a shared substrate for both DVFS and profiling.
+   - Priority: **Now.**
+
 ### 2026-08-08 · Test #4
 1. **No high-value direction-changing mechanism appeared in this short window; keep measurement/lifetime-first.**
    - Reference: https://docs.kernel.org/gpu/xe/xe_pm.html
