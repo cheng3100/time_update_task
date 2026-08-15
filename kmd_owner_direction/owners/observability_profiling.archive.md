@@ -18,12 +18,24 @@ Own software-event tracing, hardware performance monitoring, cross-layer correla
 - long-term gpu_ext-like verified programmable policy
 
 ## Current Entry Feature
-Stable GPU event/object identity + eBPF-based KMD dynamic tracing. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
+Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software counters. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
 
 ### Near-term feature path
-Stable tracepoints → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
+Stable tracepoints/object IDs → always-on low-cost software counters → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **Xe GT Statistics demonstrates a practical always-on KMD software-telemetry layer.**
+   - Source: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html
+   - Change: per-GT statistics cover SVM/TLB/migration/copy/bind/reclaim and scheduler wait/suspend paths; the implementation uses per-CPU counters to avoid expensive atomics/cache-coherency traffic on high-frequency paths.
+   - KMD impact: Observability should not jump directly from tracepoints to HW PMU. Add a first layer of always-on software counters, then use stable object IDs/tracepoints for attribution and PMU for hardware bottlenecks.
+   - Priority: **Software counters + object model now.**
+
+2. **SysOM-AI continues to validate continuous cross-layer observability at production scale.**
+   - Source: https://arxiv.org/abs/2603.29235
+   - KMD impact: stable timestamps and CPU/GPU/NCCL/KMD object correlation are durable infrastructure rather than one-off debug scripts.
+   - Priority: **Now.**
+
 ### 2026-08-08 · Test #4
 1. **SysOM-AI demonstrates continuous cross-layer observability at production scale.**
    - Source: https://arxiv.org/abs/2603.29235
