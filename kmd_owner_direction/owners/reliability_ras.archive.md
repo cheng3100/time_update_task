@@ -17,9 +17,21 @@ Own detection, diagnosis, containment and recovery of GPU faults plus production
 Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
 
 ### Near-term feature path
-Hang detection → freeze diagnostic state → structured snapshot → devcoredump → reset → state restore → progressively finer queue/context/engine recovery.
+Hang detection → freeze diagnostic state → structured snapshot → devcoredump → health classification/recovery hint → reset → state restore → progressively finer queue/context/engine recovery.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **Xe GPU Health Indicator / Device Wedging makes the management-facing RAS contract explicit.**
+   - Source: https://docs.kernel.org/next/gpu/xe/xe_device.html
+   - Change: Xe exposes `gpu_health` states (`ok`, `warning`, `critical`) and DRM wedged recovery hints; vendor-specific recovery may direct userspace/admin toward firmware remediation while the default path is rebind/bus-reset.
+   - KMD impact: production RAS should separate raw evidence → KMD classification/recovery policy → management-facing health state/recovery hint. Monitoring tools should not need to parse dmesg to infer whether a GPU is usable.
+   - Priority: **Snapshot/heartbeat now; health/recovery contract in 6–12 months.**
+
+2. **Snapshot-before-reset remains the hard recovery invariant.**
+   - Source: https://docs.kernel.org/next/gpu/xe/xe_devcoredump.html
+   - KMD impact: versioned crash evidence must be frozen before destructive recovery; offline tooling should consume the artifact independently of the live device state.
+   - Priority: **Now.**
+
 ### 2026-08-08 · Test #4
 1. **Production GPU crash tooling is converging on richer structured post-mortem artifacts.**
    - Sources: AMD Radeon GPU Detective hardware crash analysis and NVIDIA Nsight Aftermath.
