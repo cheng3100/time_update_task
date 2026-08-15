@@ -14,10 +14,10 @@ Own GPU memory architecture from GPUVM through Linux MM integration and unified/
 - heterogeneous/tiered/CXL memory and memory QoS
 
 ## Current Entry Feature
-Recoverable GPU fault + HMM + CPU/GPU migration + replay.
+Recoverable GPU fault + HMM + CPU/GPU migration + replay, with fault/migration measurement and lifetime/race correctness designed into the first implementation.
 
 ### Near-term feature path
-Recoverable fault → PASID/VM lookup → HMM/CPU PTE resolution → CPU↔VRAM migration → GPU PTE update → TLB invalidate → fault replay.
+Recoverable fault → PASID/VM lookup → HMM/CPU PTE resolution → CPU↔VRAM migration → GPU PTE update → TLB invalidate → fault replay, with per-phase metrics and generation/race validation.
 
 # Detailed Owner Growth Roadmap
 
@@ -63,9 +63,10 @@ fault replay / resume
 - GPU PTE update and TLB invalidation ordering
 - replay, duplicate fault, concurrent fault and process-exit handling
 - failure rollback: migration failure, OOM, invalid VA, process teardown, reset during fault
+- measurement contract: fault/get-pages/migration/copy/bind/TLB phase counts and latency
 
 ### First 3–6 month deliverable
-A debuggable single-GPU path supporting one defined pageable-memory scenario end to end, with tracepoints for fault → resolve → map/migrate → replay and explicit lifetime/error handling.
+A debuggable single-GPU path supporting one defined pageable-memory scenario end to end, with tracepoints/counters for fault → resolve → map/migrate → replay, explicit lifetime/error handling, and enough measurement to identify where the latency is spent.
 
 ### Owner capability formed
 At the end of this stage, the owner should be able to reason across Linux MM, GPUVM, firmware fault delivery, DMA/migration and GPU MMU instead of only maintaining a BO allocator or page-table helper.
@@ -112,7 +113,7 @@ batched 4K migration
 2M / compound device page / higher-order DMA
 ```
 
-Measure MM-call overhead, DMA-map cost, copy-engine cost, page-table update cost and TLB cost separately.
+Measure MM-call/get-pages overhead, DMA-map cost, copy-engine setup/data cost, page-table bind/update cost, TLB cost, internal fragmentation, false migration and CPU↔GPU bouncing separately.
 
 ### 2.3 Oversubscription / eviction / reclaim
 - VRAM pressure accounting
@@ -235,7 +236,7 @@ This is the final long-term role: **GPU Memory / UVM / Heterogeneous Memory Arch
         ↓
 2. mmu_notifier / HMM + recoverable fault
         ↓
-3. migration + replay correctness
+3. migration + replay correctness + measurement
         ↓
 4. migration granularity / large pages
         ↓
@@ -252,16 +253,28 @@ This is the final long-term role: **GPU Memory / UVM / Heterogeneous Memory Arch
 10. placement / migration / memory-QoS policy
 ```
 
-The key principle is **mechanism before policy, lifetime/correctness before optimization, single-GPU closure before multi-GPU policy**.
+The key principle is **mechanism before policy, lifetime/correctness before optimization, measurement before granularity tuning, single-GPU closure before multi-GPU policy**.
 
 ## Boundary with other owners
 - **Multi-GPU / Fabric:** owns device identity, topology, links, P2P transport and fabric health; Memory owns page residency, migration, shared-VM semantics and placement policy.
 - **Firmware / Control Plane:** owns protocol/lifecycle/capability mechanism; Memory defines memory-service semantics such as fault replay, migration commands and MMU-state requirements.
 - **Reliability / RAS:** owns system failure containment/recovery; Memory owns VM/page-table/migration state and provides restore/snapshot primitives.
 - **Virtualization / Security:** owns tenant/resource isolation; Memory owns per-VM memory mappings/residency mechanisms and memory accounting primitives consumed by virtualization.
-- **Observability:** owns tracing/profiling infrastructure; Memory defines stable memory event semantics (fault, bind, migrate, evict, TLB invalidate, replay).
+- **Observability:** owns tracing/profiling infrastructure; Memory defines stable memory event semantics (fault, bind, migrate, evict, TLB invalidate, replay) and the metrics required to compare memory mechanisms.
 
 ## Industry Updates
+### 2026-08-15 · Weekly #1
+1. **Xe GT Statistics turns SVM migration granularity into a measurable engineering problem.**
+   - Source: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html (`next-20260722` documentation)
+   - Change: Xe exposes SVM fault count/time, TLB invalidation count/time, 4K/64K/2M fault and migration counters, CPU/device copy time/bytes, get-pages time, bind time and page-reclaim-list statistics.
+   - KMD impact: the first recoverable-fault implementation should already define a measurement contract so later batched-4K/64K/2M experiments can attribute cost to MM/get-pages, copy, PTE bind or TLB instead of guessing.
+   - Priority: **Measurement schema now; 64K/2M prototype in 6–12 months.**
+
+2. **GPU SVM / drm_pagemap direction remains stable rather than changing this week.**
+   - Source: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+   - KMD impact: continue to keep logical CPU-range identity, per-device residency, DMA mapping and GPU-PTE state decoupled; N:1/multi-device evolvability remains important.
+   - Priority: **Design compatibility now.**
+
 ### 2026-08-08 · Test #2
 1. **Migration granularity is promoted to an explicit second-stage architecture item.**
    - Source: Linux DRM GPU SVM RFC / `drm_pagemap`: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
