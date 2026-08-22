@@ -6,18 +6,16 @@ url: https://cheng3100.github.io
 markdown: kramdown
 encoding: utf-8
 
-# Jekyll pages and archive Markdown are separated by semantic filenames.
-# Owner archive files use *.archive.md, so they can coexist with generated
-# /kmd_owner_direction/owners/*.html pages without output-path collisions.
-# Other archive families remain explicitly excluded until their historical
-# files are migrated to *.resource.md / *.raw.md / *.update.md.
+# Canonical archive Markdown stays outside the rendered page tree. Build-time
+# wrappers are emitted into the `_generated` Jekyll collection so layout,
+# permalink, theme and shared UI remain fully controlled by Jekyll.
 exclude:
-  - docs
   - kmd_owner_direction/HOME.md
   - kmd_owner_direction/README.md
   - kmd_owner_direction/archive_audit_2026-08-08.md
   - kmd_owner_direction/resources
   - kmd_owner_direction/raw_updates
+  - kmd_owner_direction/raw_recovered_zh
   - kmd_owner_direction/updates
   - kmd_owner_direction/public_future_topic.md
   - README.md
@@ -25,7 +23,7 @@ exclude:
   - vendor
 
 collections:
-  pages:
+  generated:
     output: true
 
 plugins:
