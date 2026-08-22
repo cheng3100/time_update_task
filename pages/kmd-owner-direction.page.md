@@ -47,7 +47,7 @@ permalink: /kmd_owner_direction/
 
 <section class="owner-card">
   <h2 class="lang zh">任务内入口</h2><h2 class="lang en">Task Links</h2>
-  <p><a href="{{ '/kmd_owner_direction/raw-updates.html' | relative_url }}"><span class="lang zh">原始更新输出归档</span><span class="lang en">Raw Update Archive</span></a> · <a href="{{ '/kmd_owner_direction/memory-roadmap.html' | relative_url }}"><span class="lang zh">Memory 详细路线</span><span class="lang en">Memory Detailed Roadmap</span></a> · <a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">长期高价值资料总索引</span><span class="lang en">Durable Learning Resources</span></a></p>
+  <p><a href="{{ '/kmd_owner_direction/raw-updates.html' | relative_url }}"><span class="lang zh">运行归档与原始输出状态</span><span class="lang en">Run Archive & Raw Provenance</span></a> · <a href="{{ '/kmd_owner_direction/memory-roadmap.html' | relative_url }}"><span class="lang zh">Memory 详细路线</span><span class="lang en">Memory Detailed Roadmap</span></a> · <a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">长期高价值资料总索引</span><span class="lang en">Durable Learning Resources</span></a></p>
 </section>
 
 <section class="owner-card">
@@ -58,7 +58,7 @@ permalink: /kmd_owner_direction/
 
 <section class="owner-card update-history">
   <h2 class="lang zh">历次更新摘要</h2><h2 class="lang en">Update History</h2>
-  <p class="task-meta"><span class="lang zh">按时间从新到旧。每一期直接保留关键技术结论、资料引用与深入主题；完整上下文仍可进入结构化更新或原始输出。当前：{{ living.current_run }}</span><span class="lang en">Newest first. Each run keeps key technical conclusions, references and deep-dive topics here. Current: {{ living.current_run }}</span></p>
+  <p class="task-meta"><span class="lang zh">按时间从新到旧。每一期直接保留关键技术结论、资料引用与深入主题；历史归档的原文可信状态请以 Raw Archive 页面中的 provenance 标记为准。当前：{{ living.current_run }}</span><span class="lang en">Newest first. Each run keeps key technical conclusions, references and deep-dive topics here. Raw provenance is shown explicitly in the Raw Archive. Current: {{ living.current_run }}</span></p>
 
   {% for run in recent_history %}
   <article class="history-item{% if run.latest %} latest{% endif %}">
@@ -72,7 +72,7 @@ permalink: /kmd_owner_direction/
       </section>
       {% endfor %}
     </div>
-    <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a></div>
+    <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看该期归档记录 →</span><span class="lang en">Open run archive record →</span></a></div>
   </article>
   {% endfor %}
 
@@ -88,7 +88,7 @@ permalink: /kmd_owner_direction/
       </section>
       {% endfor %}
     </div>
-    <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a></div>
+    <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看该期归档记录 →</span><span class="lang en">Open run archive record →</span></a></div>
   </article>
   {% endfor %}
 </section>
