@@ -5,6 +5,25 @@ This document defines repository-wide rules shared by **all scheduled update tas
 ## 1. Complete chat report + GitHub archive are both mandatory
 Every scheduled run must produce the task's **complete report in the current ChatGPT conversation**. GitHub archival is an additional persistence layer, never a replacement for the full chat report.
 
+### Canonical raw invariant
+For every run, there must be exactly one canonical report body, conceptually `REPORT_BODY`.
+
+The task must follow this order:
+1. research and compose the complete final report in the task's required chat language;
+2. freeze that exact Markdown/text as `REPORT_BODY`;
+3. send `REPORT_BODY` to the ChatGPT conversation without shortening, translating, reorganizing or replacing it with an archive notice;
+4. write the **same `REPORT_BODY` byte-for-byte in content semantics** to the run's `*.raw.md` snapshot (the only allowed archive-only difference is a clearly separated provenance/front-matter header if the repository format requires one; the report body itself must be unchanged);
+5. only after the raw snapshot is committed may the task derive curated updates, translations, Home summaries, Living data or resource changes.
+
+Forbidden:
+- independently regenerating or summarizing the report for `*.raw.md`;
+- translating the raw body when the chat report was in another language;
+- compressing sections, removing source links, changing heading structure, or replacing detailed paragraphs with bullets in raw;
+- constructing raw from the curated update or from `_data`;
+- calling a reconstruction, translation or summary “raw/original/verbatim”.
+
+If the exact chat report cannot be persisted, the task must mark the archive as **unverified/reconstructed**, never as canonical raw.
+
 ## 2. Inspect the current task layout before every GitHub write
 Repository layouts may evolve independently of the scheduled-task prompt. Before writing an archive, the task must inspect the current task README / archive policy, current filenames, `_data`/layouts/generator when relevant, and follow the **current repository structure** rather than a stale hard-coded path convention.
 
@@ -92,6 +111,8 @@ Dynamic updates prioritize primary/upstream/high-authority sources. Durable reso
 
 ## 9. Traceability
 Every run gets a dated/unique raw snapshot; keep links between current curated views and history where practical; never claim verbatim provenance when only a reconstruction exists.
+
+For tasks with a Pages raw-archive view, provenance must be rendered explicitly when a historical file is not verified as the exact chat report. A Pages renderer must never silently “repair” a raw mismatch by translating or summarizing it and then label the result original/raw.
 
 ## 10. Repository-wide vs task-specific rules
 This file contains cross-task behavior only. Task-specific taxonomy, owner boundaries, report sections and domain-specific sources belong in the task directory/prompt.
