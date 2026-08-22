@@ -13,6 +13,7 @@ exclude:
   - kmd_owner_direction/HOME.md
   - kmd_owner_direction/README.md
   - kmd_owner_direction/archive_audit_2026-08-08.md
+  - kmd_owner_direction/owners
   - kmd_owner_direction/resources
   - kmd_owner_direction/raw_updates
   - kmd_owner_direction/raw_recovered_zh
