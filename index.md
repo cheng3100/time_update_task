@@ -1,16 +1,19 @@
 ---
 layout: default
 title: Time Update Tasks
-hero_title: Time Update Tasks
-hero_subtitle_zh: 所有定时更新任务的长期归档与 GitHub Pages 入口。
-hero_subtitle_en: Long-term archive and GitHub Pages index for scheduled update tasks.
+nav_order: 1
+permalink: /
 ---
+
+# Time Update Tasks
+
+<span class="lang zh">所有定时更新任务的长期归档与 GitHub Pages 入口。</span><span class="lang en">Long-term archive and GitHub Pages index for scheduled update tasks.</span>
 
 <section>
   <h2 class="lang zh">定时任务</h2>
   <h2 class="lang en">Scheduled Tasks</h2>
   {% for task in site.data.tasks.tasks %}
-  <article class="task-card">
+  <article class="owner-card">
     <h2><a href="{{ task.url | relative_url }}"><span class="lang zh">{{ task.title_zh }}</span><span class="lang en">{{ task.title_en }}</span></a></h2>
     <p class="lang zh">{{ task.summary_zh }}</p>
     <p class="lang en">{{ task.summary_en }}</p>
@@ -18,7 +21,6 @@ hero_subtitle_en: Long-term archive and GitHub Pages index for scheduled update 
   {% endfor %}
 </section>
 
-<hr>
 <section>
   <h2 class="lang zh">原始更新输出归档</h2>
   <h2 class="lang en">Raw Update Archive</h2>
