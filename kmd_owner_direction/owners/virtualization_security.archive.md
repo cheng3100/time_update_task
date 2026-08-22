@@ -20,6 +20,18 @@ SR-IOV PF/VF bring-up + provisioning/isolation when ASIC capability exists; othe
 First confirm ASIC capabilities: SR-IOV extended capability, VF BAR/interrupt model, VMID/resource partitioning, reset semantics, IOMMU isolation and PF↔VF control path. Only then decide whether virtualization is a real feature project or just platform integration.
 
 ## Industry Updates
+### 2026-08-22 · Weekly #2
+1. **A mature SR-IOV driver case makes the PF↔VF admin-channel work concrete.**
+   - Source: https://lwn.net/Articles/1088518/ (Cisco enic SR-IOV V2 admin channel/MBOX v13, 2026-08-12)
+   - Change: the design uses a direct PF-VF communication channel built on dedicated WQ/RQ/CQ hardware resources plus MSI-X and a mailbox protocol.
+   - KMD impact: if the GPU ASIC supports SR-IOV, PF↔VF control should be treated as a versioned service with transport/resource ownership, request/completion, interrupt notification, teardown/reset ordering and capability negotiation—not scattered MMIO side effects. The NIC implementation is not a GPU template, but the control-plane pattern maps well to VMID/doorbell/queue/memory provisioning.
+   - Priority: **Architecture reference now; implementation only after ASIC capability gate passes.**
+
+2. **No new GPU-specific SR-IOV mechanism this week changes the hardware-gated decision.**
+   - Current GPU reference: https://docs.kernel.org/next/gpu/xe/xe_configfs.html
+   - KMD impact: keep PF/VF provisioning/isolation as the feature, not generic PCI SR-IOV enablement.
+   - Priority: **ASIC capability first.**
+
 ### 2026-08-15 · Weekly #1
 1. **No high-value direction-level new item was found after the previous run.**
    - Current reference: https://docs.kernel.org/next/gpu/xe/xe_configfs.html
