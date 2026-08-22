@@ -25,6 +25,19 @@ Deliver protocol version, capability query, command/event IDs, sequence number, 
 Versioned message contract → capability negotiation → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → re-handshake → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-08-22 · Weekly #2
+1. **Nova is starting to expose lower-layer GPU parameters to nova-drm through an explicit core interface.**
+   - Source: https://lwn.net/Articles/1088246/ (v4, 2026-08-11)
+   - Change: the series exports basic GPU properties from nova-core to nova-drm and builds a new GPU-info ioctl on top of a higher-ranked lifetime/private-data mechanism.
+   - KMD impact: this is a concrete example of the next step after defining a firmware-independent lower layer: upper DRM/uAPI code should consume typed/stable capabilities and properties from the core rather than reach into FW/HW internals. For a self-developed KMD, capability negotiation should therefore feed a stable internal capability/property object that is the only input to upper feature layers.
+   - Priority: **Design now.**
+
+2. **Nova PRAMIN support demonstrates typed MMIO/window services as lower-layer ownership.**
+   - Source: https://lwn.net/Articles/1087343/ (2026-08-05)
+   - Change: nova-core adds a PRAMIN abstraction that programs a 1 MiB BAR0 window to arbitrary VRAM and hands out typed MMIO views.
+   - KMD impact: firmware/control-plane architecture is not only message transport; shared low-level address-window/MMIO services should have one owner and typed lifetime rules so upper modules cannot race window reprogramming or duplicate register semantics.
+   - Priority: **Architecture reference; implement only where the ASIC has analogous indirect windows/services.**
+
 ### 2026-08-15 · Weekly #1
 1. **Nova devinit makes reset-time firmware phase boundaries concrete.**
    - Source: https://docs.kernel.org/next/gpu/nova/core/devinit.html
