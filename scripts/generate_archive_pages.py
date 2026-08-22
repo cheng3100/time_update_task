@@ -7,6 +7,7 @@ import shutil
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "generated_archive_pages"
 HISTORY_PATH = ROOT / "_data" / "kmd_history.json"
+RECENT_HISTORY_PATH = ROOT / "_data" / "kmd_recent_history.json"
 
 
 def yaml_string(value: str) -> str:
@@ -117,10 +118,12 @@ def render_related_links(run: dict, lang: str) -> str:
 
 
 def load_history() -> tuple[list[dict], dict[str, dict], dict[str, dict]]:
-    if not HISTORY_PATH.exists():
-        return [], {}, {}
-    data = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
-    runs = data.get("runs", [])
+    runs = []
+    # Recent real weekly runs take precedence over old test history.
+    for path in (RECENT_HISTORY_PATH, HISTORY_PATH):
+        if path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            runs.extend(data.get("runs", []))
     by_raw = {}
     by_curated = {}
     for run in runs:
@@ -220,8 +223,6 @@ def emit_curated(source: Path, stem: str, run: dict | None) -> None:
         page += f"\n## Archive Entry\n\n- [Raw / recovered output]({liquid_href(run.get('raw', '/kmd_owner_direction/raw-updates.html'))})\n"
         page += "\n</div>\n\n"
 
-    # The historical structured source is currently mostly English. Keep it as an
-    # English full-detail appendix instead of leaking English into the default zh view.
     page += '<div class="lang en structured-source" markdown="1">\n\n'
     page += "## Full Structured Archive\n\n" + linkify_bare_urls(source_text) + "\n\n</div>\n"
     write_page(permalink, page)
@@ -233,7 +234,6 @@ def main() -> None:
 
     _, history_by_raw, history_by_curated = load_history()
 
-    # Durable learning resources: keep source archives untouched, render wrappers.
     resource_root = ROOT / "kmd_owner_direction" / "resources"
     for source in sorted(resource_root.rglob("*.resource.md")):
         rel = source.relative_to(resource_root)
@@ -251,13 +251,11 @@ def main() -> None:
             back_en = "Learning Resources"
         emit_generic(source, permalink, back_url, back_zh, back_en)
 
-    # Raw snapshots: Chinese-first reading view; English/reconstruction is separated.
     raw_root = ROOT / "kmd_owner_direction" / "raw_updates"
     for source in sorted(raw_root.glob("*.raw.md")):
         stem = source.name.removesuffix(".raw.md")
         emit_raw(source, stem, history_by_raw.get(stem))
 
-    # Curated dated updates: prepend rich linked run summary, then full archive.
     update_root = ROOT / "kmd_owner_direction" / "updates"
     for source in sorted(update_root.glob("*.update.md")):
         stem = source.name.removesuffix(".update.md")
