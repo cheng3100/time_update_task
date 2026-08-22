@@ -1,13 +1,12 @@
 ---
 layout: default
 title: GPU KMD Owner Direction
+nav_order: 2
+has_children: true
 hero_title: GPU KMD Owner Direction
 hero_subtitle_zh: 稳定 Owner 定义 + 独立 Owner 页面 + 长期资料 + 历次更新摘要。方向定义默认稳定，Living 内容按期更新。
 hero_subtitle_en: Stable Owner definitions + independent Owner pages + durable resources + update history. Direction definitions stay stable while Living content refreshes per run.
 permalink: /kmd_owner_direction/
-back_url: /
-back_zh: 所有任务
-back_en: All tasks
 ---
 
 {% assign kmd = site.data.kmd_owner_direction %}
@@ -15,8 +14,6 @@ back_en: All tasks
 {% assign recent_history = site.data.kmd_recent_history.runs %}
 {% assign legacy_history = site.data.kmd_history.runs %}
 {% assign living = site.data.kmd_living_latest %}
-
-{% include kmd-nav.html active='home' %}
 
 <section class="owner-card stable-definition-note">
   <h2 class="lang zh">稳定方向定义</h2><h2 class="lang en">Stable Direction Definitions</h2>
@@ -85,7 +82,7 @@ back_en: All tasks
     <p class="history-intro lang zh">{{ run.intro_zh }}</p><p class="history-intro lang en">{{ run.intro_en }}</p>
     <div class="history-highlights">
       {% for item in run.highlights %}
-      <section class="history-highlight"><h4>{% if item.url %}<a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}">{% endif %}<span class="lang zh">{{ item.title_zh }}</span><span class="lang en">{{ item.title_en }}</span>{% if item.url %}</a>{% endif %}</h4><p class="lang zh">{{ item.body_zh }}</p><p class="lang en">{{ item.body_en }}</p></section>
+      <section class="history-highlight"><h4>{% if item.url %}<a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}">{% endif %}<span class="lang zh">{{ item.title_zh }}</span><span class="lang en">{{ item.title_en }}</span>{% if item.url %}</a>{% endif %}</h4><p class="lang zh">{{ item.body_zh }}</p><p class="lang en">{{ item.body_en }}</span></p></section>
       {% endfor %}
     </div>
     <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a></div>
