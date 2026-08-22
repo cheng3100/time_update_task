@@ -7,16 +7,10 @@ layout: default
 {% assign owner = nil %}
 {% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
 {% assign definition = stable.owners[page.owner_id] %}
-{% assign latest_owner = living.owners[page.owner_id] %}
 {% assign resources = site.data.kmd_resources[page.owner_id] %}
+{% assign current_updates = living.owners[page.owner_id] %}
 
-<nav class="nav-tabs">
-  <a href="{{ '/kmd_owner_direction/' | relative_url }}"><span class="lang zh">首页</span><span class="lang en">Home</span></a>
-  {% for item in kmd.owners %}
-  <a{% if item.id == page.owner_id %} class="active"{% endif %} href="{{ '/kmd_owner_direction/owners/' | append: item.id | append: '.html' | relative_url }}"><span class="lang zh">{{ item.tab_zh }}</span><span class="lang en">{{ item.tab_en }}</span></a>
-  {% endfor %}
-  <a href="{{ '/kmd_owner_direction/future.html' | relative_url }}"><span class="lang zh">公共未来 Topic</span><span class="lang en">Future Topic</span></a>
-</nav>
+{% include kmd-nav.html active=page.owner_id %}
 
 {% if owner %}
 <section class="owner-card stable-definition-note">
@@ -25,7 +19,7 @@ layout: default
   <p class="lang en">{{ definition.description_en }}</p>
   <p><strong><span class="lang zh">职责边界：</span><span class="lang en">Ownership boundary: </span></strong><span class="lang zh">{{ definition.boundary_zh }}</span><span class="lang en">{{ definition.boundary_en }}</span></p>
   <p class="task-meta"><span class="lang zh">该方向定义默认长期稳定，只有明确调整 taxonomy / Owner 边界时才修改。</span><span class="lang en">This definition is stable by default and changes only when taxonomy or Owner boundaries are explicitly revised.</span></p>
-  <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{% if latest_owner.entry_zh %}{{ latest_owner.entry_zh }}{% else %}{{ owner.entry_zh }}{% endif %}</span><span class="lang en">{% if latest_owner.entry_en %}{{ latest_owner.entry_en }}{% else %}{{ owner.entry_en }}{% endif %}</span></p>
+  <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
 </section>
 
 <section class="owner-card">
@@ -50,8 +44,8 @@ layout: default
 <section class="owner-card">
   <h2 class="lang zh">本期业界最新动态</h2><h2 class="lang en">Industry Updates — This Run</h2>
   <p class="task-meta"><span class="lang zh">当前周期：{{ living.current_run }}。这一部分属于 Living 内容，会随每期任务刷新；它不会自动修改上面的 Stable Direction Definition。</span><span class="lang en">Current run: {{ living.current_run }}. This is Living content and refreshes per run; it does not automatically modify the Stable Direction Definition above.</span></p>
-  {% if latest_owner.updates and latest_owner.updates.size > 0 %}
-    {% for update in latest_owner.updates %}
+  {% if current_updates %}
+    {% for update in current_updates %}
     <article class="history-item">
       <h3><a href="{{ update.url }}"><span class="lang zh">{{ update.title_zh }}</span><span class="lang en">{{ update.title_en }}</span></a></h3>
       <p><strong><span class="lang zh">KMD 影响：</span><span class="lang en">KMD impact: </span></strong><span class="lang zh">{{ update.impact_zh }}</span><span class="lang en">{{ update.impact_en }}</span></p>
@@ -59,8 +53,8 @@ layout: default
     </article>
     {% endfor %}
   {% else %}
-    <p class="lang zh"><strong>本期无高价值方向级新增。</strong> 保持当前稳定定义与切入路线，不为填充周报制造新闻。</p>
-    <p class="lang en"><strong>No high-value direction-level change this run.</strong> Keep the current stable definition and entry path rather than manufacturing news.</p>
+    <p class="lang zh">本期无独立高价值方向级新增，保持既有路线。</p>
+    <p class="lang en">No independent high-value direction-level change this run; keep the existing path.</p>
   {% endif %}
 </section>
 
