@@ -1,0 +1,108 @@
+{
+  "current_run": "2026-08-22 Weekly #2",
+  "owners": {
+    "memory": {
+      "entry_zh": "Recoverable fault + HMM + migration + replay；继续把 notifier sequence、VM/context/reset generation、PTE/TLB completion ordering 与 measurement contract 放在第一版 correctness 闭环中。",
+      "entry_en": "Recoverable fault + HMM + migration + replay; keep notifier sequencing, VM/context/reset generations, PTE/TLB completion ordering and the measurement contract in the first correctness loop.",
+      "updates": [
+        {
+          "title_zh": "AMDGPU PASID TLB flush fix 再次强调 TLB invalidation completion/ordering 是 correctness boundary",
+          "title_en": "AMDGPU PASID TLB-flush work reinforces TLB invalidation completion/ordering as a correctness boundary",
+          "url": "https://lwn.net/Articles/1088955/",
+          "impact_zh": "fault/migration/replay 路径不能把 TLB invalidate 当作尾部 fire-and-forget；必须定义发起、完成、并发 invalidation、reset race 与 replay 可见性。",
+          "impact_en": "Fault/migration/replay cannot treat TLB invalidation as fire-and-forget; initiation, completion, concurrent invalidation, reset races and replay visibility need explicit semantics.",
+          "priority_zh": "现在",
+          "priority_en": "Now"
+        }
+      ]
+    },
+    "virt": {
+      "entry_zh": "ASIC capability gate 仍保持；若支持 SR-IOV，则把 PF↔VF admin channel + provisioning/isolation 当作完整 control-plane feature，而不是 generic PCI enablement。",
+      "entry_en": "Keep the ASIC capability gate; when SR-IOV exists, treat the PF↔VF admin channel plus provisioning/isolation as the real control-plane feature rather than generic PCI enablement.",
+      "updates": [
+        {
+          "title_zh": "Cisco enic SR-IOV V2 提供成熟 PF↔VF admin-channel 实现参考",
+          "title_en": "Cisco enic SR-IOV V2 provides a mature PF↔VF admin-channel implementation reference",
+          "url": "https://lwn.net/Articles/1088518/",
+          "impact_zh": "GPU PF↔VF control 应显式设计 transport/resource ownership、versioned mailbox、request/completion、MSI-X/interrupt、teardown/reset ordering 与 capability negotiation。",
+          "impact_en": "GPU PF↔VF control should explicitly model transport/resource ownership, a versioned mailbox, request/completion, interrupts, teardown/reset ordering and capability negotiation.",
+          "priority_zh": "架构参考现在；实现取决于 ASIC capability",
+          "priority_en": "Architecture reference now; implementation remains ASIC-gated"
+        }
+      ]
+    },
+    "power": {
+      "entry_zh": "busy/idle + reusable utilization telemetry → DVFS → runtime PM；本期无方向级变化，继续 measurement/lifetime-first。",
+      "entry_en": "busy/idle + reusable utilization telemetry → DVFS → runtime PM; no direction-level change this run, remain measurement/lifetime-first.",
+      "updates": []
+    },
+    "ras": {
+      "entry_zh": "Frozen snapshot + devcoredump + health classification 之后，新增 Reset Gate + reset_generation 作为可复用 recovery primitive。",
+      "entry_en": "After frozen snapshot + devcoredump + health classification, add a Reset Gate + reset_generation as a reusable recovery primitive.",
+      "updates": [
+        {
+          "title_zh": "Tyr GPU reset v4 把 reset admission/concurrency 做成显式 KMD 子系统",
+          "title_en": "Tyr GPU reset v4 makes reset admission/concurrency an explicit KMD subsystem",
+          "url": "https://lwn.net/Articles/1088747/",
+          "impact_zh": "reset pending 后需要阻止/静默新操作、drain in-flight reader、coalesce 重复 reset，并在重新 admission 前推进 reset_generation；这应成为 snapshot-before-reset 之后的公共 recovery 基础设施。",
+          "impact_en": "Once reset is pending, new operations need to stop or quiesce, in-flight readers need draining, duplicate resets should coalesce, and reset_generation must advance before admission resumes.",
+          "priority_zh": "现在设计；首条生产 reset/recovery 路径实现",
+          "priority_en": "Design now; implement with the first production reset/recovery path"
+        },
+        {
+          "title_zh": "Linux 7.2 晚期 DRM scheduling revert 提醒 recovery/scheduler 改动必须分阶段",
+          "title_en": "Linux 7.2 late DRM scheduling reverts reinforce staged recovery/scheduler changes",
+          "url": "https://lwn.net/Articles/1089033/",
+          "impact_zh": "第一版 reset/recovery 不应同时耦合大范围 scheduler 重写；应通过 state/generation boundary 与 fault-injection tests 分阶段引入。",
+          "impact_en": "The first reset/recovery implementation should not couple broad scheduler rewrites; introduce changes behind state/generation boundaries and fault-injection tests.",
+          "priority_zh": "工程纪律现在",
+          "priority_en": "Engineering discipline now"
+        }
+      ]
+    },
+    "multi": {
+      "entry_zh": "Stable identity → topology → P2P capability → peer mapping → P2P DMA → shared VM；本期无生产级方向变化。",
+      "entry_en": "Stable identity → topology → P2P capability → peer mapping → P2P DMA → shared VM; no production-level direction change this run.",
+      "updates": []
+    },
+    "obs": {
+      "entry_zh": "Stable object/event IDs + low-overhead counters + eBPF trace；未来 hardware trace / PMU 尽量接入 perf-compatible timeline。",
+      "entry_en": "Stable object/event IDs + low-overhead counters + eBPF tracing; future hardware trace/PMU should join a perf-compatible timeline where practical.",
+      "updates": [
+        {
+          "title_zh": "perf AUX kernel-consumer work 为 hardware-generated trace stream 接入通用 Linux observability 提供方向",
+          "title_en": "perf AUX kernel-consumer work points toward common Linux consumption of hardware-generated trace streams",
+          "url": "https://lwn.net/Articles/1087343/",
+          "impact_zh": "未来 GPU PMU/trace 若硬件允许，应保留 perf-compatible event/stream semantics，避免形成只被 vendor tool 消费的封闭数据通路。",
+          "impact_en": "Future GPU PMU/trace should preserve perf-compatible event/stream semantics where hardware allows, avoiding a closed vendor-only data path.",
+          "priority_zh": "长期架构兼容",
+          "priority_en": "Long-term architecture compatibility"
+        }
+      ]
+    },
+    "fw": {
+      "entry_zh": "Versioned async protocol + capability negotiation + explicit boot/reset generation；新增 stable capability/property object 作为 DRM/VFIO/其他 upper clients 的唯一 lower-service 输入。",
+      "entry_en": "Versioned async protocol + capability negotiation + explicit boot/reset generations; add a stable capability/property object consumed by DRM/VFIO and other upper clients.",
+      "updates": [
+        {
+          "title_zh": "Nova parameter-export v4 把 GPU property 从 nova-core 暴露给 nova-drm",
+          "title_en": "Nova parameter-export v4 exposes GPU properties from nova-core to nova-drm",
+          "url": "https://lwn.net/Articles/1088246/",
+          "impact_zh": "capability negotiation 不应只得到 bitmap 后四处判断；应生成 typed/stable internal capability/property object，upper layer 只消费该对象，不穿透 FW/HW 私有状态。",
+          "impact_en": "Capability negotiation should produce a typed/stable internal capability/property object consumed by upper layers instead of scattered checks or direct FW/HW access.",
+          "priority_zh": "现在设计",
+          "priority_en": "Design now"
+        },
+        {
+          "title_zh": "Nova PRAMIN 展示 typed MMIO/window service 也应归 lower-layer ownership",
+          "title_en": "Nova PRAMIN shows typed MMIO/window services as lower-layer ownership",
+          "url": "https://lwn.net/Articles/1087343/",
+          "impact_zh": "Control Plane 不只负责消息 transport；若 ASIC 存在 indirect window/MMIO shared service，也应集中 ownership/lifetime，避免 upper module 竞争重编程窗口。",
+          "impact_en": "The control plane is more than message transport; shared indirect-window/MMIO services should centralize ownership/lifetime so upper modules cannot race reprogramming.",
+          "priority_zh": "有对应硬件时作为架构参考",
+          "priority_en": "Architecture reference when analogous hardware exists"
+        }
+      ]
+    }
+  }
+}
