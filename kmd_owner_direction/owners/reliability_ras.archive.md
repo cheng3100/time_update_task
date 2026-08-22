@@ -17,9 +17,22 @@ Own detection, diagnosis, containment and recovery of GPU faults plus production
 Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
 
 ### Near-term feature path
-Hang detection → freeze diagnostic state → structured snapshot → devcoredump → health classification/recovery hint → reset → state restore → progressively finer queue/context/engine recovery.
+Hang detection → freeze diagnostic state → structured snapshot → devcoredump → health classification/recovery hint → reset admission gate → reset → state restore → progressively finer queue/context/engine recovery.
 
 ## Industry Updates
+### 2026-08-22 · Weekly #2
+1. **Tyr GPU reset v4 makes reset admission/concurrency an explicit KMD subsystem.**
+   - Source: https://lwn.net/Articles/1088747/ (2026-08-13)
+   - Change: the Rust DRM Tyr driver schedules reset on a dedicated workqueue, tracks pending/in-progress reset state, and uses an SRCU-based gate plus mutex-protected reader admission so normal GPU operations can be blocked around reset without turning every path into one giant lock.
+   - KMD impact: after snapshot-before-reset, the next reusable RAS primitive should be a reset gate/state machine. New submissions/control operations must be denied or quiesced once reset is pending; in-flight readers need an explicit drain rule; duplicate reset requests must coalesce; post-reset state publication must advance generation before normal admission resumes.
+   - Priority: **Design now; implement with the first production reset/recovery path.**
+
+2. **Linux 7.2 shipped after late DRM scheduling reverts, reinforcing staged recovery/scheduler changes.**
+   - Source: https://lwn.net/Articles/1089033/ (2026-08-16)
+   - Change: Linus explicitly called out late DRM scheduling reverts because the code was not ready and caused problems.
+   - KMD impact: recovery and scheduling interactions should be introduced behind explicit state/generation boundaries and fault-injection tests; avoid coupling a first RAS reset implementation to broad scheduler rewrites.
+   - Priority: **Engineering discipline now; not a new owner direction.**
+
 ### 2026-08-15 · Weekly #1
 1. **Xe GPU Health Indicator / Device Wedging makes the management-facing RAS contract explicit.**
    - Source: https://docs.kernel.org/next/gpu/xe/xe_device.html
