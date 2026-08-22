@@ -1,16 +1,16 @@
 ---
 layout: default
-title: Linux GPU / Accelerator Kernel Ecosystem
-hero_title: Linux GPU / Accelerator Kernel Ecosystem
-hero_subtitle_zh: 公共未来演进 Topic，不分配独立 Owner；跟踪未来 1–3 年可能改变 KMD 架构的 upstream 机制。
-hero_subtitle_en: Shared future-evolution topic, not an Owner; tracks upstream mechanisms that may change KMD architecture over 1–3 years.
+title: Future Topic
+parent: GPU KMD Owner Direction
+nav_order: 11
 permalink: /kmd_owner_direction/future.html
-back_url: /kmd_owner_direction/
-back_zh: GPU KMD Owner 主页
-back_en: GPU KMD Owner Home
 ---
 
-{% include kmd-nav.html active='future' %}
+<section class="owner-card">
+<h2 class="lang zh">Linux GPU / Accelerator Kernel Ecosystem</h2><h2 class="lang en">Linux GPU / Accelerator Kernel Ecosystem</h2>
+<p class="lang zh">公共未来演进 Topic，不分配独立 Owner；跟踪未来 1–3 年可能改变 KMD 架构的 upstream 机制。</p>
+<p class="lang en">Shared future-evolution topic, not an Owner; tracks upstream mechanisms that may change KMD architecture over 1–3 years.</p>
+</section>
 
 <section class="owner-card">
 <h2 class="lang zh">长期跟踪范围</h2><h2 class="lang en">Long-term watch scope</h2>
