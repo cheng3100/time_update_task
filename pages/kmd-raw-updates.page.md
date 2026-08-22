@@ -1,13 +1,9 @@
 ---
 layout: default
-title: GPU KMD Raw Update Archive
-hero_title: Raw Update Archive
-hero_subtitle_zh: GPU KMD Owner 定时任务的完整原始输出历史；append-only。
-hero_subtitle_en: Complete append-only output history for the GPU KMD Owner scheduled task.
+title: Raw Update Archive
+parent: GPU KMD Owner Direction
+nav_order: 10
 permalink: /kmd_owner_direction/raw-updates.html
-back_url: /kmd_owner_direction/
-back_zh: GPU KMD Owner Direction
-back_en: GPU KMD Owner Direction
 ---
 
 {% assign recent = site.data.kmd_recent_history.runs %}
