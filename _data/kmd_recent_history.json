@@ -1,0 +1,87 @@
+{
+  "current_run": "2026-08-22 Weekly #2",
+  "runs": [
+    {
+      "id": "weekly-2026-08-22-2",
+      "date": "2026-08-22",
+      "title_zh": "Weekly #2 · Reset Gate / PF-VF Control / Core Capability",
+      "title_en": "Weekly #2 · Reset Gate / PF-VF Control / Core Capability",
+      "latest": true,
+      "intro_zh": "本期 7 个 Owner 稳定 taxonomy 不变，但三条跨 Owner contract 明显增强：RAS 的 reset admission/generation、Virtualization 的 PF↔VF admin channel，以及 Firmware lower layer 的 capability/property service。Memory 主线保持 recoverable fault/HMM/migration/replay，并继续强调 race/measurement correctness。",
+      "intro_en": "The seven-owner taxonomy stays unchanged. This run strengthens three cross-owner contracts: RAS reset admission/generation, the PF↔VF admin channel for virtualization, and firmware-independent core capability/property services. Memory remains on recoverable fault/HMM/migration/replay with race and measurement correctness.",
+      "highlights": [
+        {
+          "title_zh": "本期最有价值：Reset Gate + Generation Contract",
+          "title_en": "Most valuable: Reset Gate + Generation Contract",
+          "body_zh": "Tyr GPU reset v4 把 reset admission/concurrency 做成显式 KMD 子系统：reset pending 后拒绝或 quiesce 新操作，in-flight reader 有 drain 规则，重复 reset 请求需要 coalesce，恢复后以新的 reset_generation 隔离旧 async completion。建议状态机为 RUNNING → QUIESCING → SNAPSHOT_FROZEN → RESETTING → RESTORING → RUNNING/FAILED。",
+          "body_en": "Tyr reset v4 makes reset admission/concurrency an explicit KMD subsystem: stop or quiesce new operations once reset is pending, drain in-flight readers, coalesce duplicate resets, and advance reset_generation before normal admission resumes.",
+          "url": "https://lwn.net/Articles/1088747/"
+        },
+        {
+          "title_zh": "Virtualization：PF↔VF admin channel 成为真正的 GPU SR-IOV control-plane 工作",
+          "title_en": "Virtualization: PF↔VF admin channel becomes the real SR-IOV control-plane work",
+          "body_zh": "Cisco enic SR-IOV V2 提供成熟的 PF↔VF admin-channel 参考。对 GPU 而言应抽象 versioned service、transport/resource ownership、request/completion、interrupt、teardown/reset ordering 与 capability negotiation，而不是把 virtualization 简化成 generic PCI SR-IOV enable。",
+          "body_en": "Cisco enic SR-IOV V2 provides a mature PF↔VF admin-channel reference. A GPU implementation should treat this as a versioned service with transport/resource ownership, request/completion, interrupts, teardown/reset ordering and capability negotiation.",
+          "url": "https://lwn.net/Articles/1088518/"
+        },
+        {
+          "title_zh": "Firmware：nova-core capability/property service 开始成为稳定 lower-layer interface",
+          "title_en": "Firmware: nova-core capability/property service becomes a stable lower-layer interface",
+          "body_zh": "Nova parameter-export v4 从 nova-core 向 nova-drm 提供 GPU property，并在其上构建 GPU-info ioctl，说明上层 DRM/VFIO client 应消费 typed/stable capability/property object，而不是直接读取 FW/HW 私有状态。",
+          "body_en": "Nova parameter-export v4 exposes GPU properties from nova-core to nova-drm and builds GPU-info on top, reinforcing typed and stable lower-layer capability/property services.",
+          "url": "https://lwn.net/Articles/1088246/"
+        },
+        {
+          "title_zh": "Memory：TLB invalidation completion/ordering 继续被证明是 fault/migration correctness 的核心",
+          "title_en": "Memory: TLB invalidation completion/ordering remains central to fault/migration correctness",
+          "body_zh": "Linux 7.2 中 AMDGPU PASID TLB-flush fix 与 TLB-invalidation semaphore 工作再次提醒：TLB invalidate 不是 migration/replay 尾部的小步骤，而是必须有 completion/ordering contract 的 correctness boundary。",
+          "body_en": "AMDGPU PASID TLB-flush fixes and TLB-invalidation semaphore work reinforce that TLB invalidation is a correctness boundary with explicit completion/ordering semantics.",
+          "url": "https://lwn.net/Articles/1088955/"
+        },
+        {
+          "title_zh": "Observability：perf AUX kernel-consumer 为 GPU hardware trace 接入公共观测框架提供长期方向",
+          "title_en": "Observability: perf AUX kernel consumers provide a path for GPU hardware trace integration",
+          "body_zh": "perf AUX kernel-consumer API 与 DAMON/ARM SPE 的结合表明，hardware-generated trace stream 可以进入通用 Linux observability infrastructure。未来 GPU PMU/trace 如果硬件允许，应尽量保留 perf-compatible event semantics，而不是封闭 vendor-only stream。",
+          "body_en": "perf AUX kernel-consumer work shows hardware-generated trace streams moving into common Linux observability infrastructure, a useful long-term direction for GPU PMU/trace integration.",
+          "url": "https://lwn.net/Articles/1087343/"
+        }
+      ],
+      "curated": "/kmd_owner_direction/updates/2026-08-22-weekly-2.html",
+      "raw": "/kmd_owner_direction/raw_updates/2026-08-22-weekly-2.html"
+    },
+    {
+      "id": "weekly-2026-08-15-1",
+      "date": "2026-08-15",
+      "title_zh": "Weekly #1 · Measurement / Health / Lifecycle",
+      "title_en": "Weekly #1 · Measurement / Health / Lifecycle",
+      "latest": false,
+      "intro_zh": "第一期正式周更没有改动 7 个 Owner，而是把三类基础 contract 提升为近期工程重点：Memory fault/migration measurement、RAS management-facing health/recovery hint，以及 Firmware 显式 boot/reset phase + generation。",
+      "intro_en": "The first formal weekly run keeps all seven Owners stable and promotes three engineering contracts: Memory fault/migration measurement, management-facing RAS health/recovery hints, and explicit firmware boot/reset phases plus generations.",
+      "highlights": [
+        {
+          "title_zh": "Memory / Observability：Xe GT Statistics 把 fault/migration 按 4K/64K/2M 量化",
+          "title_en": "Memory / Observability: Xe GT Statistics quantifies fault/migration at 4K/64K/2M",
+          "body_zh": "Xe 暴露 SVM fault count/time、TLB invalidation、4K/64K/2M migration、copy/get-pages/bind/reclaim 等低开销统计。第一版 fault correctness 应同时建立 measurement contract，后续再用数据决定 batched-4K/64K/2M，而不是凭直觉选 migration granularity。",
+          "body_en": "Xe exposes low-overhead SVM fault, TLB invalidation, 4K/64K/2M migration, copy/get-pages/bind/reclaim statistics, providing a concrete measurement contract before choosing migration granularity.",
+          "url": "https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html"
+        },
+        {
+          "title_zh": "RAS：GPU Health Indicator 把 raw evidence 与 management contract 分层",
+          "title_en": "RAS: GPU Health Indicator separates raw evidence from the management contract",
+          "body_zh": "Xe gpu_health / wedged recovery hint 支持三层模型：raw evidence → KMD classification/recovery policy → management-facing health state/recovery hint。生产环境不应让管理工具依赖解析 dmesg 判断 GPU 是否健康。",
+          "body_en": "Xe gpu_health and wedged recovery hints support a three-layer model: raw evidence → KMD classification/recovery policy → management-facing health/recovery hint.",
+          "url": "https://docs.kernel.org/next/gpu/xe/xe_device.html"
+        },
+        {
+          "title_zh": "Firmware：Nova devinit 强化显式 boot/reset phase + generation",
+          "title_en": "Firmware: Nova devinit reinforces explicit boot/reset phases + generations",
+          "body_zh": "Nova reset-time secure firmware/devinit/GFW_BOOT 流程说明 control plane 不应只有 fw_ready 布尔值，应显式表达 RESET/SECURE_FW/DEVINIT/GFW_BOOT/HANDSHAKE/SERVICE_READY 并用 generation 隔离旧 request/completion。",
+          "body_en": "Nova reset-time devinit sequencing shows that a control plane needs explicit RESET/SECURE_FW/DEVINIT/GFW_BOOT/HANDSHAKE/SERVICE_READY phases and generations, not only a firmware-ready bit.",
+          "url": "https://docs.kernel.org/next/gpu/nova/core/devinit.html"
+        }
+      ],
+      "curated": "/kmd_owner_direction/updates/2026-08-15-weekly-1.html",
+      "raw": "/kmd_owner_direction/raw_updates/2026-08-15-weekly-1.html"
+    }
+  ]
+}
