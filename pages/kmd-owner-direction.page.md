@@ -35,11 +35,12 @@ back_en: All tasks
 
   {% for owner in kmd.owners %}
   {% assign definition = stable.owners[owner.id] %}
+  {% assign latest_owner = site.data.kmd_living_latest.owners[owner.id] %}
   <article class="direction-overview">
     <h3><a href="{{ '/kmd_owner_direction/owners/' | append: owner.id | append: '.html' | relative_url }}">{{ owner.name }}</a> <span class="badge">Stable</span></h3>
     <p class="lang zh">{{ definition.description_zh }}</p>
     <p class="lang en">{{ definition.description_en }}</p>
-    <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
+    <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{% if latest_owner.entry_zh %}{{ latest_owner.entry_zh }}{% else %}{{ owner.entry_zh }}{% endif %}</span><span class="lang en">{% if latest_owner.entry_en %}{{ latest_owner.entry_en }}{% else %}{{ owner.entry_en }}{% endif %}</span></p>
 
     <h4 class="lang zh">稳定子方向</h4><h4 class="lang en">Stable Sub-directions</h4>
     <ul class="subdirection-summary-list">
@@ -69,14 +70,14 @@ back_en: All tasks
 
 <section class="owner-card update-history">
   <h2 class="lang zh">历次更新摘要</h2><h2 class="lang en">Update History</h2>
-  <p class="task-meta"><span class="lang zh">按时间从新到旧。每一期直接保留关键技术结论、资料引用与深入主题；完整上下文仍可进入结构化更新或原始输出。当前：{{ kmd.current_run }}</span><span class="lang en">Newest first. Each run keeps its key technical conclusions, references and deep-dive topics here; full context remains available through the curated and raw reports. Current: {{ kmd.current_run }}</span></p>
+  <p class="task-meta"><span class="lang zh">按时间从新到旧。每一期直接保留关键技术结论、资料引用与深入主题；完整上下文仍可进入结构化更新或原始输出。当前：{{ site.data.kmd_recent_history.current_run }}</span><span class="lang en">Newest first. Each run keeps its key technical conclusions, references and deep-dive topics here; full context remains available through the curated and raw reports. Current: {{ site.data.kmd_recent_history.current_run }}</span></p>
 
-  {% for run in history %}
+  {% assign recent_history = site.data.kmd_recent_history.runs %}
+  {% for run in recent_history %}
   <article class="history-item{% if run.latest %} latest{% endif %}">
     <h3>{{ run.date }} · <span class="lang zh">{{ run.title_zh }}</span><span class="lang en">{{ run.title_en }}</span>{% if run.latest %} <span class="badge"><span class="lang zh">最新</span><span class="lang en">Latest</span></span>{% endif %}</h3>
     <p class="history-intro lang zh">{{ run.intro_zh }}</p>
     <p class="history-intro lang en">{{ run.intro_en }}</p>
-
     <div class="history-highlights">
       {% for item in run.highlights %}
       <section class="history-highlight">
@@ -86,7 +87,27 @@ back_en: All tasks
       </section>
       {% endfor %}
     </div>
+    <div class="history-links">
+      <a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a>
+      <a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a>
+    </div>
+  </article>
+  {% endfor %}
 
+  {% for run in history %}
+  <article class="history-item">
+    <h3>{{ run.date }} · <span class="lang zh">{{ run.title_zh }}</span><span class="lang en">{{ run.title_en }}</span></h3>
+    <p class="history-intro lang zh">{{ run.intro_zh }}</p>
+    <p class="history-intro lang en">{{ run.intro_en }}</p>
+    <div class="history-highlights">
+      {% for item in run.highlights %}
+      <section class="history-highlight">
+        <h4>{% if item.url %}<a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}">{% endif %}<span class="lang zh">{{ item.title_zh }}</span><span class="lang en">{{ item.title_en }}</span>{% if item.url %}</a>{% endif %}</h4>
+        <p class="lang zh">{{ item.body_zh }}</p>
+        <p class="lang en">{{ item.body_en }}</p>
+      </section>
+      {% endfor %}
+    </div>
     <div class="history-links">
       <a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a>
       <a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a>
