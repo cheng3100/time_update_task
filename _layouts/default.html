@@ -15,28 +15,16 @@
     {% if page.hero_subtitle_en %}<p class="lang en">{{ page.hero_subtitle_en }}</p>{% endif %}
   </div>
 </header>
-<main class="inner main-content">
+<main class="inner main-content" id="main-content">
   <div class="utility-bar">
-    {% if page.back_url %}<a href="{{ page.back_url | relative_url }}" class="lang zh">← {{ page.back_zh | default: '返回' }}</a><a href="{{ page.back_url | relative_url }}" class="lang en">← {{ page.back_en | default: 'Back' }}</a>{% endif %}
-    <button id="langToggle" type="button">English</button>
+    {% if page.back_url %}
+    <a href="{{ page.back_url | relative_url }}" class="lang zh">← {{ page.back_zh | default: '返回' }}</a>
+    <a href="{{ page.back_url | relative_url }}" class="lang en">← {{ page.back_en | default: 'Back' }}</a>
+    {% endif %}
+    <button id="langToggle" type="button" aria-label="Switch language">English</button>
   </div>
   {{ content }}
 </main>
-<script>
-(function(){
-  const key='site-lang';
-  let lang=localStorage.getItem(key)||'zh';
-  const button=document.getElementById('langToggle');
-  function apply(){
-    document.documentElement.lang=lang==='zh'?'zh-CN':'en';
-    document.querySelectorAll('.lang.zh').forEach(e=>e.hidden=lang!=='zh');
-    document.querySelectorAll('.lang.en').forEach(e=>e.hidden=lang!=='en');
-    if(button) button.textContent=lang==='zh'?'English':'中文';
-    localStorage.setItem(key,lang);
-  }
-  if(button) button.addEventListener('click',()=>{lang=lang==='zh'?'en':'zh';apply();});
-  apply();
-})();
-</script>
+<script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
 </body>
 </html>
