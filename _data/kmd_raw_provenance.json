@@ -1,0 +1,20 @@
+{
+  "2026-08-22-weekly-2": {
+    "status": "mismatch",
+    "label_zh": "归档不匹配：不是实际聊天原始输出",
+    "label_en": "Archive mismatch: not the original chat output",
+    "detail_zh": "该文件本身是英文压缩/重构版，而本任务要求聊天中完整输出中文报告，因此不能标记为原始输出。当前未从可访问历史中恢复到逐字聊天 transcript。",
+    "detail_en": "This file is an English compressed/reconstructed report while the task requires a complete Chinese chat report. It must not be presented as verbatim raw output."
+  },
+  "2026-08-15-weekly-1": {
+    "status": "unverified",
+    "label_zh": "历史 raw（未验证逐字一致）",
+    "label_en": "Historical raw (verbatim equality unverified)",
+    "detail_zh": "仓库中存在完整中文长报告，但仅凭仓库无法证明它与当时聊天窗口输出逐字一致，因此暂不标记为 Verified Raw。",
+    "detail_en": "A full Chinese report exists in the repository, but byte-for-byte equality with the historical chat output cannot be proven from repository evidence alone."
+  },
+  "2026-08-08-test-3-r2": {"status":"reconstructed","label_zh":"恢复版/非逐字原文","label_en":"Recovered / non-verbatim","detail_zh":"历史逐字聊天输出未保存。","detail_en":"The verbatim historical chat output was not persisted."},
+  "2026-08-08-test-3": {"status":"reconstructed","label_zh":"恢复版/非逐字原文","label_en":"Recovered / non-verbatim","detail_zh":"Git 中为英文重构版，不是中文逐字聊天输出。","detail_en":"The Git archive is an English reconstruction, not the verbatim Chinese chat output."},
+  "2026-08-08-test-2": {"status":"reconstructed","label_zh":"恢复版/非逐字原文","label_en":"Recovered / non-verbatim","detail_zh":"历史逐字聊天输出未保存。","detail_en":"The verbatim historical chat output was not persisted."},
+  "2026-08-08-test-1": {"status":"unverified","label_zh":"历史 raw（未验证逐字一致）","label_en":"Historical raw (verbatim equality unverified)","detail_zh":"存在中文历史报告，但没有独立证据证明逐字一致。","detail_en":"A Chinese historical report exists, but verbatim equality has not been independently verified."}
+}
