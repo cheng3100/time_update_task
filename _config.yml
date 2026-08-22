@@ -1,14 +1,27 @@
 title: Time Update Tasks
 description: Long-term archive and living pages for scheduled technical update tasks.
-theme: jekyll-theme-architect
+remote_theme: just-the-docs/just-the-docs@v0.12.0
 baseurl: /time_update_task
 url: https://cheng3100.github.io
 markdown: kramdown
 encoding: utf-8
+color_scheme: hack
+search_enabled: true
+nav_enabled: true
+nav_sort: case_insensitive
+heading_anchors: true
+enable_copy_code_button: true
+back_to_top: true
+back_to_top_text: Back to top
+
+aux_links:
+  "GitHub Repository":
+    - "https://github.com/cheng3100/time_update_task"
+aux_links_new_tab: true
 
 # Canonical archive Markdown stays outside the rendered page tree. Build-time
 # wrappers are emitted into the `_generated` Jekyll collection so layout,
-# permalink, theme and shared UI remain fully controlled by Jekyll.
+# permalink, theme, search and shared navigation remain controlled by Jekyll.
 exclude:
   - kmd_owner_direction/HOME.md
   - kmd_owner_direction/README.md
@@ -27,5 +40,12 @@ collections:
   generated:
     output: true
 
+just_the_docs:
+  collections:
+    generated:
+      name: Archive Documents
+      nav_exclude: true
+
 plugins:
+  - jekyll-remote-theme
   - jekyll-seo-tag
