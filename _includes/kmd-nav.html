@@ -1,0 +1,8 @@
+{% assign kmd_nav = site.data.kmd_owner_direction %}
+<nav class="nav-tabs" aria-label="GPU KMD Owner navigation">
+  <a{% if include.active == 'home' %} class="active" aria-current="page"{% endif %} href="{{ '/kmd_owner_direction/' | relative_url }}"><span class="lang zh">首页</span><span class="lang en">Home</span></a>
+  {% for item in kmd_nav.owners %}
+  <a{% if include.active == item.id %} class="active" aria-current="page"{% endif %} href="{{ '/kmd_owner_direction/owners/' | append: item.id | append: '.html' | relative_url }}"><span class="lang zh">{{ item.tab_zh }}</span><span class="lang en">{{ item.tab_en }}</span></a>
+  {% endfor %}
+  <a{% if include.active == 'future' %} class="active" aria-current="page"{% endif %} href="{{ '/kmd_owner_direction/future.html' | relative_url }}"><span class="lang zh">公共未来 Topic</span><span class="lang en">Future Topic</span></a>
+</nav>
