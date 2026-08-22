@@ -5,7 +5,9 @@ import re
 import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "generated_archive_pages"
+# Build-only Jekyll collection. Canonical archive files stay untouched under
+# kmd_owner_direction/**; this adapter only supplies front matter/rendering metadata.
+OUT = ROOT / "_generated"
 HISTORY_PATH = ROOT / "_data" / "kmd_history.json"
 RECENT_HISTORY_PATH = ROOT / "_data" / "kmd_recent_history.json"
 
@@ -119,7 +121,6 @@ def render_related_links(run: dict, lang: str) -> str:
 
 def load_history() -> tuple[list[dict], dict[str, dict], dict[str, dict]]:
     runs = []
-    # Recent real weekly runs take precedence over old test history.
     for path in (RECENT_HISTORY_PATH, HISTORY_PATH):
         if path.exists():
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -169,13 +170,8 @@ def emit_raw(source: Path, stem: str, run: dict | None) -> None:
     title = first_heading(zh_text, first_heading(source_text, source.name))
     permalink = f"/kmd_owner_direction/raw_updates/{stem}.html"
     page = front_matter(
-        title,
-        permalink,
-        "/kmd_owner_direction/raw-updates.html",
-        "原始更新归档",
-        "Raw Update Archive",
-        status_zh,
-        status_en,
+        title, permalink, "/kmd_owner_direction/raw-updates.html",
+        "原始更新归档", "Raw Update Archive", status_zh, status_en,
     )
     page += '<section class="archive-provenance">\n'
     page += f'<p class="lang zh">{status_zh}</p>\n<p class="lang en">{status_en}</p>\n</section>\n\n'
@@ -197,11 +193,8 @@ def emit_curated(source: Path, stem: str, run: dict | None) -> None:
     title = first_heading(source_text, source.name)
     permalink = f"/kmd_owner_direction/updates/{stem}.html"
     page = front_matter(
-        title,
-        permalink,
-        "/kmd_owner_direction/",
-        "GPU KMD Owner 主页",
-        "GPU KMD Owner Home",
+        title, permalink, "/kmd_owner_direction/",
+        "GPU KMD Owner 主页", "GPU KMD Owner Home",
         "每期摘要按“最有价值更新 → 关键更新 → 完整结构化正文”组织，并直接提供来源链接。",
         "Each run is organized as Most Valuable Update → Key Updates → full structured archive, with direct references.",
     )
@@ -262,7 +255,7 @@ def main() -> None:
         emit_curated(source, stem, history_by_curated.get(stem))
 
     count = len(list(OUT.rglob("*.md")))
-    print(f"Generated {count} archive page wrappers under {OUT.relative_to(ROOT)}")
+    print(f"Generated {count} Jekyll collection documents under {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
