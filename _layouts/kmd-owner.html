@@ -7,10 +7,7 @@ layout: default
 {% assign owner = nil %}
 {% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
 {% assign definition = stable.owners[page.owner_id] %}
-{% assign resources = site.data.kmd_resources[page.owner_id] %}
 {% assign current_updates = living.owners[page.owner_id] %}
-
-{% include kmd-nav.html active=page.owner_id %}
 
 {% if owner %}
 <section class="owner-card stable-definition-note">
