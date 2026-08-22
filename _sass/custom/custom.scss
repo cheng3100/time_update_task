@@ -1,0 +1,106 @@
+// Project-specific overrides for Just the Docs.
+// Keep structural layout owned by the theme; only tune density and technical-document styling here.
+
+.main-content-wrap {
+  max-width: none;
+}
+
+.main-content {
+  max-width: 96rem;
+}
+
+@media (min-width: 66.5rem) {
+  .main-content {
+    max-width: 96rem;
+  }
+}
+
+.owner-card,
+.direction-overview,
+.history-item,
+.subdirection-detail,
+.archive-group {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 1.15rem 1.25rem;
+  margin: 1rem 0;
+  background: rgba(255,255,255,0.015);
+}
+
+.direction-overview + .direction-overview,
+.history-item + .history-item,
+.subdirection-detail + .subdirection-detail {
+  margin-top: 1.25rem;
+}
+
+.history-highlight {
+  padding: .6rem 0;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.history-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: .8rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: .12rem .45rem;
+  border: 1px solid $link-color;
+  border-radius: 999px;
+  color: $link-color;
+  font-size: .72rem;
+  vertical-align: middle;
+}
+
+.task-meta,
+.subdirection-short {
+  color: $nav-child-link-color;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  margin-left: .75rem;
+}
+
+#langToggle {
+  background: transparent;
+  color: $link-color;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: .35rem .65rem;
+  cursor: pointer;
+}
+
+#langToggle:hover {
+  border-color: $link-color;
+}
+
+code,
+pre,
+.highlight {
+  font-variant-ligatures: none;
+}
+
+.table-wrapper,
+table {
+  width: 100%;
+}
+
+@media (max-width: 50rem) {
+  .owner-card,
+  .direction-overview,
+  .history-item,
+  .subdirection-detail {
+    padding: .85rem .9rem;
+  }
+
+  .history-links {
+    flex-direction: column;
+    gap: .35rem;
+  }
+}
