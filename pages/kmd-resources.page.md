@@ -1,13 +1,9 @@
 ---
 layout: default
-title: GPU KMD Learning Resources
-hero_title: GPU KMD Learning Resources
-hero_subtitle_zh: 按 Owner → 稳定子方向组织的长期高价值资料索引。每个子方向都有独立网页归档。
-hero_subtitle_en: Durable high-value learning resources organized by Owner → stable sub-direction, with one rendered archive page per sub-direction.
+title: Learning Resources
+parent: GPU KMD Owner Direction
+nav_order: 9
 permalink: /kmd_owner_direction/resources.html
-back_url: /kmd_owner_direction/
-back_zh: GPU KMD Owner Direction
-back_en: GPU KMD Owner Direction
 ---
 
 {% assign kmd = site.data.kmd_owner_direction %}
