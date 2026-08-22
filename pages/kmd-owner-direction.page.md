@@ -82,7 +82,10 @@ permalink: /kmd_owner_direction/
     <p class="history-intro lang zh">{{ run.intro_zh }}</p><p class="history-intro lang en">{{ run.intro_en }}</p>
     <div class="history-highlights">
       {% for item in run.highlights %}
-      <section class="history-highlight"><h4>{% if item.url %}<a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}">{% endif %}<span class="lang zh">{{ item.title_zh }}</span><span class="lang en">{{ item.title_en }}</span>{% if item.url %}</a>{% endif %}</h4><p class="lang zh">{{ item.body_zh }}</p><p class="lang en">{{ item.body_en }}</span></p></section>
+      <section class="history-highlight">
+        <h4>{% if item.url %}<a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}">{% endif %}<span class="lang zh">{{ item.title_zh }}</span><span class="lang en">{{ item.title_en }}</span>{% if item.url %}</a>{% endif %}</h4>
+        <p class="lang zh">{{ item.body_zh }}</p><p class="lang en">{{ item.body_en }}</p>
+      </section>
       {% endfor %}
     </div>
     <div class="history-links"><a href="{{ run.curated | relative_url }}"><span class="lang zh">查看完整结构化更新 →</span><span class="lang en">Full curated update →</span></a><a href="{{ run.raw | relative_url }}"><span class="lang zh">查看完整原始输出 →</span><span class="lang en">Full raw output →</span></a></div>
