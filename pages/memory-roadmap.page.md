@@ -1,13 +1,9 @@
 ---
 layout: default
-title: GPU Memory Owner Roadmap
-hero_title: GPU Memory / Virtual Memory / Unified Memory
-hero_subtitle_zh: "Memory Owner 的长期纵深路线：切入 → 深化 → 拓展 → 演进。"
-hero_subtitle_en: "Long-term Memory Owner depth path: Entry → Deepen → Expand → Evolve."
+title: Memory Detailed Roadmap
+parent: GPU KMD Owner Direction
+nav_order: 8
 permalink: /kmd_owner_direction/memory-roadmap.html
-back_url: /kmd_owner_direction/owners/memory.html
-back_zh: Memory Owner
-back_en: Memory Owner
 ---
 
 {% assign roadmap = site.data.memory_roadmap %}
@@ -26,4 +22,3 @@ back_en: Memory Owner
   <p><code>{{ roadmap.sequence }}</code></p>
   <blockquote><span class="lang zh">{{ roadmap.principle_zh }}</span><span class="lang en">{{ roadmap.principle_en }}</span></blockquote>
 </section>
-<p><a href="https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/owners/memory.archive.md"><span class="lang zh">查看完整 Memory owner Markdown →</span><span class="lang en">Open complete Memory owner Markdown →</span></a></p>
