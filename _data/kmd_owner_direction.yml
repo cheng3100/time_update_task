@@ -1,4 +1,4 @@
-current_run: "2026-08-15 Weekly #1"
+current_run: "2026-08-29 Weekly #3"
 
 owners:
   - id: memory
@@ -7,8 +7,8 @@ owners:
     name: GPU Memory / Virtual Memory / Unified Memory
     summary_zh: 负责从 GPUVM、Linux MM 集成到 unified/heterogeneous memory 的完整内存架构，是 KMD Leader 的纵深主线。
     summary_en: Own the full memory architecture from GPUVM and Linux MM integration to unified/heterogeneous memory; the KMD leader depth line.
-    entry_zh: Recoverable fault + HMM + migration + replay；第一版同时建立 fault/migration measurement contract 与 MMU invalidation / teardown / reset generation correctness，第二阶段进入 migration granularity。
-    entry_en: Recoverable fault + HMM + migration + replay; establish the fault/migration measurement contract and MMU-invalidation/teardown/reset-generation correctness in the first implementation, then move into migration granularity.
+    entry_zh: Recoverable fault + HMM + migration + replay；第一版建立 measurement / invalidation / teardown / reset-generation correctness，并为未来 remote mapping/invalidation 解耦数据模型。
+    entry_en: Recoverable fault + HMM + migration + replay; establish measurement/invalidation/teardown/reset-generation correctness first while keeping the model evolvable for future remote mapping/invalidation.
     topics:
       - GPUVM / Page Tables / VMID / PASID / TLB
       - Recoverable GPU Page Fault / Fault Replay
@@ -19,20 +19,20 @@ owners:
       - dma-buf / P2P Memory
       - Multi-GPU Unified Memory
     updates:
-      - title_zh: Xe GT Statistics 把 SVM fault/migration 按 4K/64K/2M 拆成可量化指标
-        title_en: Xe GT Statistics decomposes SVM fault/migration metrics by 4K/64K/2M granularity
-        url: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html
-        impact_zh: 第一版 fault correctness 就应建立 get-pages、copy、bind、TLB、migration count/time/bytes 等 measurement contract，后续用数据选择 batched-4K/64K/2M，而不是先拍脑袋选大页。
-        impact_en: The first fault-correctness implementation should establish measurement for get-pages, copy, bind, TLB and migration count/time/bytes so later granularity choices are data-driven.
-        priority_zh: Measurement schema 现在；64K/2M prototype 6–12 个月
-        priority_en: Measurement schema now; 64K/2M prototype in 6–12 months
-      - title_zh: GPU SVM / drm_pagemap 主线未变，继续保留 N:1 与 per-device residency/mapping 可演进性
-        title_en: GPU SVM / drm_pagemap direction remains stable with N:1 and per-device residency/mapping evolvability
+      - title_zh: AMD UALink 将 multi-GPU memory consistency 推进到 remote TLB shootdown / revoke / retry 的实际 KMD 协议
+        title_en: AMD UALink turns multi-GPU memory consistency into a concrete remote TLB shootdown/revoke/retry KMD protocol
+        url: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+        impact_zh: 当前 single-GPU fault/HMM 路线不变，但 logical allocation/range、local residency/PTE、peer mapping、invalidation target 与 connection generation 必须可解耦；未来 remote invalidation 不是简单遍历 GPU 做 local flush。
+        impact_en: Keep the single-GPU fault/HMM path, but decouple logical allocation/range, local residency/PTE, peer mappings, invalidation targets and connection generations; future remote invalidation is more than looping local flushes.
+        priority_zh: single-GPU correctness 现在；remote invalidation 架构预留
+        priority_en: Single-GPU correctness now; reserve remote-invalidation architecture
+      - title_zh: 本期无新的 GPU SVM common-layer 方向变化
+        title_en: No new GPU-SVM common-layer direction change this run
         url: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
-        impact_zh: logical CPU range identity、device residency、DMA mapping、GPU PTE state 继续保持解耦。
-        impact_en: Keep logical CPU-range identity, device residency, DMA mapping and GPU-PTE state decoupled.
-        priority_zh: 架构兼容现在
-        priority_en: Design compatibility now
+        impact_zh: 继续 measurement-first / generation correctness，并保持 N:1 与 per-device state 可演进。
+        impact_en: Keep measurement-first/generation correctness and N:1/per-device-state evolvability.
+        priority_zh: 现在
+        priority_en: Now
 
   - id: virt
     tab_zh: 虚拟化 / 安全
@@ -40,8 +40,8 @@ owners:
     name: GPU Virtualization / Security
     summary_zh: 负责 GPU 虚拟化、资源/租户隔离以及安全机制。
     summary_en: Own GPU virtualization, resource/tenant isolation and security mechanisms.
-    entry_zh: ASIC 支持 SR-IOV 时做 PF/VF provisioning/isolation；否则先 capability assessment。
-    entry_en: When SR-IOV exists on the ASIC, do PF/VF provisioning/isolation; otherwise start with capability assessment.
+    entry_zh: ASIC 支持 SR-IOV 时做 PF/VF provisioning/isolation + versioned admin control；否则先 capability assessment。
+    entry_en: When SR-IOV exists on the ASIC, implement PF/VF provisioning/isolation plus a versioned admin control path; otherwise start with capability assessment.
     topics:
       - VFIO Passthrough / Ownership / IOMMU Isolation
       - SR-IOV PF/VF Lifecycle
@@ -50,11 +50,11 @@ owners:
       - vGPU / Live Migration Groundwork
       - Secure Boot / Measurement / Scrub / Attestation
     updates:
-      - title_zh: 本期无高价值方向级新增；Xe configfs 仍是 GPU SR-IOV lifecycle 的具体参考
-        title_en: No high-value direction-level change this run; Xe configfs remains a concrete GPU SR-IOV lifecycle reference
+      - title_zh: 本期无新的 GPU-specific SR-IOV/vGPU 机制改变 hardware-gated 路线
+        title_en: No new GPU-specific SR-IOV/vGPU mechanism changes the hardware-gated plan
         url: https://docs.kernel.org/next/gpu/xe/xe_configfs.html
-        impact_zh: pre-bind PF mode/max_vfs 与 admin-only-PF 等设计继续说明真正工作是 resource mode/provisioning/reset/isolation，而不是 generic PCI enablement。
-        impact_en: Pre-bind PF mode/max_vfs and admin-only-PF design reinforce that the real work is resource mode/provisioning/reset/isolation, not generic PCI enablement.
+        impact_zh: 保持 ASIC capability first；UALink 的 peer-memory authorization 仅作为未来 fabric tenant/security 边界提醒，不提前扩展虚拟化项目。
+        impact_en: Keep ASIC capability first; peer-memory authorization in UALink is only a future fabric tenant/security boundary signal, not a reason to expand virtualization now.
         priority_zh: ASIC capability first
         priority_en: ASIC capability first
 
@@ -64,8 +64,8 @@ owners:
     name: GPU Power / Performance
     summary_zh: 负责 GPU measurement、DVFS、runtime PM、thermal 与 power budget。
     summary_en: Own GPU measurement, DVFS, runtime PM, thermal and power budget.
-    entry_zh: busy/idle + reusable utilization telemetry → DVFS → runtime PM。
-    entry_en: busy/idle + reusable utilization telemetry → DVFS → runtime PM.
+    entry_zh: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM / DVFS。
+    entry_en: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM / DVFS.
     topics:
       - Busy/Idle / Per-engine Utilization
       - Runtime PM / Suspend-Resume / PCI D-states
@@ -74,13 +74,13 @@ owners:
       - Thermal Throttling / Power Cap
       - Frequency Residency / Memory-bandwidth Telemetry
     updates:
-      - title_zh: 本期无高价值方向级新增；Xe Runtime PM 继续强化 outer-reference / reclaim / VRAM lifetime correctness
-        title_en: No high-value direction-level change; Xe Runtime PM continues to emphasize outer references, reclaim and VRAM lifetime correctness
-        url: https://docs.kernel.org/next/gpu/xe/xe_pm.html
-        impact_zh: IOCTL、dma-buf、GPU execution 等应从高层持有 PM lifetime；先解决 reference/resource ordering/resume correctness，再做复杂 governor。
-        impact_en: IOCTL, dma-buf and GPU execution paths should hold PM lifetime at outer layers; solve reference/resource-ordering/resume correctness before complex governors.
-        priority_zh: 现在
-        priority_en: Now
+      - title_zh: Imagination GPU runtime-PM 修复证明 IRQ/suspend quiesce ordering 是 PM correctness 的一部分
+        title_en: Imagination GPU runtime-PM fix shows IRQ/suspend quiesce ordering is part of PM correctness
+        url: https://ubuntu.com/security/CVE-2026-23469
+        impact_zh: PM active set 不只是 job/ioctl reference，还包括 IRQ、FW callback、fault/reset worker；suspend 必须 drain 或持有 PM lifetime，不能靠 IRQ 内临时 resume 修补。
+        impact_en: The PM active set includes IRQs, FW callbacks and fault/reset workers, not only job/ioctl references; suspend must drain them or hold lifetime rather than patching access with ad-hoc IRQ-side resume.
+        priority_zh: runtime PM 第一版就建立 quiesce matrix
+        priority_en: Build the quiesce matrix in the first runtime-PM implementation
 
   - id: ras
     tab_zh: 可靠性 / RAS
@@ -88,8 +88,8 @@ owners:
     name: GPU Reliability / Recovery / RAS
     summary_zh: 负责故障 detect → diagnose → contain → recover，并形成生产级 RAS。
     summary_en: Own fault detect → diagnose → contain → recover, ultimately forming production-grade RAS.
-    entry_zh: Frozen hang snapshot + devcoredump + FW log + reset reason + heartbeat/watchdog；中期增加 management-facing health/recovery contract。
-    entry_en: Frozen hang snapshot + devcoredump + FW logs + reset reason + heartbeat/watchdog; add a management-facing health/recovery contract next.
+    entry_zh: Frozen snapshot + devcoredump + FW logs + reset gate/generation + health contract；为未来 fabric/connection generation 保留边界。
+    entry_en: Frozen snapshot + devcoredump + FW logs + reset gate/generation + health contract, with a separate future fabric/connection-generation boundary.
     topics:
       - Heartbeat / Watchdog / Hang Detection
       - Hang Snapshot / devcoredump / Reset Reason
@@ -98,18 +98,18 @@ owners:
       - Firmware Crash Recovery / FW Log Retention
       - ECC / Bad-page Retirement / PCIe AER / Fault Injection
     updates:
-      - title_zh: Xe GPU Health Indicator / Device Wedging 把 RAS 延伸到管理面稳定契约
-        title_en: Xe GPU Health Indicator / Device Wedging extends RAS into a stable management contract
-        url: https://docs.kernel.org/next/gpu/xe/xe_device.html
-        impact_zh: 生产 RAS 应分为 raw evidence → KMD classify/recovery policy → health state/recovery hint；上层管理工具不应靠解析 dmesg 猜 GPU 是否健康。
-        impact_en: Production RAS should separate raw evidence → KMD classification/recovery policy → health state/recovery hint instead of making management tools parse logs.
-        priority_zh: Snapshot/heartbeat 现在；health contract 6–12 个月
-        priority_en: Snapshot/heartbeat now; health contract in 6–12 months
-      - title_zh: snapshot-before-reset 继续保持硬约束
-        title_en: snapshot-before-reset remains the hard invariant
-        url: https://docs.kernel.org/next/gpu/xe/xe_devcoredump.html
-        impact_zh: destructive recovery 前先冻结 versioned evidence，之后 offline tooling 独立消费。
-        impact_en: Freeze versioned evidence before destructive recovery and let offline tooling consume it independently.
+      - title_zh: UALink connection reset 说明 future multi-GPU RAS 需要独立 fabric/connection generation
+        title_en: UALink connection reset shows future multi-GPU RAS needs a distinct fabric/connection generation
+        url: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+        impact_zh: local GPU reset、FW restart、peer connection reset、remote mapping revoke 生命周期不同；不要用一个 reset counter 覆盖全部旧状态失效语义。
+        impact_en: Local GPU reset, FW restart, peer-connection reset and remote-mapping revoke have different lifetimes; do not collapse them into one reset counter.
+        priority_zh: 当前只定义 generation ownership；fabric 立项后实现
+        priority_en: Define generation ownership now; implement with real fabric work
+      - title_zh: Reset gate/generation 主线保持不变
+        title_en: Reset gate/generation direction remains unchanged
+        url: https://lwn.net/Articles/1088747/
+        impact_zh: snapshot-before-reset、close admission、drain、generation transition、restore/reopen 继续作为当前 RAS 闭环。
+        impact_en: Snapshot-before-reset, close admission, drain, generation transition, restore/reopen remain the current RAS loop.
         priority_zh: 现在
         priority_en: Now
 
@@ -119,8 +119,8 @@ owners:
     name: Multi-GPU / P2P / Fabric
     summary_zh: 负责 multi-device model、topology/connectivity、P2P 与 fabric；page residency/migration policy 归 Memory。
     summary_en: Own the multi-device model, topology/connectivity, P2P and fabric; page residency/migration policy belongs to Memory.
-    entry_zh: Enumeration + stable identity + topology + visibility/affinity + P2P capability matrix。
-    entry_en: Enumeration + stable identity + topology + visibility/affinity + P2P capability matrix.
+    entry_zh: Enumeration + stable identity + topology/port/peer model + visibility/affinity + directional P2P capability matrix。
+    entry_en: Enumeration + stable identity + topology/port/peer model + visibility/affinity + directional P2P capability matrix.
     topics:
       - Multi-GPU Enumeration / Stable Identity
       - Device Visibility / Affinity / Namespace / Cgroup
@@ -129,13 +129,20 @@ owners:
       - P2P DMA / Cross-GPU dma-buf
       - Shared VA / Multi-GPU VM / Fabric Health
     updates:
-      - title_zh: 本期无新的生产级方向变化；fabric_ext 仍是长期 research signal
-        title_en: No new production-level direction change; fabric_ext remains a long-term research signal
-        url: https://arxiv.org/abs/2607.26335
-        impact_zh: movement/ordering/ownership/link-health 值得长期预留语义，但当前继续 topology-first，不产品化 programmable fabric policy。
-        impact_en: Movement/ordering/ownership/link-health semantics deserve long-term room, but remain topology-first now without productizing programmable fabric policy.
-        priority_zh: topology/P2P 当前；fabric policy 长期
-        priority_en: topology/P2P now; fabric policy long-term
+      - title_zh: DRM Fabric RFC 提出 vendor-neutral `fabric → endpoint → port → peer` accelerator topology 公共层
+        title_en: DRM Fabric RFC proposes a vendor-neutral `fabric → endpoint → port → peer` accelerator-topology common layer
+        url: https://lkml.iu.edu/2608.3/00335.html
+        impact_zh: 当前 topology API 应表达 directed port/peer identity、link state/counters 与 capability/reason，而不是只有 GPU×GPU bool matrix；公共 topology 与 vendor FW/memory/data path 保持分层。
+        impact_en: Topology APIs should model directed port/peer identity, link state/counters and capability/reason codes rather than only a GPU×GPU boolean matrix, while separating common topology from vendor FW/memory/data paths.
+        priority_zh: 现在完善 topology data model
+        priority_en: Refine the topology data model now
+      - title_zh: AMD UALink 95-patch 级系列把 remote memory/TLB/interrupt/reset 变成实际 KMD control/data path
+        title_en: AMD's ~95-patch UALink series makes remote memory/TLB/interrupt/reset a concrete KMD control/data path
+        url: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+        impact_zh: Multi-GPU Owner 需要长期拥有 topology/link/control primitive；Memory 继续拥有 residency/migration/shared-VA policy，不能混层。
+        impact_en: Multi-GPU should own topology/link/control primitives while Memory retains residency/migration/shared-VA policy.
+        priority_zh: topology/control model 现在；data path 后续
+        priority_en: Topology/control model now; data path later
 
   - id: obs
     tab_zh: 可观测性 / Profiling
@@ -143,8 +150,8 @@ owners:
     name: GPU Observability / Profiling / Programmable Driver Infrastructure
     summary_zh: 负责 software trace + hardware PMU + 跨层 timeline/attribution + programmable diagnostics。
     summary_en: Own software trace + hardware PMU + cross-layer timeline/attribution + programmable diagnostics.
-    entry_zh: Stable event/object identity + eBPF KMD tracing + low-overhead software counters；HW PMU 成熟后加入同一 timeline。
-    entry_en: Stable event/object identity + eBPF KMD tracing + low-overhead software counters; join HW PMU into the same timeline when mature.
+    entry_zh: Stable event/object identity + eBPF KMD tracing + low-overhead software/pipeline counters；HW PMU 成熟后加入同一 timeline。
+    entry_en: Stable event/object identity + eBPF KMD tracing + low-overhead software/pipeline counters; join HW PMU into the same timeline when mature.
     topics:
       - Stable KMD Tracepoint / Event Model
       - BTF / CO-RE / eBPF Dynamic Tracing
@@ -153,20 +160,13 @@ owners:
       - GPU PMU / Counter Discovery / Sampling / Multiplexing
       - perf_event / Dynamic Diagnostics / Programmable Hooks
     updates:
-      - title_zh: Xe GT Statistics 展示 always-on 低开销 KMD software telemetry 层
-        title_en: Xe GT Statistics demonstrates an always-on low-overhead KMD software-telemetry layer
-        url: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html
-        impact_zh: per-CPU counters 可覆盖 SVM/TLB/migration/scheduler/reclaim 高频路径并避免昂贵原子操作；应与 tracepoint/object ID/PMU 组成三层 observability。
-        impact_en: Per-CPU counters can cover SVM/TLB/migration/scheduler/reclaim hot paths without expensive atomics; combine them with tracepoint/object IDs and PMU into a three-layer observability model.
-        priority_zh: software counters + object model 现在
-        priority_en: Software counters + object model now
-      - title_zh: SysOM-AI 继续验证 continuous cross-layer observability 的长期价值
-        title_en: SysOM-AI continues to validate the long-term value of continuous cross-layer observability
-        url: https://arxiv.org/abs/2603.29235
-        impact_zh: CPU/GPU/NCCL/eBPF 的统一关联说明稳定 timestamp/object identity 应作为基础设施而非一次性 debug script。
-        impact_en: CPU/GPU/NCCL/eBPF correlation reinforces stable timestamps/object identity as infrastructure rather than one-off debug scripts.
-        priority_zh: 现在
-        priority_en: Now
+      - title_zh: DAMON/perf hardware-sampling observability RFC 强化“异步 pipeline 每一级都必须可观察”原则
+        title_en: DAMON/perf hardware-sampling observability RFC reinforces stage-by-stage observability for asynchronous pipelines
+        url: https://lwn.net/Articles/1089344/
+        impact_zh: future GPU PMU/fabric trace 不应只暴露最终 sample count；应区分 event create/enable、HW produce、ring drop、drain/decode/consumer drop，并用 counters + tracepoints 组合诊断。
+        impact_en: Future GPU PMU/fabric tracing should expose event-create/enable, HW production, ring drops and drain/decode/consumer drops rather than only final sample counts, combining counters with tracepoints.
+        priority_zh: software pipeline counters 现在；HW PMU/AUX 后续
+        priority_en: Software pipeline counters now; HW PMU/AUX later
 
   - id: fw
     tab_zh: Firmware / Control Plane
@@ -174,8 +174,8 @@ owners:
     name: GPU Firmware / Control Plane Architecture
     summary_zh: 负责 KMD↔GPU system firmware 的 protocol、lifecycle、capability、resource ownership 与 state reconciliation。
     summary_en: Own KMD↔GPU system-firmware protocol, lifecycle, capability, resource ownership and state reconciliation.
-    entry_zh: Versioned async protocol + capability negotiation + boot/reset phase/generation + restart state reconciliation。
-    entry_en: Versioned async protocol + capability negotiation + boot/reset phase/generation + restart state reconciliation.
+    entry_zh: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + restart state reconciliation。
+    entry_en: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + restart state reconciliation.
     topics:
       - Versioned Firmware ABI / Command & Event Namespace
       - Shared-memory / Ring / Mailbox Transport
@@ -186,27 +186,54 @@ owners:
       - FW-centric Init / PM / Reset / HW Scheduler Services
       - FW Health / Logs / Authentication / Measurement
     updates:
-      - title_zh: Nova devinit 强化 reset→secure FW→device init→host ready 的 phase/generation 模型
-        title_en: Nova devinit strengthens a reset→secure-FW→device-init→host-ready phase/generation model
-        url: https://docs.kernel.org/next/gpu/nova/core/devinit.html
-        impact_zh: control plane 不应只有 fw_ready 布尔值；应显式表达 RESET/SECURE_FW/DEVINIT/GFW_BOOT/HANDSHAKE/SERVICE_READY，并让 reset/restart generation 隔离旧 request/completion。
-        impact_en: The control plane should model RESET/SECURE_FW/DEVINIT/GFW_BOOT/HANDSHAKE/SERVICE_READY rather than a single fw_ready bit, with generations isolating stale requests/completions.
-        priority_zh: 现在设计
-        priority_en: Design now
-      - title_zh: nova-core 继续以 firmware-version-independent API 服务 nova-drm/VFIO 等第二层 driver
-        title_en: nova-core continues to provide firmware-version-independent APIs to nova-drm/VFIO-style second-level drivers
-        url: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
-        impact_zh: version translation/capability/resource lifecycle 继续保持在稳定 service API 以下。
-        impact_en: Keep version translation/capability/resource lifecycle below stable service APIs.
-        priority_zh: 现在
-        priority_en: Now
+      - title_zh: Nova r000 GSP ABI v2 从 release-specific firmware 转向跨 release stable ABI，并成组切换 transport/queue/boot/init semantics
+        title_en: Nova r000 GSP ABI v2 moves from release-specific firmware toward a cross-release stable ABI with grouped transport/queue/boot/init changes
+        url: https://lkml.iu.edu/2608.2/11372.html
+        impact_zh: stable KMD service 不应直接依赖 raw FW struct；明确 raw ABI → parser/validator → translation/capability → stable service boundary，并严格验证 version/vendor/length/sequence。
+        impact_en: Stable KMD services should not depend directly on raw FW structs; define raw ABI → parser/validator → translation/capability → stable-service boundaries with strict version/vendor/length/sequence validation.
+        priority_zh: 当前 protocol 第一版就建立
+        priority_en: Build this into the first protocol version
 
 history:
+  - id: weekly-2026-08-29-3
+    date: "2026-08-29"
+    title_zh: Weekly #3 · Fabric / Remote Invalidation / Stable FW ABI
+    title_en: Weekly #3 · Fabric / Remote Invalidation / Stable FW ABI
+    latest: true
+    summary_zh:
+      - DRM Fabric RFC 与 AMD UALink 把 Multi-GPU 从静态 P2P matrix 推进到 port/peer/link/control primitive 的现实 KMD 设计。
+      - Memory 通过 UALink remote TLB/revoke/retry 学习 future multi-GPU mapping invalidation，但 single-GPU fault/HMM 仍是当前 P0。
+      - Nova r000 GSP v2 强化 raw FW ABI translation/validation 与 stable KMD service 分层。
+      - Power 增加 IRQ/FW/workqueue quiesce ordering；长期资料只增量加入 UALink、DRM Fabric、Nova r000。
+    summary_en:
+      - DRM Fabric RFC and AMD UALink move Multi-GPU from a static P2P matrix toward real port/peer/link/control-primitive KMD design.
+      - Memory learns future multi-GPU mapping invalidation from UALink remote TLB/revoke/retry while single-GPU fault/HMM remains P0.
+      - Nova r000 GSP v2 strengthens raw-FW-ABI translation/validation beneath stable KMD services.
+      - Power adds IRQ/FW/workqueue quiesce ordering; durable resources only add UALink, DRM Fabric and Nova r000.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-29-weekly-3.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-29-weekly-3.raw.md
+
+  - id: weekly-2026-08-22-2
+    date: "2026-08-22"
+    title_zh: Weekly #2 · Reset Gate / PF-VF Control / Core Properties
+    title_en: Weekly #2 · Reset Gate / PF-VF Control / Core Properties
+    summary_zh:
+      - RAS 将 reset admission gate / reset generation 提升为正式中期能力。
+      - Virtualization 把 PF↔VF admin channel 纳入 ASIC 支持后的完整 SR-IOV feature 定义。
+      - Firmware 强化 stable capability/property service，并参考 Nova parameter export。
+      - Memory 继续 fault/replay ordering proof，不增加新 Owner。
+    summary_en:
+      - RAS promotes reset admission gates/reset generations into a formal capability.
+      - Virtualization adds a PF↔VF admin channel to the complete SR-IOV feature when hardware supports it.
+      - Firmware strengthens stable capability/property services using Nova parameter export as a reference.
+      - Memory continues the fault/replay ordering proof without adding a new Owner.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-22-weekly-2.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-22-weekly-2.raw.md
+
   - id: weekly-2026-08-15-1
     date: "2026-08-15"
     title_zh: Weekly #1 · Measurement / Health / Lifecycle
     title_en: Weekly #1 · Measurement / Health / Lifecycle
-    latest: true
     summary_zh:
       - Memory 将 fault/migration measurement contract 提升为第一阶段正式 deliverable，并参考 Xe 4K/64K/2M GT statistics。
       - RAS 增加 management-facing GPU health/recovery-hint 中期能力。
@@ -226,11 +253,11 @@ history:
     title_en: Test #4 · Deep Resource Mix
     summary_zh:
       - 确认并遵循当前 Jekyll / .archive-.resource-.raw-.update 归档布局。
-      - 长期资料从“官方文档清单”升级为 Canonical + Deep Explanation + Implementation/Practice + Research 的高质量组合。
+      - 长期资料升级为 Canonical + Deep Explanation + Implementation/Practice + Research 的高质量组合。
       - 深挖 Recoverable GPU Fault Service Contract 与 MMU invalidation / teardown / reset race correctness。
     summary_en:
-      - Confirmed and followed the current Jekyll / .archive-.resource-.raw-.update archive layout.
-      - Durable resources now combine Canonical + Deep Explanation + Implementation/Practice + Research rather than defaulting to official-doc lists.
+      - Confirmed the current Jekyll/archive-resource-raw-update layout.
+      - Durable resources combine Canonical + Deep Explanation + Implementation/Practice + Research.
       - Deep dive: Recoverable GPU Fault Service Contract and MMU-invalidation/teardown/reset race correctness.
     curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-08-08-test-4.update.md
     raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-08-08-test-4.raw.md
