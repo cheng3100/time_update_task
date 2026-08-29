@@ -16,12 +16,25 @@ Own the multi-device model, topology/connectivity mechanisms and peer/fabric inf
 - fabric/link health, reset and RAS
 
 ## Current Entry Feature
-Multi-GPU enumeration + topology + visibility/affinity + P2P capability matrix.
+Multi-GPU enumeration + stable identity + topology/port/peer model + visibility/affinity + directional P2P capability matrix.
 
 ### Near-term feature path
-Stable device identity → topology graph → process-visible GPU set/affinity → P2P capability matrix → peer mapping → P2P DMA → shared VM → multi-GPU UVM/fabric.
+Stable device identity → topology graph / endpoint-port-peer model → process-visible GPU set/affinity → directional P2P capability + reason matrix → peer mapping → P2P DMA → link/fabric control primitives → shared VM → multi-GPU UVM/fabric.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **DRM Fabric RFC proposes a vendor-neutral accelerator topology object model.**
+   - Source: https://lkml.iu.edu/2608.3/00335.html (2026-08-24)
+   - Change: proposes protocol-agnostic `fabric → endpoint → port → peer` objects. A peer is a typed identity/value descriptor rather than necessarily a live local object; topology represents direct adjacency rather than end-to-end reachability; port state/counters may be reported by providers.
+   - KMD impact: the current topology/P2P feature should evolve beyond a GPU×GPU boolean matrix. Model directed port/peer identity, link state/counters, capability and failure reason while leaving vendor FW/memory/data-path semantics outside the common topology layer.
+   - Priority: **Refine the topology data model now.**
+
+2. **AMD UALink turns fabric remote memory/control into concrete KMD implementation.**
+   - Source: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html (2026-08-21)
+   - Change: the large AMDGPU series adds pod/station configuration, NPA translation, remote state, remote TLB shootdown/interrupt, export/import/revoke, connection reset and remote PTE mapping.
+   - KMD impact: Multi-GPU should own topology/link/control primitives and connection lifecycle; Memory should continue to own residency/migration/shared-VA policy layered above them.
+   - Priority: **Topology/control model now; actual fabric data path only when hardware exists.**
+
 ### 2026-08-15 · Weekly #1
 1. **No new production-level direction change was found this run.**
    - Current research reference: https://arxiv.org/abs/2607.26335
@@ -41,7 +54,7 @@ Stable device identity → topology graph → process-visible GPU set/affinity �
    - Priority: **Long-term watch; do not productize programmable policy now.**
 
 2. **GPU SVM N:1 per-device mapping state reinforces topology-first / shared-VA-later sequencing.**
-   - Source: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+   - Source: https://docs.kernel.org/gpu/rfc/gpusvm.html
    - KMD impact: Multi-GPU owns identity/topology/peer capability; Memory can then layer per-device residency/migration/shared-VA semantics on top.
    - Priority: **Design compatibility now.**
 
