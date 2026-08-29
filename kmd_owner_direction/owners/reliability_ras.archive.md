@@ -14,67 +14,58 @@ Own detection, diagnosis, containment and recovery of GPU faults plus production
 - fault injection and per-context fault attribution
 
 ## Current Entry Feature
-Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog.
+Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog + reset gate/generation.
 
 ### Near-term feature path
-Hang detection → freeze diagnostic state → structured snapshot → devcoredump → health classification/recovery hint → reset admission gate → reset → state restore → progressively finer queue/context/engine recovery.
+Hang detection → freeze diagnostic state → structured snapshot → health classification → close admission/drain → reset-generation transition → reset → state restore → reopen admission → progressively finer recovery.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **UALink connection reset exposes a future multi-device generation boundary.**
+   - Source: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+   - Change: the AMDGPU UALink design includes peer connection state/reset together with remote interrupt/TLB and export/import state cleanup.
+   - KMD impact: future multi-GPU RAS should not collapse local GPU reset, firmware restart, fabric/peer connection reset and remote-memory mapping revocation into one generation counter. Define ownership and dependency between these lifetimes so stale peer channels/handles/completions cannot survive a partial recovery.
+   - Priority: **Define generation boundaries now; implement when fabric hardware is real.**
+
+2. **Reset gate/generation remains the current production-RAS priority.**
+   - Reference: https://lwn.net/Articles/1088747/
+   - KMD impact: snapshot-before-reset → close admission → drain → generation transition → recover/restore → reopen remains the active implementation path.
+   - Priority: **Now.**
+
 ### 2026-08-22 · Weekly #2
 1. **Tyr GPU reset v4 makes reset admission/concurrency an explicit KMD subsystem.**
-   - Source: https://lwn.net/Articles/1088747/ (2026-08-13)
-   - Change: the Rust DRM Tyr driver schedules reset on a dedicated workqueue, tracks pending/in-progress reset state, and uses an SRCU-based gate plus mutex-protected reader admission so normal GPU operations can be blocked around reset without turning every path into one giant lock.
-   - KMD impact: after snapshot-before-reset, the next reusable RAS primitive should be a reset gate/state machine. New submissions/control operations must be denied or quiesced once reset is pending; in-flight readers need an explicit drain rule; duplicate reset requests must coalesce; post-reset state publication must advance generation before normal admission resumes.
+   - Source: https://lwn.net/Articles/1088747/
+   - KMD impact: normal GPU operations need explicit admission/drain rules around reset; duplicate reset requests coalesce and post-reset state publication advances generation before normal admission resumes.
    - Priority: **Design now; implement with the first production reset/recovery path.**
 
 2. **Linux 7.2 shipped after late DRM scheduling reverts, reinforcing staged recovery/scheduler changes.**
-   - Source: https://lwn.net/Articles/1089033/ (2026-08-16)
-   - Change: Linus explicitly called out late DRM scheduling reverts because the code was not ready and caused problems.
-   - KMD impact: recovery and scheduling interactions should be introduced behind explicit state/generation boundaries and fault-injection tests; avoid coupling a first RAS reset implementation to broad scheduler rewrites.
-   - Priority: **Engineering discipline now; not a new owner direction.**
+   - Source: https://lwn.net/Articles/1089033/
+   - Priority: **Engineering discipline now.**
 
 ### 2026-08-15 · Weekly #1
 1. **Xe GPU Health Indicator / Device Wedging makes the management-facing RAS contract explicit.**
    - Source: https://docs.kernel.org/next/gpu/xe/xe_device.html
-   - Change: Xe exposes `gpu_health` states (`ok`, `warning`, `critical`) and DRM wedged recovery hints; vendor-specific recovery may direct userspace/admin toward firmware remediation while the default path is rebind/bus-reset.
-   - KMD impact: production RAS should separate raw evidence → KMD classification/recovery policy → management-facing health state/recovery hint. Monitoring tools should not need to parse dmesg to infer whether a GPU is usable.
+   - KMD impact: separate raw evidence → KMD classification/recovery policy → management-facing health state/recovery hint.
    - Priority: **Snapshot/heartbeat now; health/recovery contract in 6–12 months.**
-
 2. **Snapshot-before-reset remains the hard recovery invariant.**
    - Source: https://docs.kernel.org/next/gpu/xe/xe_devcoredump.html
-   - KMD impact: versioned crash evidence must be frozen before destructive recovery; offline tooling should consume the artifact independently of the live device state.
    - Priority: **Now.**
 
 ### 2026-08-08 · Test #4
 1. **Production GPU crash tooling is converging on richer structured post-mortem artifacts.**
-   - Sources: AMD Radeon GPU Detective hardware crash analysis and NVIDIA Nsight Aftermath.
    - Reference: https://gpuopen.com/learn/radeon-developer-tool-suite-amd-rdna4/
-   - KMD impact: coredump schema should evolve beyond register/ring dumps to versioned sections for execution/workload markers, MMU/page-fault state, FW logs and relevant HW state, with offline tooling as a separate consumer.
    - Priority: **Snapshot schema now; richer correlation in 6–12 months.**
-
 2. **Snapshot-before-reset remains the hard recovery invariant.**
-   - Source: https://docs.kernel.org/gpu/xe/xe_devcoredump.html
-   - KMD impact: destructive recovery must not begin before the only useful crash evidence has been frozen; early boot/probe failure evidence should share the same architecture where possible.
    - Priority: **Now.**
 
 ### 2026-08-08 · Test #2
 1. **Firmware log retention should be part of crash infrastructure, including probe/boot failures.**
-   - Source: Nova task list: https://docs.kernel.org/gpu/nova/core/todo.html
-   - Change: Nova explicitly tracks exporting GSP-RM log buffers through debugfs even when driver probe fails.
-   - KMD impact: hang/devcoredump design should include FW logs and early-init state, not only runtime rings/registers.
-   - Priority: **Now / 6–12 months.**
-
-2. **Snapshot-before-reset remains unchanged and should be treated as the hard recovery invariant.**
-   - Source: Linux Xe devcoredump documentation.
-   - KMD impact: recovery code must never destroy the only useful evidence before snapshot collection completes.
-   - Priority: **Now.**
+   - Source: https://docs.kernel.org/gpu/nova/core/todo.html
+2. **Snapshot-before-reset remains unchanged.**
 
 ### 2026-08-08 · Test #1
-1. **Xe devcoredump reinforces “snapshot at hang, read later”.**
-   - Priority: **Now**.
-2. **Standard devcoredump infrastructure is preferable to a vendor-only channel.**
-   - Priority: **Now**.
+1. **Xe devcoredump reinforces snapshot-at-hang/read-later.**
+2. **Standard devcoredump infrastructure is preferable to vendor-only channels.**
 3. **Production RAS should evolve beyond global reset.**
-   - Priority: **6–12 months** after baseline hang capture.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
