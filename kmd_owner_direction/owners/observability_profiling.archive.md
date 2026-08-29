@@ -18,56 +18,52 @@ Own software-event tracing, hardware performance monitoring, cross-layer correla
 - long-term gpu_ext-like verified programmable policy
 
 ## Current Entry Feature
-Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software counters. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
+Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software/pipeline counters. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
 
 ### Near-term feature path
-Stable tracepoints/object IDs → always-on low-cost software counters → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
+Stable tracepoints/object IDs → always-on low-cost software/pipeline counters → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **DAMON/perf hardware-sampling observability RFC reinforces stage-by-stage visibility for asynchronous pipelines.**
+   - Source: https://lwn.net/Articles/1089344/
+   - Change: the proposed observability layer exposes per-CPU pipeline counters, debugfs statistics and tracepoints that distinguish event creation/enablement, lack of hardware samples, AUX/ring drops, draining and filtering/matching failures instead of exposing only a final sample count.
+   - KMD impact: future GPU PMU/fabric tracing should expose health/counters at each pipeline stage—producer, enqueue/ring, overflow/drop, drain, decode and consumer—while keeping the current software counters + stable IDs/eBPF + PMU three-layer model.
+   - Priority: **Software pipeline counters now; hardware PMU/AUX integration later.**
+
+2. **Fabric work gives Observability new object types without changing the owner entry point.**
+   - References: https://lkml.iu.edu/2608.3/00335.html and https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+   - KMD impact: reserve stable identities/events for fabric endpoint/port/peer, link-state changes, remote invalidation and connection generation so future fabric diagnostics join the same timestamp/generation model as job/fault/reset events.
+   - Priority: **Schema reserve now; implementation with real fabric hardware.**
+
 ### 2026-08-15 · Weekly #1
 1. **Xe GT Statistics demonstrates a practical always-on KMD software-telemetry layer.**
    - Source: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html
-   - Change: per-GT statistics cover SVM/TLB/migration/copy/bind/reclaim and scheduler wait/suspend paths; the implementation uses per-CPU counters to avoid expensive atomics/cache-coherency traffic on high-frequency paths.
-   - KMD impact: Observability should not jump directly from tracepoints to HW PMU. Add a first layer of always-on software counters, then use stable object IDs/tracepoints for attribution and PMU for hardware bottlenecks.
+   - KMD impact: Observability should not jump directly from tracepoints to HW PMU. Add always-on software counters, stable object IDs/tracepoints for attribution and PMU for hardware bottlenecks.
    - Priority: **Software counters + object model now.**
 
 2. **SysOM-AI continues to validate continuous cross-layer observability at production scale.**
    - Source: https://arxiv.org/abs/2603.29235
-   - KMD impact: stable timestamps and CPU/GPU/NCCL/KMD object correlation are durable infrastructure rather than one-off debug scripts.
    - Priority: **Now.**
 
 ### 2026-08-08 · Test #4
 1. **SysOM-AI demonstrates continuous cross-layer observability at production scale.**
    - Source: https://arxiv.org/abs/2603.29235
-   - Change: combines CPU stack profiling, GPU kernel tracing and NCCL instrumentation with eBPF-based mechanisms; reports <0.4% overhead and deployment across more than 80,000 GPUs.
-   - KMD impact: stable object IDs, timestamps and cross-layer correlation are durable infrastructure; build them before one-off profiler-specific interfaces.
    - Priority: **Trace/object model now.**
-
-2. **Radeon GPU Profiler 2.7 reinforces the unified timeline + hardware-counter consumption model.**
+2. **Radeon GPU Profiler reinforces unified timeline + hardware-counter consumption.**
    - Source: https://gpuopen.com/rgp/
-   - KMD impact: GPU PMU should not become an isolated register-reading tool; counter discovery/sampling should correlate with queue/job/context timelines.
    - Priority: **6–12 months if HW PMU is mature.**
-
-3. **`gpu_ext` / `fabric_ext` remain long-term programmable-policy signals.**
-   - Sources: https://arxiv.org/abs/2512.12615 and https://arxiv.org/abs/2607.26335
-   - KMD impact: build stable hooks and correlation now; do not expose programmable scheduling/memory policy until verifier/security/uAPI boundaries are mature.
+3. **gpu_ext / fabric_ext remain long-term programmable-policy signals.**
    - Priority: **Long-term watch.**
 
 ### 2026-08-08 · Test #2
 1. **ProfInfer strengthens the unified trace + hardware-counter direction.**
-   - Source: https://arxiv.org/abs/2601.20755
-   - KMD impact: avoid separate debug-trace and performance-profiling object models.
-   - Priority: **Trace now; unified timeline in 6–12 months.**
-
-2. **AMD uProf 5.3 shows production profiling consuming GPU hardware events through ROCm/rocprofiler.**
-   - Priority: **6–12 months.**
-
-3. **`gpu_ext` / `fabric_ext` remain research signals, not immediate product APIs.**
-   - Priority: **Long-term policy watch.**
+2. **AMD uProf shows production profiling consuming GPU hardware events.**
+3. **gpu_ext / fabric_ext remain research signals, not immediate product APIs.**
 
 ### 2026-08-08 · Test #1
 1. **Linux perf provides a mature model for complex fabric/system PMUs.**
-2. **`gpu_ext` explores verified eBPF GPU-driver policy hooks.**
+2. **gpu_ext explores verified eBPF GPU-driver policy hooks.**
 3. **Cross-layer programmable observability is expanding toward GPU/CXL fabrics.**
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
