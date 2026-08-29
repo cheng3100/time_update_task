@@ -263,6 +263,18 @@ The key principle is **mechanism before policy, lifetime/correctness before opti
 - **Observability:** owns tracing/profiling infrastructure; Memory defines stable memory event semantics (fault, bind, migrate, evict, TLB invalidate, replay) and the metrics required to compare memory mechanisms.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **AMDGPU UALink makes future multi-GPU memory invalidation a concrete ownership/protocol problem.**
+   - Source: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html (2026-08-21)
+   - Change: remote GPU memory uses NPA mappings and explicit export/import authorization; exported memory may move or be revoked by TTM eviction/MMU notifier, requiring remote TLB shootdown plus importer presence-check/retry rather than permanent pinning.
+   - KMD impact: keep the current single-GPU fault/HMM implementation as P0, but preserve separate logical allocation/range, local residency/PTE, peer mapping, invalidation target and connection/mapping generations. A future remote invalidation protocol cannot be modeled as merely iterating local TLB flushes.
+   - Priority: **Single-GPU correctness now; remote invalidation architecture reserve only.**
+
+2. **No new common GPU-SVM mechanism changes the current entry path this week.**
+   - Reference: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+   - KMD impact: continue measurement-first, notifier/generation correctness and N:1/per-device-state evolvability.
+   - Priority: **Now.**
+
 ### 2026-08-15 · Weekly #1
 1. **Xe GT Statistics turns SVM migration granularity into a measurable engineering problem.**
    - Source: https://docs.kernel.org/next/gpu/xe/xe_gt_stats.html (`next-20260722` documentation)
@@ -278,30 +290,18 @@ The key principle is **mechanism before policy, lifetime/correctness before opti
 ### 2026-08-08 · Test #2
 1. **Migration granularity is promoted to an explicit second-stage architecture item.**
    - Source: Linux DRM GPU SVM RFC / `drm_pagemap`: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
-   - Change: the current roadmap explicitly includes compound device pages and higher-order DMA mapping for migration; NVIDIA/AMD/Intel are recorded as agreeing that migrate-device core-MM calls are a performance bottleneck.
    - KMD impact: do not encode 4 KiB as the lifetime/ownership unit. Separate CPU base-page size, migration unit, DMA mapping unit and GPU PTE unit.
    - Priority: **Architecture now; prototype 64K/2M or batched migration in 6–12 months.**
-
 2. **Multi-GPU and mixed system/device residency remain active common-SVM targets.**
-   - Source: same GPU SVM RFC.
-   - KMD impact: keep fault/migration metadata capable of representing mixed residency and future per-device residency without rewriting the single-GPU fault path.
    - Priority: **6–12 months / longer-term depending on multi-GPU hardware.**
-
 3. **Driver-side migration policy remains open above common mechanisms.**
-   - KMD impact: preserve mechanism/policy separation for future eviction, NUMA, preferred-location and workload-hint policies.
    - Priority: **Boundary now; policy later.**
 
 ### 2026-08-08 · Test #1
 1. **Linux DRM GPU SVM is converging on a common shared-memory layer.**
    - Source: https://www.kernel.org/doc/html/latest/gpu/rfc/gpusvm.html
-   - Change: common design covers notifiers/ranges, system↔device migration and device-private memory, with concurrent GPU faults, mixed pages and common userptr in follow-on work.
-   - KMD impact: keep a clear hardware-specific GPUVM/fault layer underneath a Linux-MM-facing abstraction.
    - Priority: **Now**.
-
 2. **Multi-GPU and compound device pages are explicit follow-on targets.**
-   - Priority: **6–12 months after baseline migration.**
-
 3. **Driver-side migration policy remains intentionally open.**
-   - Priority: **Longer-term**, but design the boundary now.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
