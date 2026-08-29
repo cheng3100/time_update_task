@@ -17,14 +17,26 @@ Own the long-term KMD↔GPU system-firmware control plane. This is not basic fir
 - firmware authentication and measurement mechanisms
 
 ## Current entry feature
-**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation Model.**
+**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation + Raw-ABI Translation/Validation.**
 
-Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, firmware boot/reset phases, restart detection, generation isolation, re-handshake and state resynchronization.
+Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, explicit parser/validation and translation boundaries, firmware boot/reset phases, restart detection, generation isolation, re-handshake and state resynchronization.
 
 ### Near-term feature path
-Versioned message contract → capability negotiation → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → re-handshake → state reconciliation → resource ownership → HW-management offload.
+Versioned raw message contract → parser/validation → capability/translation → stable internal service API → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **Nova r000 GSP ABI v2 makes a real firmware major-ABI transition visible.**
+   - Source: https://lkml.iu.edu/2608.2/11372.html (2026-08-21)
+   - Change: nova-core moves from the release-specific 570.144 GSP firmware toward an r000 ABI intended to stay stable across releases. The switch changes MCTP/NVDM transport, msgq v2 queue/doorbell semantics, load-and-execute events, GSP_INIT boot handshake, ucodes/state-monitor buffers and transport validation as a grouped protocol transition.
+   - KMD impact: stable upper KMD services must not depend directly on raw firmware structs. Make the boundary explicit: raw FW ABI → parser/validator → version/capability translation → stable service model. Validate incoming version/vendor/length/sequence rather than assuming firmware correctness.
+   - Priority: **Build the translation/validation boundary into the first protocol version.**
+
+2. **The r000 series reinforces generation-aware boot/lifecycle design.**
+   - Source: https://lkml.iu.edu/2608.2/05341.html
+   - KMD impact: a major firmware generation can change queue pointers, boot events, init requests and memory reservations together. Treat firmware generation as a lifecycle boundary; old sequence/request/resource state must not survive a major transition implicitly.
+   - Priority: **Now for architecture.**
+
 ### 2026-08-22 · Weekly #2
 1. **Nova is starting to expose lower-layer GPU parameters to nova-drm through an explicit core interface.**
    - Source: https://lwn.net/Articles/1088246/ (v4, 2026-08-11)
@@ -34,15 +46,13 @@ Versioned message contract → capability negotiation → async request/completi
 
 2. **Nova PRAMIN support demonstrates typed MMIO/window services as lower-layer ownership.**
    - Source: https://lwn.net/Articles/1087343/ (2026-08-05)
-   - Change: nova-core adds a PRAMIN abstraction that programs a 1 MiB BAR0 window to arbitrary VRAM and hands out typed MMIO views.
-   - KMD impact: firmware/control-plane architecture is not only message transport; shared low-level address-window/MMIO services should have one owner and typed lifetime rules so upper modules cannot race window reprogramming or duplicate register semantics.
-   - Priority: **Architecture reference; implement only where the ASIC has analogous indirect windows/services.**
+   - KMD impact: shared low-level address-window/MMIO services should have one owner and typed lifetime rules so upper modules cannot race window reprogramming or duplicate register semantics.
+   - Priority: **Architecture reference.**
 
 ### 2026-08-15 · Weekly #1
 1. **Nova devinit makes reset-time firmware phase boundaries concrete.**
    - Source: https://docs.kernel.org/next/gpu/nova/core/devinit.html
-   - Change: the documented flow covers secure firmware, devinit on GPU microcontrollers, VRAM timing/power/clock/thermal initialization, `GFW_BOOT`, and reuse of initialization during suspend/resume.
-   - KMD impact: model control-plane state explicitly as RESET → SECURE_FW → DEVINIT → FW_BOOT_COMPLETE/GFW_BOOT → KMD_HANDSHAKE → SERVICE_READY rather than a single `fw_ready` bit. Reset/restart must advance a generation so stale request/completion traffic cannot mutate new state.
+   - KMD impact: model RESET → SECURE_FW → DEVINIT → GFW_BOOT/FW_BOOT_COMPLETE → KMD_HANDSHAKE → SERVICE_READY rather than a single `fw_ready` bit; reset/restart advances generation.
    - Priority: **Design now.**
 
 2. **nova-core continues to define a firmware-version-independent lower API for second-level drivers.**
@@ -53,35 +63,21 @@ Versioned message contract → capability negotiation → async request/completi
 ### 2026-08-08 · Test #4
 1. **Nova continues to make firmware-version-independent lower APIs an explicit architectural invariant.**
    - Source: https://docs.kernel.org/next/gpu/nova/core/guidelines.html
-   - KMD impact: second-level DRM/VFIO clients should never see firmware-version-specific structures or semantics; centralize translation/capability below a stable service API.
+   - KMD impact: centralize translation/capability below a stable service API.
    - Priority: **Now.**
 
-2. **Initial NVK→Nova backend work is an early signal that upper clients are beginning to wire against nova-drm while the KMD/uAPI remains young.**
-   - Secondary mirror of draft Mesa MR description: https://www.reddit.com/r/linux_gaming/comments/1vbighb/draft_nvk_add_initial_support_for_nova_driver/
-   - Change: the initial backend is limited to physical-device enumeration and basic VRAM properties, so this is not evidence of a frozen ABI.
-   - KMD impact: stable lower contracts, explicit capabilities and version isolation become more valuable when upper clients and KMD evolve in parallel.
-   - Priority: **Architecture watch; do not bind to early uAPI details.**
-
-3. **A current source walkthrough makes Nova's two-layer control architecture easier to study.**
-   - Source: https://hectorzelaya.dev/posts/nova-driver/part1-architecture-initialization-hardware-discovery/ (2026-06-27)
-   - KMD impact: useful durable implementation reference for nova-core/nova-drm separation, GSP-centric control and resource lifetime; not a substitute for upstream docs.
+2. **A current source walkthrough makes Nova's two-layer control architecture easier to study.**
+   - Source: https://hectorzelaya.dev/posts/nova-driver/part1-architecture-initialization-hardware-discovery/
    - Priority: **Learning/reference now.**
 
 ### 2026-08-08 · Test #2
 1. **Firmware-version isolation should be an explicit architectural invariant.**
-   - Source: Nova task list: https://docs.kernel.org/gpu/nova/core/todo.html
-   - Change: the GSP-RM API is explicitly described as unstable across firmware versions in both structures and semantics.
-   - KMD impact: centralize version translation/capability negotiation below a stable KMD-facing service API; prohibit scattered feature-level firmware-version conditionals.
+   - Source: https://docs.kernel.org/gpu/nova/core/todo.html
    - Priority: **Now.**
-
-2. **Firmware log export belongs in the control-plane contract, not only in ad-hoc debug code.**
-   - Source: Nova task list, GSP log-buffer export item.
-   - KMD impact: define a standard FW health/log service usable during normal runtime, crash recovery and probe failure; Reliability consumes it for crash evidence.
-   - Priority: **6–12 months, after the base async protocol.**
-
-3. **`nova-core` continues to validate a reusable lower control layer for DRM and VFIO/vGPU clients.**
-   - Source: https://docs.kernel.org/gpu/nova/index.html
-   - Priority: **Now for architecture.**
+2. **Firmware log export belongs in the control-plane contract.**
+   - Priority: **6–12 months after the base async protocol.**
+3. **nova-core validates a reusable lower control layer.**
+   - Priority: **Now.**
 
 ### 2026-08-08 · Test #1
 1. **Linux Nova makes firmware abstraction a first-class driver architecture.**
@@ -89,4 +85,4 @@ Versioned message contract → capability negotiation → async request/completi
 3. **Firmware is becoming a power/performance control authority.**
 
 ## Living focus
-Expand toward firmware lifecycle, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
+Expand toward firmware lifecycle, raw-ABI translation/validation, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
