@@ -14,12 +14,19 @@ Own GPU power-state control and performance-management policy from measurement t
 - PCIe ASPM/link power
 
 ## Current Entry Feature
-GPU busy/idle + utilization accounting → basic DVFS/runtime PM.
+GPU busy/idle + utilization accounting + asynchronous-access quiesce correctness → basic runtime PM/DVFS.
 
 ### Near-term feature path
-Reliable busy/idle accounting → per-engine utilization → frequency/residency telemetry → basic firmware-controlled DVFS → runtime PM → thermal/power-cap policy.
+Reliable busy/idle accounting → define all async GPU-register/memory users → quiesce/drain rules → runtime PM correctness → per-engine utilization/frequency telemetry → firmware-controlled DVFS → thermal/power-cap policy.
 
 ## Industry Updates
+### 2026-08-29 · Weekly #3
+1. **Imagination GPU runtime-PM fix shows IRQ/suspend ordering is a first-class PM correctness problem.**
+   - Source: https://ubuntu.com/security/CVE-2026-23469
+   - Change: runtime suspend could power down the GPU while a threaded IRQ handler on another CPU was still accessing GPU registers, causing SError/panic. The fix synchronizes IRQ handling before suspend and removes ad-hoc IRQ-side runtime-resume logic that could deadlock with the PM lock.
+   - KMD impact: PM active lifetime must include IRQ/threaded IRQ, FW callbacks, fault workers, reset workers and other asynchronous contexts that can touch power-gated state, not only job/ioctl references. Suspend needs an explicit quiesce/drain matrix.
+   - Priority: **Build the quiesce matrix in the first runtime-PM implementation; complex governor remains later.**
+
 ### 2026-08-15 · Weekly #1
 1. **No high-value direction-changing mechanism appeared after the previous run; keep measurement/lifetime-first.**
    - Reference: https://docs.kernel.org/next/gpu/xe/xe_pm.html
@@ -41,22 +48,14 @@ Reliable busy/idle accounting → per-engine utilization → frequency/residency
 
 ### 2026-08-08 · Test #2
 1. **Keep PM telemetry reusable by both policy and profiling.**
-   - Source: AMD uProf 5.3 GPU Profiling (2026-06-17): https://docs.amd.com/r/en-US/57368-uProf-user-guide/7.13.1.-GPU-Profiling
-   - Change: production profiling stacks consume GPU hardware events and derived metrics through ROCm/rocprofiler.
-   - KMD impact: utilization/performance counters should not be hard-wired only into DVFS; expose a clean counter/telemetry layer reusable by Observability/Profiling.
+   - Source: https://docs.amd.com/r/en-US/57368-uProf-user-guide/7.13.1.-GPU-Profiling
    - Priority: **6–12 months if PMU counters exist.**
-
 2. **Firmware-managed actuation remains the safer architecture boundary.**
-   - Sources: Linux Xe firmware/GT-frequency docs and Nova architecture.
-   - KMD impact: host KMD should own measurement, constraints and policy contract while FW/HW can own low-level actuation where appropriate.
    - Priority: **Now for interface design.**
 
 ### 2026-08-08 · Test #1
 1. **Intel Xe integrates runtime PM with PCI D-states and VRAM constraints.**
-   - Priority: **Now** for architecture.
 2. **Firmware-managed frequency policy remains mainstream.**
-   - Priority: **6–12 months** if FW frequency control is available.
 3. **Do not start with a complex governor.**
-   - Priority: **Now** — measurement first.
 
 > This section is refreshed on every scheduled update. Stable Summary changes only on an explicit owner-direction decision.
