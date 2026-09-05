@@ -26,5 +26,13 @@
 - **学习重点:** software counters 与 hardware PMU 的职责边界、per-CPU accumulation、reset/read semantics，以及怎样把 fault/migration/scheduler latency 对齐到统一 workload object/timeline。
 - **学习注意:** debugfs aggregate counters 缺少 per-process/context attribution，因此更适合作为第一层 low-overhead health/benchmark telemetry；真正 profiling 仍需 tracepoint/object ID/PMU sampling 组合。
 
+### 4. Intel Crescent Island PMT support v4 — telemetry service lifetime and window arbitration
+- **类型:** Implementation / platform telemetry integration
+- **链接:** https://lwn.net/Articles/1092225/
+- **是什么:** 2026-09-01 的 Xe/Intel PMT 集成系列，为 Crescent Island GPU 接入 PMT，并处理共享 MMIO access window、driver-specific callback/index selection、crashlog/telemetry、runtime PM、FW late binding、hotplug 与 SR-IOV VF 行为。
+- **价值点:** 它展示真实 telemetry subsystem 的主要难点经常不在“怎么读 counter”，而在谁拥有共享 indirect window、什么时候设备必须上电、FW service 何时 ready、多个 consumer 怎样串行化访问，以及 VF 是否有权限看到 telemetry。对自研 GPU 构建统一 Telemetry Service 很有参考价值。
+- **学习重点:** PMT callback access、shared MMIO/index arbitration、crashlog vs telemetry power requirements、FW late binding、PM/lock ordering、hotplug cleanup、SR-IOV VF filtering。
+- **学习注意:** Intel PMT 是平台特定框架，不应照搬其 API。应抽取“单一 telemetry service owner + PM/FW readiness + arbitration + privilege boundary”模式，再结合自研 GPU 的 PMU/FW/diagnostic transport。
+
 ## Maintenance notes
 本页稳定增长；Industry Updates 不放在这里。
