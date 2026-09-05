@@ -17,14 +17,27 @@ Own the long-term KMD↔GPU system-firmware control plane. This is not basic fir
 - firmware authentication and measurement mechanisms
 
 ## Current entry feature
-**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation + Raw-ABI Translation/Validation.**
+**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation + Raw-ABI Translation/Validation + Service Readiness.**
 
-Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, explicit parser/validation and translation boundaries, firmware boot/reset phases, restart detection, generation isolation, re-handshake and state resynchronization.
+Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, explicit parser/validation and translation boundaries, firmware boot/reset phases, per-service readiness, restart detection, generation isolation, re-handshake and state resynchronization.
 
 ### Near-term feature path
-Versioned raw message contract → parser/validation → capability/translation → stable internal service API → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → state reconciliation → resource ownership → HW-management offload.
+Versioned raw message contract → parser/validation → capability/translation → stable internal service API → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → service readiness registry → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **Crescent Island PMT late binding is a concrete example of firmware-backed service readiness.**
+   - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
+   - Change: Crescent Island firmware is loaded when the device powers up, while PMT discovery/control information depends on that firmware; the PMT integration therefore uses a late-binding mechanism rather than assuming all firmware-backed services are permanently ready after probe.
+   - KMD impact: replace a single global `fw_ready` concept with per-generation service readiness such as CORE/MEMORY/PM/TELEMETRY/SCHED. Reset/restart advances firmware generation and invalidates all old readiness; upper layers re-wait/re-negotiate only the services they need.
+   - Priority: **Add to the first protocol/lifecycle design.**
+
+2. **Rust typed register projections are evolving in Tyr and nova-core but do not change the control-plane owner direction.**
+   - Source: https://lwn.net/Articles/1091993/ (2026-09-01)
+   - Change: the Rust I/O series introduces typed register projections and removes relative-register patterns across Tyr and nova-core register users.
+   - KMD impact: treat typed register-block ownership as useful low-level engineering infrastructure. Shared MMIO/window services should still remain beneath stable control services rather than leaking raw arithmetic/register ownership upward.
+   - Priority: **Future engineering reference; no owner change.**
+
 ### 2026-08-29 · Weekly #3
 1. **Nova r000 GSP ABI v2 makes a real firmware major-ABI transition visible.**
    - Source: https://lkml.iu.edu/2608.2/11372.html (2026-08-21)
@@ -85,4 +98,4 @@ Versioned raw message contract → parser/validation → capability/translation 
 3. **Firmware is becoming a power/performance control authority.**
 
 ## Living focus
-Expand toward firmware lifecycle, raw-ABI translation/validation, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
+Expand toward firmware lifecycle, raw-ABI translation/validation, per-service readiness, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
