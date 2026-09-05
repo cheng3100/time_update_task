@@ -263,6 +263,18 @@ The key principle is **mechanism before policy, lifetime/correctness before opti
 - **Observability:** owns tracing/profiling infrastructure; Memory defines stable memory event semantics (fault, bind, migrate, evict, TLB invalidate, replay) and the metrics required to compare memory mechanisms.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **No new GPU-SVM/HMM common-layer direction changes the current Memory priority this week.**
+   - Current reference: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
+   - KMD impact: keep recoverable fault/HMM/migration/replay correctness as P0; continue separating MMU-notifier sequence, VM/context generation, reset/recovery sequence and per-device mapping state rather than opening a new memory sub-project from weekly news.
+   - Priority: **Current feature unchanged.**
+
+2. **Tyr Rust GPU driver is moving into real VM/BO uAPI implementation, but this remains foundational/Future-Topic work.**
+   - Source: https://lwn.net/Articles/1091992/ (2026-09-02)
+   - Change: Tyr adds per-file VM pools plus VM/BO ioctls aligned with Panthor, using Rust DRM file/ID/xarray abstractions.
+   - KMD impact: per-file VM ownership/lifetime remains a useful modern DRM reference, but a team that already has a working KMD should not replace the current fault/HMM owner feature with basic VM/BO ioctl work.
+   - Priority: **Future Topic/reference; no current entry change.**
+
 ### 2026-08-29 · Weekly #3
 1. **AMDGPU UALink makes future multi-GPU memory invalidation a concrete ownership/protocol problem.**
    - Source: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html (2026-08-21)
