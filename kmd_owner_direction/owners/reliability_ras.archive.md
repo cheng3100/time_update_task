@@ -14,12 +14,19 @@ Own detection, diagnosis, containment and recovery of GPU faults plus production
 - fault injection and per-context fault attribution
 
 ## Current Entry Feature
-Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog + reset gate/generation.
+Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog + Recovery Admission/State/Sequence Contract.
 
 ### Near-term feature path
-Hang detection → freeze diagnostic state → structured snapshot → health classification → close admission/drain → reset-generation transition → reset → state restore → reopen admission → progressively finer recovery.
+Hang detection → freeze diagnostic state → structured snapshot → health classification → publish recovery state/close admission → drain → recovery-sequence transition → reset/recover → state restore → publish NORMAL/FAILED → reopen admission → progressively finer recovery.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **VFIO PCI error-recovery RFC provides a concrete reusable recovery admission/state/sequence pattern.**
+   - Source: https://lwn.net/Articles/1091953/ (2026-09-01)
+   - Change: `error_detected()` records severity, blocks new access and revokes/guards BAR, config, interrupts, runtime-PM and DMA-BUF paths; `slot_reset()` restores config state after host reset; `resume()` reopens access. A status word + sequence lets userspace observe recovery even if the transition completes before the event is handled. The locking rule explicitly avoids holding recovery state locking across lower-level reset paths that may take `pci_bus_sem`.
+   - KMD impact: generalize the current reset gate into a Recovery Admission/State/Sequence Contract. Publish QUIESCING, close admission, drain users, freeze evidence, reset without holding the recovery-state lock, restore, then publish NORMAL/FAILED and wake clients. Memory/FW/Virtualization paths consume the same sequence/generation rather than maintaining independent `resetting` booleans.
+   - Priority: **Current first-stage RAS design.**
+
 ### 2026-08-29 · Weekly #3
 1. **UALink connection reset exposes a future multi-device generation boundary.**
    - Source: https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
