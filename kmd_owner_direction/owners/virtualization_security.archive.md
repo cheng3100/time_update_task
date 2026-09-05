@@ -14,12 +14,19 @@ Own GPU virtualization, tenant/resource isolation and security mechanisms for sa
 - attestation/confidential GPU
 
 ## Current Entry Feature
-SR-IOV PF/VF bring-up + provisioning/isolation + versioned admin control when ASIC capability exists; otherwise VFIO/reset/ownership assessment.
+SR-IOV PF/VF bring-up + provisioning/isolation + versioned admin control + recovery semantics when ASIC capability exists; otherwise VFIO/reset/ownership assessment.
 
 ### Near-term decision gate
 First confirm ASIC capabilities: SR-IOV extended capability, VF BAR/interrupt model, VMID/resource partitioning, reset semantics, IOMMU isolation and PF↔VF control path. Only then decide whether virtualization is a real feature project or just platform integration.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **VFIO PCI error-recovery RFC turns assigned-device recovery into an explicit userspace-visible state/sequence contract.**
+   - Source: https://lwn.net/Articles/1091953/ (2026-09-01)
+   - Change: generic vfio-pci would block/revoke device access during host PCI recovery, restore config after slot reset, resume access only after recovery, and expose status bits plus a monotonic sequence through an opt-in device feature/eventfd. Userspace can distinguish in-progress recovery, frozen channel, device reset and permanent failure instead of receiving one semantically empty error notification.
+   - KMD impact: future GPU passthrough/vGPU/SR-IOV should align VMM-visible recovery state with the same RAS generation/admission model used by the host KMD. BAR/config/IRQ/runtime-PM/DMA-BUF/queue handles need explicit validity/retry/recreate semantics after recovery.
+   - Priority: **Architecture reference now; implementation when virtualization product requirements exist.**
+
 ### 2026-08-29 · Weekly #3
 1. **No new GPU-specific SR-IOV/vGPU mechanism changes the hardware-gated plan this week.**
    - Current GPU reference: https://docs.kernel.org/next/gpu/xe/xe_configfs.html
