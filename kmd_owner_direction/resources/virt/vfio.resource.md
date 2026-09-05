@@ -18,5 +18,13 @@
 - **学习重点:** IOMMU group formation、PCI bridge isolation、ACS、peer-to-peer 路径、device ownership 与 topology 的关系。
 - **学习注意:** 文章较早，VFIO API 后续有演进；长期价值主要在 isolation model 和 PCIe topology reasoning，而不是旧 userspace API 细节。
 
+### 3. VFIO PCI error recovery RFC — host recovery state and access guards
+- **类型:** Implementation / evolving uAPI design
+- **链接:** https://lwn.net/Articles/1091953/
+- **是什么:** 2026-09-01 的 19-patch RFC，为 generic `vfio-pci` 补齐 PCI AER recovery participation，并把 host recovery 的状态、reset 结果和 sequence 暴露给 userspace/VMM。
+- **价值点:** 它非常具体地展示 assigned device 在恢复期间如何关闭和恢复所有 access path：BAR/config/ioeventfd/interrupt/runtime PM/DMA-BUF/reset 等都必须受统一 recovery state 约束；同时 userspace 只观察 recovery，不参与 host AER recovery 本身。这个模型对 GPU passthrough/vGPU/SR-IOV 的 production recovery 很有长期参考价值。
+- **学习重点:** `error_detected()` / `slot_reset()` / `resume()` 生命周期、access guard、BAR fault retry、DMA-BUF revoke、status + sequence uAPI、`recovery_lock` 与 `pci_bus_sem` 锁序、AER fault injection。
+- **学习注意:** 当前是 RFC，具体 uAPI bit/locking 实现尚未冻结。长期应学习 recovery/admission/state-sequence 模式，而不是绑定当前字段定义；GPU-specific context/queue/VM 恢复仍需 KMD 自己设计。
+
 ## Maintenance notes
 本页稳定增长；Industry Updates 不放在这里。
