@@ -18,12 +18,19 @@ Own software-event tracing, hardware performance monitoring, cross-layer correla
 - long-term gpu_ext-like verified programmable policy
 
 ## Current Entry Feature
-Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software/pipeline counters. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
+Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software/pipeline counters + unified Telemetry Service. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
 
 ### Near-term feature path
-Stable tracepoints/object IDs → always-on low-cost software/pipeline counters → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
+Stable tracepoints/object IDs → always-on low-cost software/pipeline counters → unified Telemetry Service → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **Crescent Island PMT v4 shows that real GPU telemetry is a lifetime/arbitration service, not just a counter-read API.**
+   - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
+   - Change: Crescent Island PMT uses a shared MMIO access window that requires driver-specific callbacks/index selection; crashlog/telemetry access depends on device power, FW-backed discovery uses late binding, and the series handles hotplug, lock ordering and SR-IOV VF behavior.
+   - KMD impact: do not let debugfs/hwmon/profiler/RAS independently control shared telemetry windows. Introduce a unified Telemetry Service that owns PM lifetime, FW readiness, privilege/VF filtering, access serialization, counter discovery and snapshot/cache policy. This service can feed the existing software-counter/trace/eBPF/PMU stack.
+   - Priority: **Software telemetry service now; hardware PMU as hardware matures.**
+
 ### 2026-08-29 · Weekly #3
 1. **DAMON/perf hardware-sampling observability RFC reinforces stage-by-stage visibility for asynchronous pipelines.**
    - Source: https://lwn.net/Articles/1089344/
