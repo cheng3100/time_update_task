@@ -22,6 +22,12 @@ Multi-GPU enumeration + stable identity + topology/port/peer model + visibility/
 Stable device identity → topology graph / endpoint-port-peer model → process-visible GPU set/affinity → directional P2P capability + reason matrix → peer mapping → P2P DMA → link/fabric control primitives → shared VM → multi-GPU UVM/fabric.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **No new production-level fabric mechanism exceeds the existing DRM Fabric + AMD UALink signal this week.**
+   - Current references: https://lkml.iu.edu/2608.3/00335.html and https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg149538.html
+   - KMD impact: keep endpoint/port/peer identity, directional capability, link state/counters and reason codes as the current Living Entry. The new VFIO PCI-recovery work is a useful boundary reminder that BAR/DMA-BUF access can be revoked during recovery; future peer mappings likewise need to become stale with the appropriate device/fabric/mapping generation, but this remains an architecture reserve rather than a current data-path project.
+   - Priority: **Topology/control model now; data path later.**
+
 ### 2026-08-29 · Weekly #3
 1. **DRM Fabric RFC proposes a vendor-neutral accelerator topology object model.**
    - Source: https://lkml.iu.edu/2608.3/00335.html (2026-08-24)
