@@ -20,6 +20,13 @@ GPU busy/idle + utilization accounting + asynchronous-access quiesce correctness
 Reliable busy/idle accounting → define all async GPU-register/memory users → quiesce/drain rules → runtime PM correctness → per-engine utilization/frequency telemetry → firmware-controlled DVFS → thermal/power-cap policy.
 
 ## Industry Updates
+### 2026-09-05 · Weekly #4
+1. **Crescent Island PMT v4 makes telemetry/crashlog/FW callbacks explicit runtime-PM users.**
+   - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
+   - Change: Xe PMT access uses a shared MMIO window with driver callbacks/index selection; crashlog/telemetry access must request the proper power state, telemetry only exists while the device is powered, and firmware-backed discovery uses late binding for FW readiness.
+   - KMD impact: the PM-active set must include telemetry/hwmon/crashlog and firmware-backed diagnostic callbacks, not only job/ioctl/IRQ paths. The first runtime-PM quiesce matrix should define whether each diagnostic path holds a PM ref, can wake the device, must wait for FW readiness, or should return unavailable during suspend/recovery.
+   - Priority: **Include in the first runtime-PM implementation; complex governor remains later.**
+
 ### 2026-08-29 · Weekly #3
 1. **Imagination GPU runtime-PM fix shows IRQ/suspend ordering is a first-class PM correctness problem.**
    - Source: https://ubuntu.com/security/CVE-2026-23469
