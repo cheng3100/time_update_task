@@ -6,7 +6,8 @@ This directory is the long-term source-of-truth for the scheduled **GPU KMD owne
 
 - `HOME.md` defines the stable owner-domain taxonomy. Update it only when the owner explicitly adds, removes, merges, or redefines a top-level direction.
 - Each owner archive keeps a stable `Summary` and a living `Current focus / Candidate features / Industry updates / Update history` section.
-- Scheduled runs should not rewrite stable definitions just because a new patchset or article appears.
+- `_data/kmd_owner_guides.json` is the stable **Detailed Owner Guide** presentation data: beginner introduction, why the Owner exists, core objects, architecture/data-control flow, staged 3–5 year development path, and cross-Owner boundary. It changes only on explicit requests to improve/redefine stable direction analysis, not because of weekly news.
+- Scheduled runs should not rewrite stable definitions or detailed guides just because a new patchset or article appears.
 - Existing baseline KMD structure (basic probe/init, execution/submission, context/queue, basic scheduling, interrupts, MMIO/PCIe) is treated as the existing foundation, not as a new owner direction.
 - Every owner direction must have: a clear independent problem domain, 3–5 year growth space, concrete KMD feature candidates, and at least one practical entry feature.
 
@@ -45,6 +46,23 @@ pages/owner-memory.md
 
 The archive filename and generated page path are therefore different by construction. Do not rely on broad Jekyll `exclude` rules to avoid Owner-page collisions.
 
+## Stable Detailed Owner Guide
+
+The Pages layer now includes a beginner-friendly stable guide for all seven Owners. The guide is intentionally separate from weekly Living updates.
+
+Each Owner page should explain, in this order:
+
+1. what problem the Owner solves in plain language;
+2. why a basic working KMD still needs this capability domain;
+3. the core KMD/HW/FW objects a new reader must recognize;
+4. a visual architecture/data-control flow;
+5. a staged path from the current entry feature to a mature independent Owner;
+6. ownership boundaries with the other six domains;
+7. stable sub-directions and their durable learning-resource pages;
+8. current Living Industry Updates.
+
+The task home additionally renders a top-to-bottom GPU software-stack architecture view so readers can understand where the seven capability domains sit relative to applications, UMD/runtime, shared KMD foundations and GPU HW/FW.
+
 ## Three-layer archive model
 
 ### 1. `owners/` — stable owner definitions and long-term roadmaps
@@ -70,12 +88,12 @@ Stable learning resources live under `resources/<owner>/`. Each stable sub-direc
 
 Each scheduled run should:
 
-1. keep the stable taxonomy unless an explicit direction change was requested;
+1. keep the stable taxonomy and Detailed Owner Guide unless an explicit direction/guide change was requested;
 2. produce and save the **complete original run Markdown** under `raw_updates/`;
 3. refresh candidate features and industry progress for each domain;
 4. select one entry feature for deeper analysis, including prerequisites, KMD/FW/UMD/HW boundaries, 3–6 month deliverables, and 1–2 year expansion path;
 5. append/update a curated dated record under `updates/`;
-6. refresh each owner's Living Industry Updates while leaving Stable Summary unchanged;
+6. refresh each owner's Living Industry Updates while leaving Stable Summary and Detailed Owner Guide unchanged;
 7. update `_data/` consumed by Jekyll; presentation pages/layouts should not duplicate the content model.
 
 ## GitHub Pages
