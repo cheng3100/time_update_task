@@ -1,0 +1,58 @@
+{
+  "memory": [
+    {"owner":"Virtualization / Security","relation_zh":"Memory 为每个 tenant 提供独立 GPUVM、PASID/IOMMU mapping；Virtualization 决定这些地址空间属于谁以及资源隔离边界。","relation_en":"Memory supplies per-tenant GPUVM/PASID/IOMMU mappings; Virtualization defines ownership and isolation boundaries."},
+    {"owner":"Power / Performance","relation_zh":"migration、fault 和 memory bandwidth 会改变功耗/性能；Power 提供 active lifetime 与频率状态，Memory 不直接决定 DVFS。","relation_en":"Migration, faults and bandwidth affect performance/power; Power owns active lifetime and DVFS policy."},
+    {"owner":"RAS","relation_zh":"reset/recovery generation 使旧 PTE、fault replay、migration completion 失效；Memory 必须消费统一 recovery 生命周期。","relation_en":"Recovery generations invalidate stale PTE/fault/migration work; Memory consumes the common recovery lifetime."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"Multi-GPU 提供 topology、peer reachability 和 transport；Memory 在其上实现 peer mapping、shared VA 和跨 GPU residency。","relation_en":"Multi-GPU supplies topology, reachability and transport; Memory builds peer mappings, shared VA and cross-GPU residency above them."},
+    {"owner":"Observability / Profiling","relation_zh":"Memory 输出 fault、migration、eviction、TLB 等稳定事件和延迟分解，供统一 timeline 与性能诊断使用。","relation_en":"Memory emits stable fault, migration, eviction and TLB events for unified timelines and diagnosis."},
+    {"owner":"Firmware / Control Plane","relation_zh":"Firmware 可提供 fault queue、TLB/migration service 等硬件控制能力；Linux MM/HMM policy 和 page lifetime 仍由 Memory 拥有。","relation_en":"Firmware may expose fault/TLB/migration services; Linux MM/HMM policy and page lifetime remain owned by Memory."}
+  ],
+  "virt": [
+    {"owner":"Memory","relation_zh":"依赖 per-tenant GPUVM、IOMMU/PASID 与显存 ownership；Virtualization 决定隔离，Memory 实现页级映射。","relation_en":"Depends on per-tenant GPUVM/IOMMU/PASID; Virtualization defines isolation while Memory implements mappings."},
+    {"owner":"Power / Performance","relation_zh":"需要 per-VF/tenant utilization、quota 与 power accounting，但全局 PM 生命周期仍属于 Power。","relation_en":"Needs per-tenant utilization/quota/accounting while global PM lifetime remains with Power."},
+    {"owner":"RAS","relation_zh":"VF FLR、tenant fault containment 和 partial reset 复用 RAS recovery primitive，但不能让一个 tenant 的恢复破坏其他 tenant。","relation_en":"VF FLR and tenant containment reuse RAS primitives without allowing one tenant recovery to disturb others."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"多租户可见 GPU/topology/peer 权限由 Virtualization 策略过滤，物理 topology/transport 由 Multi-GPU 提供。","relation_en":"Virtualization filters tenant-visible devices/peers; Multi-GPU owns physical topology and transport."},
+    {"owner":"Observability / Profiling","relation_zh":"需要 tenant-safe telemetry、审计和计量，必须防止 trace/counter 泄漏其他 tenant 信息。","relation_en":"Requires tenant-safe telemetry, auditing and accounting without cross-tenant information leakage."},
+    {"owner":"Firmware / Control Plane","relation_zh":"PF↔VF admin、resource provisioning、secure service 常通过 FW 实现；Virtualization 定义 tenant contract。","relation_en":"PF/VF admin and resource provisioning may be FW-backed; Virtualization owns the tenant contract."}
+  ],
+  "power": [
+    {"owner":"Memory","relation_zh":"memory bandwidth、fault/migration activity 是性能与功耗输入；Power 使用这些信号但不拥有 residency policy。","relation_en":"Memory bandwidth/fault/migration are policy inputs; Power consumes them without owning residency policy."},
+    {"owner":"Virtualization / Security","relation_zh":"多租户场景需要 per-tenant accounting/cap；Virtualization 定义隔离，Power 定义全局和分区能效策略。","relation_en":"Multi-tenant systems need per-tenant accounting/caps; Virtualization owns isolation and Power owns energy policy."},
+    {"owner":"RAS","relation_zh":"suspend、power-gating 与 reset 都要求关闭 admission/drain async users；两者应共享生命周期协议而非独立 boolean。","relation_en":"Suspend, power gating and reset share admission/drain lifetime rules rather than independent booleans."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"多 GPU 系统需要 per-device/fabric power state 和协同 policy；topology 由 Multi-GPU 提供。","relation_en":"Multi-GPU systems need per-device/fabric power coordination using topology supplied by Multi-GPU."},
+    {"owner":"Observability / Profiling","relation_zh":"busy/idle、frequency residency、power counter 同时是 Power policy 输入和 profiling 数据，measurement contract 应共享。","relation_en":"Utilization/frequency/power counters serve both policy and profiling, so measurement contracts should be shared."},
+    {"owner":"Firmware / Control Plane","relation_zh":"FW 往往执行 clock/voltage/gating 操作；Power 定义 policy/lifetime，Firmware 定义可靠 actuation contract。","relation_en":"FW often actuates clocks/voltage/gating; Power owns policy/lifetime while Firmware owns the actuation contract."}
+  ],
+  "ras": [
+    {"owner":"Memory","relation_zh":"recovery generation 使 fault、PTE、migration 等旧工作失效；Memory 负责在恢复后重建或终止内存对象。","relation_en":"Recovery generations invalidate stale memory work; Memory rebuilds or terminates mappings after recovery."},
+    {"owner":"Virtualization / Security","relation_zh":"提供 VF/context/tenant 级 containment 与 reset primitive，Virtualization 保证恢复不跨 tenant 边界。","relation_en":"Supplies containment/reset primitives while Virtualization preserves tenant boundaries."},
+    {"owner":"Power / Performance","relation_zh":"reset 和 PM transition 都需要 quiesce/drain；RAS 负责错误恢复，Power 负责正常低功耗生命周期。","relation_en":"Both reset and PM transitions quiesce users; RAS owns fault recovery and Power owns normal low-power lifetime."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"区分 local GPU、FW、fabric connection、peer mapping 等不同 failure domain 与 generation。","relation_en":"Separates local GPU, firmware, fabric connection and peer-mapping failure domains/generations."},
+    {"owner":"Observability / Profiling","relation_zh":"snapshot/devcoredump 是事后证据，trace/counter 是事前时间线；两者通过 stable object/event ID 关联。","relation_en":"Snapshots provide post-mortem evidence and traces provide timelines, correlated through stable IDs."},
+    {"owner":"Firmware / Control Plane","relation_zh":"FW heartbeat/crash 是重要故障源；RAS 决定 recovery policy，Firmware 提供 restart/state reconciliation primitive。","relation_en":"FW heartbeat/crashes are fault sources; RAS owns recovery policy while Firmware supplies restart/reconciliation primitives."}
+  ],
+  "multi": [
+    {"owner":"Memory","relation_zh":"提供 peer mapping、shared VM、跨 GPU migration/replication；Multi-GPU 只负责 topology/transport/peer lifecycle。","relation_en":"Memory provides peer mappings/shared VM/migration; Multi-GPU owns topology, transport and peer lifetime."},
+    {"owner":"Virtualization / Security","relation_zh":"物理 topology 经过 tenant visibility/permission 过滤后才能暴露给 VM/VF。","relation_en":"Physical topology must be filtered by tenant visibility and permissions before exposure."},
+    {"owner":"Power / Performance","relation_zh":"fabric link 与多 GPU workload 需要协同 power/performance policy，但链路拓扑归 Multi-GPU。","relation_en":"Fabric links and multi-GPU workloads need coordinated power policy while topology remains Multi-GPU-owned."},
+    {"owner":"RAS","relation_zh":"peer/fabric reset、remote mapping revoke 与 local GPU reset 是不同 generation，需要明确依赖顺序。","relation_en":"Peer/fabric reset, remote-map revocation and local GPU reset are distinct generations with explicit ordering."},
+    {"owner":"Observability / Profiling","relation_zh":"需要跨设备统一时间线、link bandwidth/error、remote fault 等 telemetry。","relation_en":"Needs cross-device timelines plus link bandwidth/error and remote-fault telemetry."},
+    {"owner":"Firmware / Control Plane","relation_zh":"FW 可能管理 fabric discovery/link/remote interrupt；Multi-GPU 定义 Linux-visible topology 与 peer contract。","relation_en":"FW may manage fabric discovery/link services; Multi-GPU owns Linux-visible topology and peer contracts."}
+  ],
+  "obs": [
+    {"owner":"Memory","relation_zh":"消费 fault/migration/eviction/TLB 事件，并提供端到端 memory latency 分解。","relation_en":"Consumes fault/migration/eviction/TLB events for end-to-end memory latency analysis."},
+    {"owner":"Virtualization / Security","relation_zh":"提供 per-tenant telemetry 时必须遵守隔离和权限模型，避免侧信道。","relation_en":"Per-tenant telemetry must respect isolation and avoid information side channels."},
+    {"owner":"Power / Performance","relation_zh":"共享 utilization/frequency/power measurement contract；Observability 负责可观测接口而非 governor policy。","relation_en":"Shares utilization/frequency/power measurements while leaving governor policy to Power."},
+    {"owner":"RAS","relation_zh":"将运行时 trace 与 snapshot/devcoredump 通过 object ID、generation、timestamp 关联。","relation_en":"Correlates runtime traces with snapshots using object IDs, generations and timestamps."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"建立跨 GPU/链路统一 timeline 和 topology-aware telemetry。","relation_en":"Builds cross-GPU/link unified timelines and topology-aware telemetry."},
+    {"owner":"Firmware / Control Plane","relation_zh":"把 FW log/event/timestamp 纳入 host timeline，并解决 host/FW clock correlation。","relation_en":"Integrates FW logs/events into host timelines and solves host/FW clock correlation."}
+  ],
+  "fw": [
+    {"owner":"Memory","relation_zh":"提供 fault/TLB/migration 等 FW service；Memory 决定 Linux MM/HMM 与 residency policy。","relation_en":"Provides FW fault/TLB/migration services while Memory owns MM/HMM and residency policy."},
+    {"owner":"Virtualization / Security","relation_zh":"提供 PF/VF resource/admin service、secure boot/measurement primitive；tenant contract 属于 Virtualization。","relation_en":"Provides PF/VF admin and security primitives while tenant contracts belong to Virtualization."},
+    {"owner":"Power / Performance","relation_zh":"执行 DVFS/gating/PM command 并报告状态；Power 决定何时和为什么执行。","relation_en":"Executes DVFS/gating/PM commands while Power decides when and why."},
+    {"owner":"RAS","relation_zh":"提供 heartbeat、crash reason、restart 与 state reconciliation；RAS 决定故障分类和恢复策略。","relation_en":"Provides heartbeat/crash/restart/reconciliation primitives while RAS owns fault policy."},
+    {"owner":"Multi-GPU / Fabric","relation_zh":"可管理 link/fabric service；Multi-GPU 决定 host-visible topology、peer lifecycle 和 uAPI。","relation_en":"May manage link/fabric services while Multi-GPU owns host-visible topology and peer lifecycle."},
+    {"owner":"Observability / Profiling","relation_zh":"输出版本化 FW log/event/counter/timestamp，使其可与 KMD/UMD timeline 关联。","relation_en":"Exports versioned FW logs/events/counters/timestamps for KMD/UMD timeline correlation."}
+  ]
+}
