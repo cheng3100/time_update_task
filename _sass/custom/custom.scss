@@ -1,6 +1,84 @@
 // Project-specific overrides for Just the Docs.
 // Keep structural layout owned by the theme; only tune density and technical-document styling here.
 
+:root {
+  --site-bg: #0d1117;
+  --site-surface: #111820;
+  --site-surface-soft: #161f29;
+  --site-text: #c9d1d9;
+  --site-heading: #f0f6fc;
+  --site-muted: #a8b3bf;
+  --site-border: #2a3441;
+  --site-link: #57d9a3;
+  --site-code-bg: #090d12;
+  --site-card-bg: rgba(255,255,255,.015);
+  --site-highlight-border: rgba(255,255,255,.07);
+}
+
+:root[data-theme="light"] {
+  --site-bg: #f7f9fb;
+  --site-surface: #ffffff;
+  --site-surface-soft: #f1f5f9;
+  --site-text: #26323f;
+  --site-heading: #111827;
+  --site-muted: #596779;
+  --site-border: #d8dee6;
+  --site-link: #087f5b;
+  --site-code-bg: #eef2f6;
+  --site-card-bg: #ffffff;
+  --site-highlight-border: rgba(31,41,55,.10);
+}
+
+html,
+body,
+.main,
+.main-content-wrap {
+  background-color: var(--site-bg) !important;
+  color: var(--site-text) !important;
+}
+
+.side-bar,
+.site-header,
+.main-header,
+.search,
+.search-input-wrap,
+.search-results {
+  background-color: var(--site-surface) !important;
+  color: var(--site-text) !important;
+}
+
+.site-title,
+h1, h2, h3, h4, h5, h6,
+.navigation-list-heading,
+.search-result-title {
+  color: var(--site-heading) !important;
+}
+
+.navigation-list-link,
+.aux-nav-list-item a,
+.search-input,
+.search-result-doc,
+.search-result-section {
+  color: var(--site-text) !important;
+}
+
+.navigation-list-link:hover,
+.navigation-list-link.active,
+a {
+  color: var(--site-link) !important;
+}
+
+.search-input,
+.site-button,
+.btn,
+button,
+select,
+input {
+  background-color: var(--site-surface-soft) !important;
+  color: var(--site-text) !important;
+  border-color: var(--site-border) !important;
+}
+
 .main-content-wrap {
   max-width: none;
 }
@@ -20,11 +98,11 @@
 .history-item,
 .subdirection-detail,
 .archive-group {
-  border: 1px solid $border-color;
+  border: 1px solid var(--site-border);
   border-radius: 8px;
   padding: 1.15rem 1.25rem;
   margin: 1rem 0;
-  background: rgba(255,255,255,0.015);
+  background: var(--site-card-bg);
 }
 
 .direction-overview + .direction-overview,
@@ -35,7 +113,7 @@
 
 .history-highlight {
   padding: .6rem 0;
-  border-top: 1px solid rgba(255,255,255,.07);
+  border-top: 1px solid var(--site-highlight-border);
 }
 
 .history-links {
@@ -48,47 +126,80 @@
 .badge {
   display: inline-block;
   padding: .12rem .45rem;
-  border: 1px solid $link-color;
+  border: 1px solid var(--site-link);
   border-radius: 999px;
-  color: $link-color;
+  color: var(--site-link);
   font-size: .72rem;
   vertical-align: middle;
 }
 
 .task-meta,
 .subdirection-short {
-  color: $nav-child-link-color;
+  color: var(--site-muted) !important;
 }
 
-.lang-switch {
+.site-controls {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
+  flex-wrap: wrap;
+  gap: .85rem;
   margin-left: .75rem;
 }
 
-#langToggle {
-  background: transparent;
-  color: $link-color;
-  border: 1px solid $border-color;
+.lang-switch,
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+#langToggle,
+#themeToggle {
+  background: transparent !important;
+  color: var(--site-link) !important;
+  border: 1px solid var(--site-border) !important;
   border-radius: 6px;
   padding: .35rem .65rem;
   cursor: pointer;
 }
 
-#langToggle:hover {
-  border-color: $link-color;
+#langToggle:hover,
+#themeToggle:hover {
+  border-color: var(--site-link) !important;
 }
 
 code,
 pre,
-.highlight {
+.highlight,
+.highlight pre {
+  background-color: var(--site-code-bg) !important;
+  color: var(--site-text) !important;
   font-variant-ligatures: none;
+}
+
+code {
+  border-color: var(--site-border) !important;
 }
 
 .table-wrapper,
 table {
   width: 100%;
+  background-color: var(--site-surface) !important;
+  color: var(--site-text) !important;
+}
+
+th,
+td {
+  border-color: var(--site-border) !important;
+}
+
+th {
+  background-color: var(--site-surface-soft) !important;
+  color: var(--site-heading) !important;
+}
+
+hr {
+  border-color: var(--site-border) !important;
 }
 
 @media (max-width: 50rem) {
@@ -102,5 +213,10 @@ table {
   .history-links {
     flex-direction: column;
     gap: .35rem;
+  }
+
+  .site-controls {
+    margin-left: 0;
+    gap: .5rem;
   }
 }
