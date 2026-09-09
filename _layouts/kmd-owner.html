@@ -4,11 +4,13 @@ layout: default
 {% assign kmd = site.data.kmd_owner_direction %}
 {% assign stable = site.data.kmd_stable_directions %}
 {% assign guides = site.data.kmd_owner_guides %}
+{% assign interactions = site.data.kmd_owner_interactions %}
 {% assign living = site.data.kmd_living_latest %}
 {% assign owner = nil %}
 {% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
 {% assign definition = stable.owners[page.owner_id] %}
 {% assign guide = guides.owners[page.owner_id] %}
+{% assign owner_interactions = interactions[page.owner_id] %}
 {% assign current_updates = living.owners[page.owner_id] %}
 
 {% if owner %}
@@ -24,81 +26,70 @@ layout: default
 {% if guide %}
 <section class="owner-card">
   <h2 class="lang zh">先理解：这个 Owner 到底解决什么问题？</h2><h2 class="lang en">Start here: what problem does this Owner solve?</h2>
-  <p class="lang zh">{{ guide.beginner_zh }}</p>
-  <p class="lang en">{{ guide.beginner_en }}</p>
+  <p class="lang zh">{{ guide.beginner_zh }}</p><p class="lang en">{{ guide.beginner_en }}</p>
   <h3 class="lang zh">为什么基础 KMD 之后还需要它？</h3><h3 class="lang en">Why is this needed beyond a basic KMD?</h3>
-  <p class="lang zh">{{ guide.why_zh }}</p>
-  <p class="lang en">{{ guide.why_en }}</p>
+  <p class="lang zh">{{ guide.why_zh }}</p><p class="lang en">{{ guide.why_en }}</p>
 </section>
 
 <section class="owner-card">
   <h2 class="lang zh">核心对象与典型架构流</h2><h2 class="lang en">Core objects and typical architecture flow</h2>
   <h3 class="lang zh">核心对象</h3><h3 class="lang en">Core objects</h3>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:1rem 0;">
-    {% for obj in guide.objects %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.7rem;background:rgba(127,127,127,.04);"><code>{{ obj }}</code></div>{% endfor %}
-  </div>
-
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:1rem 0;">{% for obj in guide.objects %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.7rem;background:rgba(127,127,127,.04);"><code>{{ obj }}</code></div>{% endfor %}</div>
   <h3 class="lang zh">典型数据 / 控制流</h3><h3 class="lang en">Typical data / control flow</h3>
-  <div class="lang zh" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">
-    {% for step in guide.flow_zh %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}
-  </div>
-  <div class="lang en" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">
-    {% for step in guide.flow_en %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}
-  </div>
+  <div class="lang zh" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">{% for step in guide.flow_zh %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}</div>
+  <div class="lang en" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">{% for step in guide.flow_en %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}</div>
 </section>
 
 <section class="owner-card">
   <h2 class="lang zh">长期发展路线：从单一 Feature 到独立 Owner</h2><h2 class="lang en">Long-term path: from one feature to an independent Owner</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;">
-    {% for stage in guide.roadmap %}
-    <article style="border:1px solid #d0d7de;border-radius:10px;padding:1rem;">
-      <div style="font-size:.8rem;opacity:.7;">STAGE {{ stage.stage }}</div>
-      <p class="lang zh">{{ stage.zh }}</p><p class="lang en">{{ stage.en }}</p>
-    </article>
-    {% endfor %}
-  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;">{% for stage in guide.roadmap %}<article style="border:1px solid #d0d7de;border-radius:10px;padding:1rem;"><div style="font-size:.8rem;opacity:.7;">STAGE {{ stage.stage }}</div><p class="lang zh">{{ stage.zh }}</p><p class="lang en">{{ stage.en }}</p></article>{% endfor %}</div>
   <h3 class="lang zh">与其他 Owner 的边界</h3><h3 class="lang en">Boundary with other Owners</h3>
   <p class="lang zh">{{ guide.boundary_zh }}</p><p class="lang en">{{ guide.boundary_en }}</p>
 </section>
 {% endif %}
 
+{% if owner_interactions %}
 <section class="owner-card">
-  <h2 class="lang zh">稳定子方向定义</h2><h2 class="lang en">Stable Sub-direction Definitions</h2>
-  <p class="task-meta"><span class="lang zh">下面描述的是长期职责，不是本期新闻。每个子方向的资料页长期累积，定义本身默认不随定时任务变化。</span><span class="lang en">The following are long-lived responsibilities, not this run's news. Resource pages grow over time while these definitions remain stable by default.</span></p>
+  <h2 class="lang zh">Owner 交互关系图</h2><h2 class="lang en">Cross-Owner interaction map</h2>
+  <p class="task-meta lang zh">中心是当前 Owner，周围六个 Owner 表示它在真实 KMD 架构中的输入、输出和生命周期依赖。目标是明确协作接口，而不是把职责重新合并。</p>
+  <p class="task-meta lang en">The current Owner is the center; the other six show inputs, outputs and lifetime dependencies. The goal is explicit collaboration contracts, not merged ownership.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.8rem;margin-top:1rem;">
+    {% for item in owner_interactions %}
+    <article style="border:1px solid #d0d7de;border-radius:10px;padding:1rem;position:relative;">
+      <div style="font-size:.8rem;opacity:.65;margin-bottom:.3rem;">{{ owner.name }} ↔</div><h3 style="margin-top:.2rem;">{{ item.owner }}</h3>
+      <p class="lang zh">{{ item.relation_zh }}</p><p class="lang en">{{ item.relation_en }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="owner-card">
+  <h2 class="lang zh">稳定子方向定义与学习路线</h2><h2 class="lang en">Stable Sub-directions & learning paths</h2>
+  <p class="task-meta"><span class="lang zh">每个子方向都按“Prerequisite → 核心机制 → 最终能力”阅读：先知道需要什么基础，再理解它真正解决的机制问题，最后明确能够独立交付什么能力。长期资料页继续作为深入学习入口。</span><span class="lang en">Read every sub-direction as Prerequisite → Core mechanism → Capability: establish foundations, understand the mechanism, then identify the independently deliverable capability.</span></p>
 
   {% for sub in definition.subdirections %}
   {% capture resource_url %}/kmd_owner_direction/resources/{{ page.owner_id }}/{{ sub.slug }}.html{% endcapture %}
   <article class="subdirection-detail">
     <h3>{{ sub.title }}</h3>
-    <p class="subdirection-short lang zh">{{ sub.short_zh }}</p>
-    <p class="subdirection-short lang en">{{ sub.short_en }}</p>
-    <p class="lang zh">{{ sub.detail_zh }}</p>
-    <p class="lang en">{{ sub.detail_en }}</p>
+    <p class="subdirection-short lang zh">{{ sub.short_zh }}</p><p class="subdirection-short lang en">{{ sub.short_en }}</p>
+    <p class="lang zh">{{ sub.detail_zh }}</p><p class="lang en">{{ sub.detail_en }}</p>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:1rem 0;">
+      <div style="border:1px solid #d0d7de;border-radius:8px;padding:.75rem;"><strong>1 · Prerequisite</strong><p class="lang zh">共同 KMD 底座 + {{ owner.name }} 的基础对象与生命周期。</p><p class="lang en">Shared KMD foundation + basic {{ owner.name }} objects and lifetimes.</p></div>
+      <div style="border:1px solid #d0d7de;border-radius:8px;padding:.75rem;"><strong>2 · Core mechanism</strong><p class="lang zh">{{ sub.short_zh }}</p><p class="lang en">{{ sub.short_en }}</p></div>
+      <div style="border:1px solid #d0d7de;border-radius:8px;padding:.75rem;"><strong>3 · Capability</strong><p class="lang zh">能够设计、实现、验证并调试该子方向的完整 KMD 能力闭环，而不只会调用单个接口。</p><p class="lang en">Design, implement, validate and debug the complete KMD capability loop rather than only use one API.</p></div>
+    </div>
     <p><a href="{{ resource_url | relative_url }}"><span class="lang zh">打开该子方向的长期高价值资料档案 →</span><span class="lang en">Open durable learning resources for this sub-direction →</span></a></p>
   </article>
   {% endfor %}
-
   <p><a href="{{ '/kmd_owner_direction/resources.html' | relative_url }}"><span class="lang zh">查看全部长期资料索引</span><span class="lang en">Open full learning-resource index</span></a></p>
 </section>
 
 <section class="owner-card">
   <h2 class="lang zh">本期业界最新动态</h2><h2 class="lang en">Industry Updates — This Run</h2>
   <p class="task-meta"><span class="lang zh">当前周期：{{ living.current_run }}。这一部分属于 Living 内容，会随每期任务刷新；它不会自动修改上面的 Stable Direction Definition。</span><span class="lang en">Current run: {{ living.current_run }}. This is Living content and refreshes per run; it does not automatically modify the Stable Direction Definition above.</span></p>
-  {% if current_updates %}
-    {% for update in current_updates %}
-    <article class="history-item">
-      <h3><a href="{{ update.url }}"><span class="lang zh">{{ update.title_zh }}</span><span class="lang en">{{ update.title_en }}</span></a></h3>
-      <p><strong><span class="lang zh">KMD 影响：</span><span class="lang en">KMD impact: </span></strong><span class="lang zh">{{ update.impact_zh }}</span><span class="lang en">{{ update.impact_en }}</span></p>
-      <p class="task-meta"><strong><span class="lang zh">优先级：</span><span class="lang en">Priority: </span></strong><span class="lang zh">{{ update.priority_zh }}</span><span class="lang en">{{ update.priority_en }}</span></p>
-    </article>
-    {% endfor %}
-  {% else %}
-    <p class="lang zh">本期无独立高价值方向级新增，保持既有路线。</p>
-    <p class="lang en">No independent high-value direction-level change this run; keep the existing path.</p>
-  {% endif %}
+  {% if current_updates %}{% for update in current_updates %}<article class="history-item"><h3><a href="{{ update.url }}"><span class="lang zh">{{ update.title_zh }}</span><span class="lang en">{{ update.title_en }}</span></a></h3><p><strong><span class="lang zh">KMD 影响：</span><span class="lang en">KMD impact: </span></strong><span class="lang zh">{{ update.impact_zh }}</span><span class="lang en">{{ update.impact_en }}</span></p><p class="task-meta"><strong><span class="lang zh">优先级：</span><span class="lang en">Priority: </span></strong><span class="lang zh">{{ update.priority_zh }}</span><span class="lang en">{{ update.priority_en }}</span></p></article>{% endfor %}{% else %}<p class="lang zh">本期无独立高价值方向级新增，保持既有路线。</p><p class="lang en">No independent high-value direction-level change this run; keep the existing path.</p>{% endif %}
 </section>
 
-{% if page.owner_id == 'memory' %}
-<section class="owner-card"><h2 class="lang zh">Memory 专属纵深路线</h2><h2 class="lang en">Memory Depth Roadmap</h2><p><a href="{{ '/kmd_owner_direction/memory-roadmap.html' | relative_url }}"><span class="lang zh">切入 → 深化 → 拓展 → 演进详细路线</span><span class="lang en">Entry → Deepen → Expand → Evolve detailed roadmap</span></a></p></section>
-{% endif %}
+{% if page.owner_id == 'memory' %}<section class="owner-card"><h2 class="lang zh">Memory 专属纵深路线</h2><h2 class="lang en">Memory Depth Roadmap</h2><p><a href="{{ '/kmd_owner_direction/memory-roadmap.html' | relative_url }}"><span class="lang zh">切入 → 深化 → 拓展 → 演进详细路线</span><span class="lang en">Entry → Deepen → Expand → Evolve detailed roadmap</span></a></p></section>{% endif %}
 {% endif %}
