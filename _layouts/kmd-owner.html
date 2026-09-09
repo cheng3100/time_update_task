@@ -3,10 +3,12 @@ layout: default
 ---
 {% assign kmd = site.data.kmd_owner_direction %}
 {% assign stable = site.data.kmd_stable_directions %}
+{% assign guides = site.data.kmd_owner_guides %}
 {% assign living = site.data.kmd_living_latest %}
 {% assign owner = nil %}
 {% for candidate in kmd.owners %}{% if candidate.id == page.owner_id %}{% assign owner = candidate %}{% endif %}{% endfor %}
 {% assign definition = stable.owners[page.owner_id] %}
+{% assign guide = guides.owners[page.owner_id] %}
 {% assign current_updates = living.owners[page.owner_id] %}
 
 {% if owner %}
@@ -18,6 +20,47 @@ layout: default
   <p class="task-meta"><span class="lang zh">该方向定义默认长期稳定，只有明确调整 taxonomy / Owner 边界时才修改。</span><span class="lang en">This definition is stable by default and changes only when taxonomy or Owner boundaries are explicitly revised.</span></p>
   <p class="entry"><strong><span class="lang zh">当前切入：</span><span class="lang en">Current entry: </span></strong><span class="lang zh">{{ owner.entry_zh }}</span><span class="lang en">{{ owner.entry_en }}</span></p>
 </section>
+
+{% if guide %}
+<section class="owner-card">
+  <h2 class="lang zh">先理解：这个 Owner 到底解决什么问题？</h2><h2 class="lang en">Start here: what problem does this Owner solve?</h2>
+  <p class="lang zh">{{ guide.beginner_zh }}</p>
+  <p class="lang en">{{ guide.beginner_en }}</p>
+  <h3 class="lang zh">为什么基础 KMD 之后还需要它？</h3><h3 class="lang en">Why is this needed beyond a basic KMD?</h3>
+  <p class="lang zh">{{ guide.why_zh }}</p>
+  <p class="lang en">{{ guide.why_en }}</p>
+</section>
+
+<section class="owner-card">
+  <h2 class="lang zh">核心对象与典型架构流</h2><h2 class="lang en">Core objects and typical architecture flow</h2>
+  <h3 class="lang zh">核心对象</h3><h3 class="lang en">Core objects</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:1rem 0;">
+    {% for obj in guide.objects %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.7rem;background:rgba(127,127,127,.04);"><code>{{ obj }}</code></div>{% endfor %}
+  </div>
+
+  <h3 class="lang zh">典型数据 / 控制流</h3><h3 class="lang en">Typical data / control flow</h3>
+  <div class="lang zh" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">
+    {% for step in guide.flow_zh %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}
+  </div>
+  <div class="lang en" style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:1rem 0;">
+    {% for step in guide.flow_en %}<div style="border:1px solid #d0d7de;border-radius:8px;padding:.65rem .8rem;max-width:250px;">{{ step }}</div>{% unless forloop.last %}<span style="font-size:1.4rem;opacity:.6;">→</span>{% endunless %}{% endfor %}
+  </div>
+</section>
+
+<section class="owner-card">
+  <h2 class="lang zh">长期发展路线：从单一 Feature 到独立 Owner</h2><h2 class="lang en">Long-term path: from one feature to an independent Owner</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;">
+    {% for stage in guide.roadmap %}
+    <article style="border:1px solid #d0d7de;border-radius:10px;padding:1rem;">
+      <div style="font-size:.8rem;opacity:.7;">STAGE {{ stage.stage }}</div>
+      <p class="lang zh">{{ stage.zh }}</p><p class="lang en">{{ stage.en }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  <h3 class="lang zh">与其他 Owner 的边界</h3><h3 class="lang en">Boundary with other Owners</h3>
+  <p class="lang zh">{{ guide.boundary_zh }}</p><p class="lang en">{{ guide.boundary_en }}</p>
+</section>
+{% endif %}
 
 <section class="owner-card">
   <h2 class="lang zh">稳定子方向定义</h2><h2 class="lang en">Stable Sub-direction Definitions</h2>
