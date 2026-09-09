@@ -1,0 +1,134 @@
+{
+  "global": {
+    "intro_zh": "这七个 Owner 不是把现有 KMD 按源码目录切成七份，而是把未来 3–5 年会持续出现的新能力按问题域划分。基础 probe、submission、queue、scheduler、interrupt、MMIO/PCIe 是共同底座；Owner 负责在底座之上形成可独立演进、可测试、可交付的能力闭环。",
+    "intro_en": "The seven Owners are not source-tree partitions. They divide future 3–5 year KMD capability growth by problem domain. Probe, submission, queues, basic scheduling, interrupts and MMIO/PCIe are shared foundations; each Owner builds an independently evolvable, testable capability loop above them.",
+    "layers": [
+      {"title_zh":"应用 / AI 框架 / Runtime","title_en":"Applications / AI frameworks / runtimes","desc_zh":"提出执行、内存、性能、隔离和可观测性需求。","desc_en":"Express execution, memory, performance, isolation and observability requirements."},
+      {"title_zh":"UMD / Runtime API","title_en":"UMD / Runtime API","desc_zh":"把用户态对象和策略转换为 KMD uAPI。","desc_en":"Translate user-space objects and policy into KMD uAPI operations."},
+      {"title_zh":"GPU KMD 七个 Owner 能力层","title_en":"Seven GPU KMD Owner capability domains","desc_zh":"Memory、Virtualization、Power、RAS、Multi-GPU、Observability、Firmware 彼此独立但通过对象生命周期和 generation 协作。","desc_en":"Memory, Virtualization, Power, RAS, Multi-GPU, Observability and Firmware remain distinct but coordinate through object lifetimes and generations."},
+      {"title_zh":"共同 KMD 底座","title_en":"Shared KMD foundation","desc_zh":"probe/init、submission/execution、context/queue、基础 scheduler、interrupt、MMIO/PCIe。","desc_en":"Probe/init, submission/execution, contexts/queues, basic scheduling, interrupts and MMIO/PCIe."},
+      {"title_zh":"GPU HW / FW / PCIe / IOMMU / Memory","title_en":"GPU HW / FW / PCIe / IOMMU / memory","desc_zh":"真正执行、地址转换、通信、功耗管理和错误上报的硬件基础。","desc_en":"Hardware mechanisms for execution, translation, communication, power management and error reporting."}
+    ]
+  },
+  "owners": {
+    "memory": {
+      "beginner_zh": "Memory Owner 解决的是“GPU 如何安全、快速地访问数据，以及数据应该在哪里”。它不只是分配显存，而是覆盖 GPU 虚拟地址、页表、缺页、CPU/GPU 共享地址空间、页迁移、回收以及多 GPU 共享内存。随着 GPU 从固定显存对象走向 pageable / unified memory，Memory 会逐渐成为 KMD 中最像 Linux MM 子系统的长期方向。",
+      "beginner_en": "The Memory Owner answers how the GPU safely and efficiently accesses data and where that data should reside. It covers far more than VRAM allocation: GPU virtual addresses, page tables, faults, CPU/GPU shared address spaces, migration, reclaim and multi-GPU memory sharing. As GPUs move toward pageable and unified memory, this becomes one of the most MM-like long-term KMD domains.",
+      "why_zh": "基础 BO/VRAM 分配只能解决“先分配再提交”的静态模型。AI、oversubscription、共享虚拟地址和多 GPU 会要求页面在运行中被 fault、迁移、回收和重新映射，因此必须形成独立的地址空间与 residency correctness 能力。",
+      "why_en": "Basic BO/VRAM allocation handles a static allocate-then-submit model. AI, oversubscription, shared virtual addressing and multi-GPU require pages to fault, migrate, reclaim and remap while workloads run, so address-space and residency correctness become independent capabilities.",
+      "objects": ["GPU VA / GPUVM", "PTE/PDE/page-table root", "VMID / PASID", "HMM range / mmu_notifier", "fault record / replay token", "residency / migration state", "TLB generation", "device-private / peer mapping"],
+      "flow_zh": ["GPU 访问 VA", "页表命中：直接访问", "页表缺失/权限异常：产生 recoverable fault", "通过 PASID/VM 找到进程 mm", "HMM 检查 CPU 页表并 pin/migrate 页面", "更新 GPU PTE", "完成 TLB invalidate", "重新校验 notifier/reset generation", "fault replay，workload 继续"],
+      "flow_en": ["GPU accesses VA", "Page-table hit: access directly", "Missing/invalid mapping: recoverable fault", "Resolve process mm through PASID/VM", "HMM checks CPU page tables and pins/migrates pages", "Publish GPU PTE", "Complete TLB invalidation", "Revalidate notifier/reset generations", "Replay fault and continue workload"],
+      "roadmap": [
+        {"stage":"1","zh":"GPUVM correctness：页表对象、VMID/PASID、TLB ordering、生命周期。","en":"GPUVM correctness: page-table objects, VMID/PASID, TLB ordering and lifetime."},
+        {"stage":"2","zh":"Recoverable fault + HMM + migration + replay，解决 munmap/process exit/reset race。","en":"Recoverable fault + HMM + migration + replay, including munmap/process-exit/reset races."},
+        {"stage":"3","zh":"Oversubscription、eviction/reclaim、4K/64K/2M migration granularity 与 NUMA policy。","en":"Oversubscription, eviction/reclaim, migration granularity and NUMA policy."},
+        {"stage":"4","zh":"SVA/ATS/PRI、multi-GPU UVM、peer residency、tiered/CXL memory 和 memory QoS。","en":"SVA/ATS/PRI, multi-GPU UVM, peer residency, tiered/CXL memory and memory QoS."}
+      ],
+      "boundary_zh": "Memory 决定地址映射、页生命周期和 residency；Multi-GPU 提供拓扑/transport；RAS 决定 reset/recovery 语义；Firmware 只提供 FW 管理的 memory service，不拥有 Linux MM policy。",
+      "boundary_en": "Memory owns mappings, page lifetime and residency. Multi-GPU supplies topology/transport, RAS owns recovery semantics, and Firmware exposes FW-managed memory services without owning Linux MM policy."
+    },
+    "virt": {
+      "beginner_zh": "Virtualization / Security Owner 解决的是“多个租户、VM 或 VF 如何安全地共享同一 GPU，同时让每个租户感觉自己拥有可控的一部分 GPU”。这里的难点不是创建一个 PCI VF，而是把 GPU 特有资源——VMID、queue、doorbell、interrupt、engine、memory、FW resource——做成可隔离、可重置、可计量的生命周期。",
+      "beginner_en": "The Virtualization / Security Owner asks how multiple tenants, VMs or VFs can safely share one GPU while each sees a controlled GPU slice. The hard part is not creating a PCI VF; it is making GPU-specific resources such as VMIDs, queues, doorbells, interrupts, engines, memory and firmware resources isolated, resettable and accountable.",
+      "why_zh": "GPU 的状态远多于普通 PCI BAR。只有 PCI SR-IOV capability 但没有 GPU resource partition、reset isolation 和 PF↔VF control plane，并不能形成真正可用的 GPU 虚拟化。",
+      "why_en": "A GPU carries much more state than PCI BARs. PCI SR-IOV capability without GPU resource partitioning, reset isolation and a PF↔VF control plane is not a complete GPU virtualization solution.",
+      "objects": ["PF / VF / mdev", "IOMMU domain", "VMID / PASID partition", "queue/doorbell allocation", "engine / memory quota", "PF↔VF admin message", "VF FLR generation", "security/measurement state"],
+      "flow_zh": ["PF 探测硬件 virtualization capability", "创建 VF/guest ownership", "分配 VMID/queue/doorbell/interrupt/memory/engine", "建立 IOMMU 隔离和 PF↔VF admin channel", "VF 独立运行并计量", "错误或 FLR 时冻结 VF 访问", "清理/重建 VF resource", "向 guest/VMM 发布恢复结果"],
+      "flow_en": ["PF discovers virtualization capabilities", "Create VF/guest ownership", "Provision VMIDs, queues, doorbells, interrupts, memory and engines", "Establish IOMMU isolation and PF↔VF admin channel", "Run and account VF independently", "Freeze VF access on error/FLR", "Scrub/rebuild VF resources", "Publish recovery result to guest/VMM"],
+      "roadmap": [
+        {"stage":"1","zh":"Capability assessment + VFIO ownership/reset/IOMMU isolation。","en":"Capability assessment plus VFIO ownership/reset/IOMMU isolation."},
+        {"stage":"2","zh":"SR-IOV PF/VF provisioning、PF↔VF ABI、VF FLR 与 resource accounting。","en":"SR-IOV PF/VF provisioning, PF↔VF ABI, VF FLR and resource accounting."},
+        {"stage":"3","zh":"细粒度 engine/memory partition、vGPU、live migration。","en":"Fine-grained engine/memory partitioning, vGPU and live migration."},
+        {"stage":"4","zh":"secure boot、scrub/zeroization、measurement、attestation、confidential GPU。","en":"Secure boot, scrub/zeroization, measurement, attestation and confidential GPU."}
+      ],
+      "boundary_zh": "Virtualization 拥有租户隔离与资源生命周期；Memory 提供每租户 GPUVM；RAS 提供 recovery primitive；Firmware 提供 PF/VF control service；Security 关注信任边界而不是普通调度策略。",
+      "boundary_en": "Virtualization owns tenant isolation and resource lifetime. Memory supplies per-tenant GPUVM, RAS supplies recovery primitives, Firmware supplies PF/VF control services, and Security owns trust boundaries rather than ordinary scheduling policy."
+    },
+    "power": {
+      "beginner_zh": "Power / Performance Owner 解决的是“GPU 什么时候算忙、应该以什么频率运行、什么时候可以进入低功耗，以及性能/功耗策略怎样建立在可信 measurement 上”。它连接 scheduler、FW、clock/power controller、runtime PM、thermal 和 PCIe ASPM。",
+      "beginner_en": "The Power / Performance Owner defines when the GPU is busy, what frequency it should run at, when it may enter low-power states and how performance/power policy is built on trustworthy measurements. It connects scheduling, firmware, clock/power controllers, runtime PM, thermal management and PCIe ASPM.",
+      "why_zh": "直接做 DVFS governor 容易得到错误策略，因为 KMD 首先必须知道谁在持有 active lifetime、GPU 是否真的 idle、异步 IRQ/FW/fault worker 是否仍会访问硬件，以及 suspend/resume 需要保存恢复哪些状态。",
+      "why_en": "Jumping straight to a DVFS governor is risky. The KMD must first know who owns active lifetime, whether the GPU is truly idle, whether asynchronous IRQ/FW/fault work may still touch hardware, and what state suspend/resume must preserve.",
+      "objects": ["busy/idle accounting", "engine utilization", "runtime-PM reference", "OPP / frequency state", "power/clock domain", "thermal/power limit", "residency counter", "FW PM request"],
+      "flow_zh": ["KMD 统计 job/engine busy", "统一计算 utilization/residency", "策略选择 OPP/frequency", "FW/HW 调整 clock/voltage", "无 active user 时关闭 admission 并 drain", "进入 runtime suspend / D-state", "新 work 到来恢复电源和 FW service", "恢复寄存器/上下文后重新 admission"],
+      "flow_en": ["Account job/engine busy time", "Compute utilization/residency", "Policy selects OPP/frequency", "FW/HW changes clocks/voltage", "When no active users remain, quiesce and drain", "Enter runtime suspend / D-state", "Resume power and FW services on new work", "Restore state and reopen admission"],
+      "roadmap": [
+        {"stage":"1","zh":"Busy/idle、per-engine utilization、frequency/power telemetry。","en":"Busy/idle, per-engine utilization and frequency/power telemetry."},
+        {"stage":"2","zh":"Runtime PM + system suspend/resume + 完整 async-user quiesce matrix。","en":"Runtime PM, system suspend/resume and a complete async-user quiesce matrix."},
+        {"stage":"3","zh":"DVFS/OPP、clock/power gating、thermal/power cap。","en":"DVFS/OPP, clock/power gating and thermal/power caps."},
+        {"stage":"4","zh":"workload-aware policy、memory bandwidth/QoS、平台级能效协同。","en":"Workload-aware policy, memory-bandwidth/QoS and platform-level energy coordination."}
+      ],
+      "boundary_zh": "Power 拥有 active lifetime 和 power policy；Observability 提供 measurement；Firmware 执行 FW-managed PM service；scheduler 提供 workload 信号但不拥有平台 PM 生命周期。",
+      "boundary_en": "Power owns active lifetime and power policy. Observability supplies measurements, Firmware executes FW-managed PM services, and the scheduler supplies workload signals without owning platform PM lifetime."
+    },
+    "ras": {
+      "beginner_zh": "Reliability / Recovery / RAS Owner 解决的是“GPU 出错以后如何保存证据、判断影响范围、阻止错误扩散、恢复服务，并让其他模块知道旧状态已经失效”。它从 hang watchdog 一直延伸到 engine/context reset、FW crash、ECC、PCIe AER 和生产级健康状态。",
+      "beginner_en": "The Reliability / Recovery / RAS Owner defines how the driver preserves evidence after a fault, determines scope, contains damage, restores service and tells other modules that old state has become stale. It spans hang watchdogs, engine/context resets, firmware crashes, ECC, PCIe AER and production health state.",
+      "why_zh": "简单 `reset_gpu()` 会丢掉现场，并产生 submit-vs-reset、fault-vs-reset、FW completion-vs-reset 等 race。生产级驱动必须把 evidence、admission、generation、restore 和 health contract 分开设计。",
+      "why_en": "A simple reset_gpu() loses evidence and creates submit-vs-reset, fault-vs-reset and firmware-completion-vs-reset races. Production drivers need explicit evidence, admission, generation, restore and health contracts.",
+      "objects": ["heartbeat/watchdog", "hang snapshot", "devcoredump", "recovery state", "recovery sequence", "reset reason", "health state", "ECC/AER record"],
+      "flow_zh": ["heartbeat/IRQ/FW 检测异常", "立即冻结 register/ring/VM/FW log 证据", "分类 fault scope/severity", "发布 QUIESCING 并关闭新访问", "drain 正在运行的访问", "推进 recovery generation", "执行 engine/FW/device recovery", "恢复或杀死受影响对象", "发布 NORMAL/FAILED 并重新 admission"],
+      "flow_en": ["Detect fault via heartbeat/IRQ/FW", "Freeze registers/rings/VM/FW logs", "Classify fault scope and severity", "Publish QUIESCING and close new access", "Drain in-flight users", "Advance recovery generation", "Perform engine/FW/device recovery", "Restore or kill affected objects", "Publish NORMAL/FAILED and reopen admission"],
+      "roadmap": [
+        {"stage":"1","zh":"Heartbeat/watchdog + frozen snapshot + devcoredump + reset reason。","en":"Heartbeat/watchdog, frozen snapshot, devcoredump and reset reason."},
+        {"stage":"2","zh":"Recovery Admission/State/Sequence + full-device reset restore。","en":"Recovery Admission/State/Sequence plus full-device reset restore."},
+        {"stage":"3","zh":"engine/context/queue 粒度 recovery、FW crash recovery、job replay。","en":"Engine/context/queue recovery, firmware crash recovery and job replay."},
+        {"stage":"4","zh":"ECC page retirement、AER、fabric health、fleet/management-facing GPU health。","en":"ECC page retirement, AER, fabric health and fleet/management-facing GPU health."}
+      ],
+      "boundary_zh": "RAS 拥有 failure semantics 和 recovery policy；Observability 提供 trace/telemetry；Firmware 提供 reset/log primitive；Memory/Virtualization 根据 recovery generation 处理自己的 stale object。",
+      "boundary_en": "RAS owns failure semantics and recovery policy. Observability supplies trace/telemetry, Firmware supplies reset/log primitives, and Memory/Virtualization invalidate their own stale objects using recovery generations."
+    },
+    "multi": {
+      "beginner_zh": "Multi-GPU / P2P / Fabric Owner 解决的是“系统里有哪些 GPU、它们如何连接、彼此能否直接访问、链路状态如何变化，以及上层如何在不理解具体 PCIe/UALink/fabric 细节的情况下使用这些能力”。它是从单卡 KMD 走向多加速器系统软件的基础。",
+      "beginner_en": "The Multi-GPU / P2P / Fabric Owner defines which GPUs exist, how they are connected, whether they can directly access one another, how link state changes and how upper layers consume those capabilities without knowing every PCIe/UALink/fabric detail. It is the foundation for moving from single-GPU drivers to multi-accelerator systems.",
+      "why_zh": "一个 `can_peer_access[gpu0][gpu1]` 的 bool 很快不够：真实系统有多个 port、PCIe switch、NUMA、方向性 capability、peer reset、remote endpoint 和不同 transport。必须先建立稳定 topology/control model。",
+      "why_en": "A can_peer_access boolean quickly becomes insufficient. Real systems have multiple ports, PCIe switches, NUMA, directional capabilities, peer reset, remote endpoints and different transports, so a stable topology/control model is required first.",
+      "objects": ["stable GPU identity", "endpoint / port / peer", "PCIe/NUMA topology", "P2P capability", "peer mapping", "link state", "connection generation", "fabric health"],
+      "flow_zh": ["枚举 GPU 并分配稳定 logical/physical identity", "构建 PCIe/NUMA/fabric topology", "发现 endpoint/port/peer", "计算方向性 P2P capability + failure reason", "建立 peer BAR/PTE 或 P2P DMA path", "监控 link/connection state", "连接 reset 时推进 generation 并撤销 stale peer handle", "向 Memory 暴露 transport 供 shared VM/UVM 使用"],
+      "flow_en": ["Enumerate GPUs and assign stable identities", "Build PCIe/NUMA/fabric topology", "Discover endpoints, ports and peers", "Compute directional P2P capabilities and failure reasons", "Create peer BAR/PTE or P2P DMA paths", "Monitor link/connection state", "Advance generations and revoke stale handles on reset", "Expose transport capabilities to Memory for shared VM/UVM"],
+      "roadmap": [
+        {"stage":"1","zh":"Enumeration、stable identity、topology、visibility/affinity、P2P matrix。","en":"Enumeration, stable identity, topology, visibility/affinity and P2P matrix."},
+        {"stage":"2","zh":"endpoint/port/peer、peer BAR/PTE、P2P DMA、cross-GPU dma-buf。","en":"Endpoint/port/peer modeling, peer BAR/PTE, P2P DMA and cross-GPU dma-buf."},
+        {"stage":"3","zh":"link health、connection reset、remote interrupt/TLB 等 fabric control primitive。","en":"Link health, connection reset and fabric control primitives such as remote interrupt/TLB."},
+        {"stage":"4","zh":"shared VM、multi-GPU UVM、placement policy 和大规模 fabric。","en":"Shared VM, multi-GPU UVM, placement policy and large-scale fabric."}
+      ],
+      "boundary_zh": "Multi-GPU 拥有 topology、reachability 和 transport；Memory 拥有 page residency/migration；RAS 拥有 failure semantics；Virtualization 决定 tenant 可见 topology 与授权。",
+      "boundary_en": "Multi-GPU owns topology, reachability and transport. Memory owns page residency/migration, RAS owns failure semantics, and Virtualization controls tenant-visible topology and authorization."
+    },
+    "obs": {
+      "beginner_zh": "Observability / Profiling Owner 解决的是“GPU 系统发生了什么、发生在谁身上、为什么慢、为什么挂，以及怎样以低开销把 UMD/KMD/FW/GPU 的事件串成同一条时间线”。它不是 debugfs 集合，而是稳定事件模型、对象身份、software counters、eBPF、PMU 和 profiler 的共同基础。",
+      "beginner_en": "The Observability / Profiling Owner answers what happened in the GPU system, to whom, why it was slow or failed, and how UMD/KMD/FW/GPU events can be correlated on one low-overhead timeline. It is not a collection of debugfs files; it is the shared foundation for stable event identity, software counters, eBPF, PMU and profilers.",
+      "why_zh": "没有统一 ID 和时间线时，scheduler 看 queue、Memory 看 PASID/VM、FW 看 seq、profiler 看 counter，事故发生后无法关联。越晚补统一 schema，兼容成本越高。",
+      "why_en": "Without unified IDs and timelines, scheduling sees queues, Memory sees PASID/VM, Firmware sees sequences and profilers see counters, but incidents cannot be correlated. The later a stable schema is introduced, the higher the compatibility cost.",
+      "objects": ["device/client/PID/PASID", "VM/context/queue/job ID", "tracepoint schema", "software counter", "BTF/CO-RE metadata", "PMU event", "sample buffer", "timeline timestamp"],
+      "flow_zh": ["各 KMD subsystem 产生稳定 event + object ID", "always-on software counter 聚合低成本健康指标", "tracepoint 暴露关键状态转换", "eBPF/trace 工具动态过滤和关联", "FW event 使用同一 generation/seq 对齐", "PMU/HW trace 提供微架构 sample", "统一 timestamp/correlation 合并 timeline", "profiler/RAS/Power 消费同一 telemetry service"],
+      "flow_en": ["KMD subsystems emit stable events and object IDs", "Always-on software counters aggregate low-cost health metrics", "Tracepoints expose key state transitions", "eBPF/trace tools filter and correlate dynamically", "Firmware events align through shared generation/sequence", "PMU/HW trace provides microarchitectural samples", "Common timestamps merge the timeline", "Profilers/RAS/Power consume one telemetry service"],
+      "roadmap": [
+        {"stage":"1","zh":"Stable object/event ID + software counters + tracepoints。","en":"Stable object/event IDs, software counters and tracepoints."},
+        {"stage":"2","zh":"BTF/CO-RE/eBPF dynamic diagnostics，GPUVM/fault/migration timeline。","en":"BTF/CO-RE/eBPF dynamic diagnostics and GPUVM/fault/migration timelines."},
+        {"stage":"3","zh":"PMU discovery、sampling/multiplexing、per-process/context profiling、perf_event。","en":"PMU discovery, sampling/multiplexing, per-process/context profiling and perf_event."},
+        {"stage":"4","zh":"UMD/KMD/FW/GPU unified timeline、programmable hooks 和自动诊断。","en":"Unified UMD/KMD/FW/GPU timelines, programmable hooks and automated diagnostics."}
+      ],
+      "boundary_zh": "Observability 提供事实、measurement 和关联机制，不拥有 RAS recovery policy、Power governor policy 或 Memory migration policy；这些 Owner 消费 observability 数据。",
+      "boundary_en": "Observability supplies facts, measurements and correlation mechanisms; it does not own RAS recovery policy, Power governor policy or Memory migration policy. Those Owners consume observability data."
+    },
+    "fw": {
+      "beginner_zh": "Firmware / Control Plane Owner 解决的是“KMD 与 GPU 内部 FW 如何建立长期稳定、可版本演进、可恢复的控制关系”。现代 GPU 越来越多 init、PM、reset、scheduler、telemetry 都由 FW 管理，因此 KMD 不能把 FW 当成一个启动时下载的 blob，而要把它当成独立 control-plane peer。",
+      "beginner_en": "The Firmware / Control Plane Owner defines how the KMD establishes a stable, versioned and recoverable control relationship with internal GPU firmware. Modern GPUs move more init, PM, reset, scheduling and telemetry into firmware, so firmware must be treated as a control-plane peer rather than a blob loaded only at boot.",
+      "why_zh": "如果每个 KMD 模块直接解析 raw FW message、自己做 timeout、自己判断 `fw_ready`，FW 一次 ABI 升级或 restart 就会让所有模块同时失效。需要 transport、parser、version translation、capability、generation 和 state reconciliation 的独立层。",
+      "why_en": "If every KMD subsystem directly parses raw firmware messages, implements its own timeout and checks its own fw_ready bit, one ABI upgrade or firmware restart breaks everything. A dedicated transport, parser, version translation, capability, generation and reconciliation layer is needed.",
+      "objects": ["ring/mailbox/shared memory", "wire message header", "sequence / request", "FW generation", "capability/property", "service readiness", "resource handle", "FW log/health state"],
+      "flow_zh": ["GPU reset 后启动 secure FW/devinit", "KMD 与 FW 完成 handshake", "协商 ABI version/capability", "raw message 经过 parser/validator/translation", "上层通过 stable internal service 发 async request", "seq + generation 匹配 completion/timeout", "FW restart 时旧 request/resource 全部 stale", "重新 handshake、reconcile ownership 并恢复 service readiness"],
+      "flow_en": ["Boot secure firmware/devinit after GPU reset", "KMD/FW handshake", "Negotiate ABI version and capabilities", "Parse, validate and translate raw messages", "Upper layers issue async requests through stable services", "Match completions/timeouts using sequence and generation", "Invalidate old requests/resources on FW restart", "Re-handshake, reconcile ownership and restore service readiness"],
+      "roadmap": [
+        {"stage":"1","zh":"Versioned async protocol、sequence/timeout/error、capability negotiation。","en":"Versioned async protocol, sequence/timeout/error handling and capability negotiation."},
+        {"stage":"2","zh":"Parser/validator、stable property/service API、boot/reset generation、state reconciliation。","en":"Parser/validator, stable property/service APIs, boot/reset generations and state reconciliation."},
+        {"stage":"3","zh":"FW-centric init/PM/reset/HW scheduler、health/log、upgrade/rollback。","en":"FW-centric init/PM/reset/HW scheduling, health/logging and upgrade/rollback."},
+        {"stage":"4","zh":"跨 PF/VF、多 GPU/fabric 的 FW control plane、安全认证和更强 resource ownership。","en":"PF/VF and multi-GPU/fabric firmware control planes, authentication and stronger resource ownership."}
+      ],
+      "boundary_zh": "Firmware Owner 拥有 KMD↔FW protocol、lifecycle 和 control service；各功能 Owner 仍拥有自己的 policy 与语义，例如 Memory migration policy、Power governor、RAS classification。",
+      "boundary_en": "Firmware owns the KMD↔FW protocol, lifecycle and control services. Functional Owners still own their policies and semantics, such as Memory migration policy, Power governors and RAS classification."
+    }
+  }
+}
