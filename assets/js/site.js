@@ -1,22 +1,45 @@
 (() => {
-  const storageKey = 'site-lang';
-  const toggle = document.getElementById('langToggle');
-  let lang = localStorage.getItem(storageKey) || 'zh';
+  const langStorageKey = 'site-lang';
+  const themeStorageKey = 'site-theme';
+  const langToggle = document.getElementById('langToggle');
+  const themeToggle = document.getElementById('themeToggle');
+
+  let lang = localStorage.getItem(langStorageKey) || 'zh';
+  let theme = localStorage.getItem(themeStorageKey) || 'dark';
 
   function applyLanguage() {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     document.querySelectorAll('.lang.zh').forEach((el) => { el.hidden = lang !== 'zh'; });
     document.querySelectorAll('.lang.en').forEach((el) => { el.hidden = lang !== 'en'; });
-    if (toggle) toggle.textContent = lang === 'zh' ? 'English' : '中文';
-    localStorage.setItem(storageKey, lang);
+    if (langToggle) langToggle.textContent = lang === 'zh' ? 'English' : '中文';
+    localStorage.setItem(langStorageKey, lang);
   }
 
-  if (toggle) {
-    toggle.addEventListener('click', () => {
+  function applyTheme() {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    if (themeToggle) {
+      themeToggle.textContent = theme === 'dark' ? 'Light' : 'Dark';
+      themeToggle.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+      themeToggle.setAttribute('title', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    localStorage.setItem(themeStorageKey, theme);
+  }
+
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
       lang = lang === 'zh' ? 'en' : 'zh';
       applyLanguage();
     });
   }
 
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      applyTheme();
+    });
+  }
+
   applyLanguage();
+  applyTheme();
 })();
