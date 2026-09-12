@@ -14,10 +14,10 @@ Own GPU memory architecture from GPUVM through Linux MM integration and unified/
 - heterogeneous/tiered/CXL memory and memory QoS
 
 ## Current Entry Feature
-Recoverable GPU fault + HMM + CPU/GPU migration + replay, with fault/migration measurement and lifetime/race correctness designed into the first implementation.
+Recoverable GPU fault + HMM + CPU/GPU migration + replay remains P0, with fault/migration measurement and lifetime/race correctness designed into the first implementation. The next explicit P1 feature is VRAM Pressure + Reclaim/Eviction Contract.
 
 ### Near-term feature path
-Recoverable fault → PASID/VM lookup → HMM/CPU PTE resolution → CPU↔VRAM migration → GPU PTE update → TLB invalidate → fault replay, with per-phase metrics and generation/race validation.
+Recoverable fault → PASID/VM lookup → HMM/CPU PTE resolution → CPU↔VRAM migration → GPU PTE update → TLB invalidate → fault replay, with per-phase metrics and generation/race validation → VRAM pressure accounting → reclaim/eviction → oversubscription/QoS.
 
 # Detailed Owner Growth Roadmap
 
@@ -263,6 +263,19 @@ The key principle is **mechanism before policy, lifetime/correctness before opti
 - **Observability:** owns tracing/profiling infrastructure; Memory defines stable memory event semantics (fault, bind, migrate, evict, TLB invalidate, replay) and the metrics required to compare memory mechanisms.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **DMEM + TTM/IGT make VRAM pressure/reclaim a verifiable KMD capability rather than only a future policy idea.**
+   - Sources: Linux cgroup-v2 DMEM semantics plus IGT `cgroup_dmem` eviction tests.
+   - Change: device-memory accounting/protection now has explicit `max/min/low/capacity` semantics and reclaim integration; new tests validate synchronous eviction, signal-interruptible eviction and nonblocking/deferred reclaim behavior.
+   - KMD impact: separate accounting, protection, reclaim mechanism, eviction selection and QoS policy. Keep recoverable fault/HMM as P0, but promote `VRAM Pressure + Reclaim/Eviction Contract` to the next explicit Memory P1 feature. Reuse the same residency/migration/PTE/TLB/generation primitives for fault-in and eviction-out.
+   - Priority: **P1 after first fault/HMM correctness closure.**
+
+2. **Xe CPU-bind + ULLS migration-queue work treats page-fault latency as a first-class performance target.**
+   - Source: Xe CPU-binds/ULLS migration-queue v6 series, 2026-09-04.
+   - Change: page-fault bind/migration work is separated from ordinary migration-queue ordering, and low-latency submission reduces continuous page-fault copy-job overhead by tens of microseconds in reported BMG measurements.
+   - KMD impact: upgrade the fault measurement contract from a total latency to stage histograms covering IRQ → resolve → migration/bind → PTE → TLB → replay. A dedicated low-latency path is a later optimization, not a substitute for correctness.
+   - Priority: **Measurement P0; specialized fast path P1.**
+
 ### 2026-09-05 · Weekly #4
 1. **No new GPU-SVM/HMM common-layer direction changes the current Memory priority this week.**
    - Current reference: https://docs.kernel.org/next/gpu/rfc/gpusvm.html
