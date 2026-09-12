@@ -14,12 +14,25 @@ Own detection, diagnosis, containment and recovery of GPU faults plus production
 - fault injection and per-context fault attribution
 
 ## Current Entry Feature
-Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog + Recovery Admission/State/Sequence Contract.
+Hang snapshot + devcoredump + persistent reset reason + heartbeat/watchdog + Recovery Admission/State/Sequence Contract, extended with Recovery Scope + Escalation.
 
 ### Near-term feature path
-Hang detection → freeze diagnostic state → structured snapshot → health classification → publish recovery state/close admission → drain → recovery-sequence transition → reset/recover → state restore → publish NORMAL/FAILED → reopen admission → progressively finer recovery.
+Hang detection → freeze diagnostic state → structured snapshot → health classification → publish recovery state/close admission → drain → recovery-sequence transition → choose recovery scope → engine/FW/device/cold-reset escalation as needed → state restore → publish NORMAL/FAILED → reopen admission.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **Xe cold-reset recovery makes recovery scope/escalation an explicit KMD problem.**
+   - Source: Xe `DRM_WEDGE_RECOVERY_COLD_RESET` work in the drm-xe-next pull for Linux 7.4.
+   - Change: persistent hardware state that cannot be cleared by normal reload/PCI reset can require a complete device power cycle, communicated to userspace as a distinct recovery method.
+   - KMD impact: formalize a recovery hierarchy such as context/queue → engine → FW restart → device warm reset → PCI-function reset → cold reset/power cycle → permanent failure. Every level needs explicit handle validity, VRAM preservation, replay and userspace-cooperation semantics.
+   - Priority: **Extend the current Recovery Contract now; platform-specific cold-reset implementation follows hardware needs.**
+
+2. **AMDGPU gfx1150 regression shows recovery outcome/containment must be tested independently from the triggering fault.**
+   - Source: gfx1150 Linux 7.3-rc1 regression report, 2026-09-07.
+   - Change: a similar gfxhub/SQC permission-fault scenario remained contained with context/ring recovery on 7.2.3, while 7.3-rc1 could progress into MES reset failure and dead KFD queues.
+   - KMD impact: fault-injection tests must validate fault scope × recovery scope × affected/unaffected queues × firmware state × post-reset admission. A reset being invoked is not evidence that containment worked.
+   - Priority: **Current recovery-validation P0.**
+
 ### 2026-09-05 · Weekly #4
 1. **VFIO PCI error-recovery RFC provides a concrete reusable recovery admission/state/sequence pattern.**
    - Source: https://lwn.net/Articles/1091953/ (2026-09-01)
