@@ -18,12 +18,19 @@ Own software-event tracing, hardware performance monitoring, cross-layer correla
 - long-term gpu_ext-like verified programmable policy
 
 ## Current Entry Feature
-Stable GPU event/object identity + eBPF-based KMD dynamic tracing + low-overhead software/pipeline counters + unified Telemetry Service. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
+Stable GPU object/event/error identity + eBPF-based KMD dynamic tracing + low-overhead software/pipeline counters + unified Telemetry Service. Second entry when HW PMU is mature: PMU counter enumeration + per-process/context profiling joined into the same timeline.
 
 ### Near-term feature path
-Stable tracepoints/object IDs → always-on low-cost software/pipeline counters → unified Telemetry Service → PID/PASID/VM/context/queue/job correlation → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
+Stable tracepoints/object/error IDs → always-on low-cost software/pipeline counters → unified Telemetry Service → PID/PASID/VM/context/queue/job correlation → structured RAS events → KMD/FW timeline → PMU counter integration → bottleneck attribution → dynamic diagnostics → verified programmable hooks.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **DRM_RAS netlink events, error thresholds and structured SIGID logging push GPU error observability toward a stable schema.**
+   - Source: DRM_RAS work in the drm-xe-next pull for Linux 7.4.
+   - Change: the common RAS direction exposes stable node/error identities for userspace notifications, configurable error thresholds, and more structured error logging rather than relying only on free-form printk strings.
+   - KMD impact: define `error_id` together with object identity, severity, source, timestamp, firmware/recovery generation, counter/threshold and recovery action/result once, then reuse it across tracepoints, eBPF, devcoredump, FW-log correlation and management events. RAS and profiling should not build competing identity systems.
+   - Priority: **P0/P1 stable schema work; exact userspace transport can evolve later.**
+
 ### 2026-09-05 · Weekly #4
 1. **Crescent Island PMT v4 shows that real GPU telemetry is a lifetime/arbitration service, not just a counter-read API.**
    - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
