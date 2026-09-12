@@ -1,4 +1,4 @@
-current_run: "2026-09-05 Weekly #4"
+current_run: "2026-09-12 Weekly #5"
 
 owners:
   - id: memory
@@ -7,8 +7,8 @@ owners:
     name: GPU Memory / Virtual Memory / Unified Memory
     summary_zh: 负责从 GPUVM、Linux MM 集成到 unified/heterogeneous memory 的完整内存架构，是 KMD Leader 的纵深主线。
     summary_en: Own the full memory architecture from GPUVM and Linux MM integration to unified/heterogeneous memory; the KMD leader depth line.
-    entry_zh: Recoverable fault + HMM + migration + replay；第一版建立 measurement / invalidation / teardown / reset-generation correctness，并为未来 remote mapping/invalidation 解耦数据模型。
-    entry_en: Recoverable fault + HMM + migration + replay; establish measurement/invalidation/teardown/reset-generation correctness first while keeping the model evolvable for future remote mapping/invalidation.
+    entry_zh: Recoverable fault + HMM + migration + replay 仍为 P0；同时定义下一阶段 VRAM pressure / reclaim / eviction contract，第一版继续保证 invalidation / teardown / reset-generation / TLB completion correctness。
+    entry_en: Recoverable fault + HMM + migration + replay remains P0; define the next-stage VRAM pressure/reclaim/eviction contract while preserving invalidation/teardown/reset-generation/TLB-completion correctness.
     topics:
       - GPUVM / Page Tables / VMID / PASID / TLB
       - Recoverable GPU Page Fault / Fault Replay
@@ -19,13 +19,20 @@ owners:
       - dma-buf / P2P Memory
       - Multi-GPU Unified Memory
     updates:
-      - title_zh: 本期无新的 GPU SVM/HMM common-layer 方向变化；Tyr Rust GPU driver 开始加入真实 VM/BO uAPI
-        title_en: No new GPU-SVM/HMM direction change; Tyr is adding real VM/BO uAPI support in Rust
-        url: https://lwn.net/Articles/1091992/
-        impact_zh: Tyr 说明 Rust DRM 正从基础框架进入 per-file VM/BO 管理，但这属于底座/公共机制；当前 Memory P0 仍是 recoverable fault/HMM/migration correctness，而不是切换到新的 VM/BO 项目。
-        impact_en: Tyr shows Rust DRM moving into per-file VM/BO management, but this is foundational/common infrastructure; current Memory P0 remains recoverable-fault/HMM/migration correctness.
-        priority_zh: 当前 feature 不变；Future Topic 跟踪
-        priority_en: Keep the current feature; track as a Future Topic
+      - title_zh: DMEM + TTM/IGT 把 VRAM pressure/reclaim 推进为可验证的 KMD capability
+        title_en: DMEM + TTM/IGT make VRAM pressure/reclaim a verifiable KMD capability
+        url: https://www.kernel.org/doc/html/v7.0/admin-guide/cgroup-v2.html
+        impact_zh: 将 accounting、protection、reclaim mechanism、eviction selection 与 QoS policy 分层；在 recoverable fault/HMM P0 之后，把 VRAM Pressure + Reclaim/Eviction Contract 提升为 Memory P1。
+        impact_en: Separate accounting, protection, reclaim mechanism, eviction selection and QoS policy; promote VRAM Pressure + Reclaim/Eviction Contract to Memory P1 after the fault/HMM correctness loop.
+        priority_zh: P1；fault/HMM 第一版稳定后立即立项
+        priority_en: P1; start after the first fault/HMM correctness loop
+      - title_zh: Xe CPU-bind + ULLS migration queue 将 page-fault latency 作为独立性能目标
+        title_en: Xe CPU-bind + ULLS migration queue treats page-fault latency as a first-class target
+        url: https://lore.kernel.org/dri-devel/
+        impact_zh: fault measurement contract 应覆盖 IRQ→resolve→migration/bind→PTE→TLB→replay 分段延迟；correctness 稳定后再评估专用低延迟 path。
+        impact_en: Measure IRQ→resolve→migration/bind→PTE→TLB→replay latency by stage; evaluate a dedicated low-latency path only after correctness is stable.
+        priority_zh: measurement P0；fast path P1
+        priority_en: Measurement P0; fast path P1
 
   - id: virt
     tab_zh: 虚拟化 / 安全
@@ -33,8 +40,8 @@ owners:
     name: GPU Virtualization / Security
     summary_zh: 负责 GPU 虚拟化、资源/租户隔离以及安全机制。
     summary_en: Own GPU virtualization, resource/tenant isolation and security mechanisms.
-    entry_zh: ASIC 支持 SR-IOV 时做 PF/VF provisioning/isolation + versioned admin control + recovery semantics；否则先 capability assessment / VFIO ownership-reset assessment。
-    entry_en: When SR-IOV exists, implement PF/VF provisioning/isolation, versioned admin control and recovery semantics; otherwise start with capability/VFIO ownership-reset assessment.
+    entry_zh: ASIC 支持 SR-IOV 时做 PF/VF provisioning/isolation + versioned admin control + recovery semantics，并为未来 VF migration 建立 stable logical resource ID 与 serialize/restore boundary；否则先 capability assessment。
+    entry_en: When SR-IOV exists, implement PF/VF provisioning/isolation, versioned admin control and recovery semantics, with stable logical resource IDs and serialize/restore boundaries for future migration; otherwise start with capability assessment.
     topics:
       - VFIO Passthrough / Ownership / IOMMU Isolation
       - SR-IOV PF/VF Lifecycle
@@ -43,13 +50,13 @@ owners:
       - vGPU / Live Migration Groundwork
       - Secure Boot / Measurement / Scrub / Attestation
     updates:
-      - title_zh: VFIO PCI error-recovery RFC 把 assigned-device 恢复从单一 eventfd 推进到 recovery state + sequence + access guards
-        title_en: VFIO PCI error-recovery RFC moves assigned-device recovery from a single eventfd to recovery state + sequence + access guards
-        url: https://lwn.net/Articles/1091953/
-        impact_zh: VMM 需要知道 host recovery 是否进行中、是否发生 reset、设备是否永久失败；BAR/config/IRQ/runtime PM/DMA-BUF 等访问必须统一 guard/revoke。未来 GPU VFIO/vGPU/SR-IOV recovery 应与 RAS generation 对齐，而不是另建 bool 状态。
-        impact_en: VMMs need explicit host-recovery state/reset/failure semantics; BAR/config/IRQ/runtime-PM/DMA-BUF paths must be guarded/revoked. Future GPU VFIO/vGPU/SR-IOV recovery should align with RAS generations rather than separate booleans.
-        priority_zh: VFIO architecture reference 现在；产品实现按需求
-        priority_en: Architecture reference now; product implementation when needed
+      - title_zh: Xe VF migration 向 multi-queue 扩展，强化可序列化 GPU resource state 的需求
+        title_en: Xe VF migration extends toward multi-queue, strengthening serializable GPU resource state
+        url: https://lore.kernel.org/dri-devel/
+        impact_zh: VM/page-table、queue-group、doorbell/IRQ、FW scheduler/resource、VRAM 与 recovery generation 都需要 stable logical ID 和 serialize/restore boundary；queue 不能默认视为独立 migration unit。
+        impact_en: VM/page-table, queue-group, doorbell/IRQ, FW scheduler/resource, VRAM and recovery-generation state need stable logical IDs and serialize/restore boundaries; queues are not automatically independent migration units.
+        priority_zh: 架构 P1；完整 live migration 后续
+        priority_en: Architecture P1; full live migration later
 
   - id: power
     tab_zh: 功耗 / 性能
@@ -57,8 +64,8 @@ owners:
     name: GPU Power / Performance
     summary_zh: 负责 GPU measurement、DVFS、runtime PM、thermal 与 power budget。
     summary_en: Own GPU measurement, DVFS, runtime PM, thermal and power budget.
-    entry_zh: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM / DVFS。
-    entry_en: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM / DVFS.
+    entry_zh: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM / DVFS；PM/FW feature lifecycle 显式区分 capability、readiness 与 safe enable phase。
+    entry_en: busy/idle + reusable utilization telemetry + async-access quiesce correctness → runtime PM/DVFS; explicitly separate PM/FW capability, readiness and safe enable phase.
     topics:
       - Busy/Idle / Per-engine Utilization
       - Runtime PM / Suspend-Resume / PCI D-states
@@ -67,13 +74,13 @@ owners:
       - Thermal Throttling / Power Cap
       - Frequency Residency / Memory-bandwidth Telemetry
     updates:
-      - title_zh: Crescent Island PMT v4 再次证明 telemetry/crashlog/FW callback 都是 runtime-PM active users
-        title_en: Crescent Island PMT v4 shows telemetry/crashlog/FW callbacks are runtime-PM active users
-        url: https://lwn.net/Articles/1092225/
-        impact_zh: telemetry 只在 device powered 时可用，crashlog/共享 MMIO window 访问需要 PM/FW readiness 与 locking；第一版 runtime PM 的 quiesce matrix 必须包含 telemetry/hwmon/crashlog，而不是只覆盖 job/ioctl。
-        impact_en: Telemetry is only available while powered and shared-window/crashlog access requires PM/FW readiness and locking; the first runtime-PM quiesce matrix must cover telemetry/hwmon/crashlog, not only jobs/ioctls.
-        priority_zh: runtime PM 第一版纳入；复杂 governor 后置
-        priority_en: Include in first runtime-PM implementation; complex governor later
+      - title_zh: AMD UCLK DPM 修复说明 capability 不等于当前阶段可安全启用
+        title_en: AMD UCLK DPM fix shows capability does not imply safe enablement at the current phase
+        url: https://lore.kernel.org/amd-gfx/
+        impact_zh: PM/FW interface 要区分 capability、dependency readiness、safe enable phase、ACK、post-enable validation 与 rollback；继续 measurement/lifetime-first。
+        impact_en: PM/FW interfaces should distinguish capability, dependency readiness, safe enable phase, ACK, post-enable validation and rollback while remaining measurement/lifetime-first.
+        priority_zh: 当前 PM/FW interface 设计
+        priority_en: Current PM/FW interface design
 
   - id: ras
     tab_zh: 可靠性 / RAS
@@ -81,8 +88,8 @@ owners:
     name: GPU Reliability / Recovery / RAS
     summary_zh: 负责故障 detect → diagnose → contain → recover，并形成生产级 RAS。
     summary_en: Own fault detect → diagnose → contain → recover, ultimately forming production-grade RAS.
-    entry_zh: Frozen snapshot + devcoredump + FW logs + Recovery Admission/State/Sequence Contract + health contract。
-    entry_en: Frozen snapshot + devcoredump + FW logs + Recovery Admission/State/Sequence Contract + health contract.
+    entry_zh: Frozen snapshot + devcoredump + FW logs + Recovery Admission/State/Sequence Contract，并新增 Recovery Scope + Escalation 层级。
+    entry_en: Frozen snapshot + devcoredump + FW logs + Recovery Admission/State/Sequence Contract, extended with Recovery Scope + Escalation levels.
     topics:
       - Heartbeat / Watchdog / Hang Detection
       - Hang Snapshot / devcoredump / Reset Reason
@@ -91,13 +98,20 @@ owners:
       - Firmware Crash Recovery / FW Log Retention
       - ECC / Bad-page Retirement / PCIe AER / Fault Injection
     updates:
-      - title_zh: VFIO PCI recovery RFC 把 reset gate 深化成可复用 recovery admission/state/sequence 模型
-        title_en: VFIO PCI recovery RFC deepens the reset gate into a reusable recovery admission/state/sequence model
-        url: https://lwn.net/Articles/1091953/
-        impact_zh: error_detected 阶段先关闭 access、revoke/guard BAR/DMA-BUF/IRQ 等路径并 drain，reset 不跨 recovery-state lock，完成后再 publish/唤醒；这个模式可直接推广到 GPU device/FW/engine/fabric recovery。
-        impact_en: Close/revoke/guard access and drain before reset, avoid holding the recovery-state lock across the reset, then publish completion/wake clients; the model generalizes to GPU device/FW/engine/fabric recovery.
-        priority_zh: 当前 RAS 第一阶段设计
-        priority_en: Current first-stage RAS design
+      - title_zh: Xe cold-reset recovery 将 RAS 从 reset gate 推进到 recovery scope / escalation
+        title_en: Xe cold-reset recovery pushes RAS from a reset gate toward recovery scope/escalation
+        url: https://lore.kernel.org/dri-devel/
+        impact_zh: 统一定义 context/queue/engine/FW/device-warm/PCI/cold-reset/permanent-failure 层级，并为每级明确 handle validity、VRAM preservation、replay 与 userspace cooperation。
+        impact_en: Define context/queue/engine/FW/device-warm/PCI/cold-reset/permanent-failure levels with explicit handle validity, VRAM preservation, replay and userspace-cooperation semantics.
+        priority_zh: Recovery Contract 现在
+        priority_en: Recovery Contract now
+      - title_zh: AMDGPU gfx1150 regression 强调验证 recovery outcome 和 fault containment
+        title_en: AMDGPU gfx1150 regression reinforces validating recovery outcome and fault containment
+        url: https://lore.kernel.org/amd-gfx/
+        impact_zh: fault-injection matrix 要验证一个 context fault 是否扩散到 MES/KFD/device，并记录 fault scope × recovery scope × unaffected queues × post-reset admission。
+        impact_en: Fault-injection should verify whether a context fault spreads into MES/KFD/device and record fault scope × recovery scope × unaffected queues × post-reset admission.
+        priority_zh: 当前 recovery validation P0
+        priority_en: Current recovery-validation P0
 
   - id: multi
     tab_zh: Multi-GPU
@@ -114,14 +128,7 @@ owners:
       - P2P Capability / Peer BAR / Peer PTE
       - P2P DMA / Cross-GPU dma-buf
       - Shared VA / Multi-GPU VM / Fabric Health
-    updates:
-      - title_zh: 本期无新的 production-level fabric 机制超过 DRM Fabric + AMD UALink；保持 topology/control-first
-        title_en: No new production-level fabric mechanism exceeds DRM Fabric + AMD UALink this week; keep topology/control-first
-        url: https://lkml.iu.edu/2608.3/00335.html
-        impact_zh: 继续 endpoint/port/peer、directional capability、link state/reason code；VFIO recovery 对 BAR/DMA-BUF revoke 的做法仅提醒 future peer mapping 也必须与 device/fabric recovery generation 联动。
-        impact_en: Continue endpoint/port/peer, directional capabilities and link-state/reason codes; VFIO BAR/DMA-BUF revocation is only a reminder that future peer mappings must follow device/fabric recovery generations.
-        priority_zh: topology/control model 现在；data path 后续
-        priority_en: Topology/control now; data path later
+    updates: []
 
   - id: obs
     tab_zh: 可观测性 / Profiling
@@ -129,8 +136,8 @@ owners:
     name: GPU Observability / Profiling / Programmable Driver Infrastructure
     summary_zh: 负责 software trace + hardware PMU + 跨层 timeline/attribution + programmable diagnostics。
     summary_en: Own software trace + hardware PMU + cross-layer timeline/attribution + programmable diagnostics.
-    entry_zh: Stable event/object identity + eBPF KMD tracing + low-overhead software/pipeline counters + unified telemetry service；HW PMU 成熟后加入同一 timeline。
-    entry_en: Stable event/object identity + eBPF KMD tracing + low-overhead software/pipeline counters + unified telemetry service; join HW PMU into the same timeline when mature.
+    entry_zh: Stable object/event/error identity + eBPF KMD tracing + low-overhead counters + unified telemetry service；HW PMU 成熟后加入同一 timeline。
+    entry_en: Stable object/event/error identity + eBPF KMD tracing + low-overhead counters + unified telemetry service; join HW PMU into the same timeline when mature.
     topics:
       - Stable KMD Tracepoint / Event Model
       - BTF / CO-RE / eBPF Dynamic Tracing
@@ -139,13 +146,13 @@ owners:
       - GPU PMU / Counter Discovery / Sampling / Multiplexing
       - perf_event / Dynamic Diagnostics / Programmable Hooks
     updates:
-      - title_zh: Crescent Island PMT v4 展示真实 GPU telemetry service 的 access ownership / PM / FW readiness / VF 边界
-        title_en: Crescent Island PMT v4 exposes real GPU telemetry-service access ownership / PM / FW readiness / VF boundaries
-        url: https://lwn.net/Articles/1092225/
-        impact_zh: 不要让 debugfs/hwmon/profiler/RAS 各自直接控制共享 MMIO/index window；建立统一 Telemetry Service，集中 PM lifetime、FW readiness、权限/VF filtering、访问串行化和 snapshot/cache policy。
-        impact_en: Do not let debugfs/hwmon/profiler/RAS independently control shared MMIO/index windows; centralize PM lifetime, FW readiness, VF/privilege filtering, serialization and snapshot/cache policy in a Telemetry Service.
-        priority_zh: software telemetry service 现在；HW PMU 随硬件成熟
-        priority_en: Software telemetry service now; HW PMU as hardware matures
+      - title_zh: DRM_RAS netlink / error threshold / structured SIGID 推动 GPU error observability 形成稳定 schema
+        title_en: DRM_RAS netlink / error threshold / structured SIGID push GPU error observability toward a stable schema
+        url: https://lore.kernel.org/dri-devel/
+        impact_zh: stable error_id/object identity/severity/source/timestamp/generation/counter/threshold/recovery-result 应成为 trace/eBPF/devcoredump/FW log/management event 共用的数据模型。
+        impact_en: Stable error ID/object identity/severity/source/timestamp/generation/counter/threshold/recovery result should be shared across trace/eBPF/devcoredump/FW logs/management events.
+        priority_zh: P0/P1 schema work
+        priority_en: P0/P1 schema work
 
   - id: fw
     tab_zh: Firmware / Control Plane
@@ -153,8 +160,8 @@ owners:
     name: GPU Firmware / Control Plane Architecture
     summary_zh: 负责 KMD↔GPU system firmware 的 protocol、lifecycle、capability、resource ownership 与 state reconciliation。
     summary_en: Own KMD↔GPU system-firmware protocol, lifecycle, capability, resource ownership and state reconciliation.
-    entry_zh: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + service readiness + restart state reconciliation。
-    entry_en: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + service readiness + restart state reconciliation.
+    entry_zh: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + service readiness + restart reconciliation；新增 protocol authoritative-state discipline。
+    entry_en: Versioned async protocol + capability/property + boot/reset generation + raw-ABI translation/validation + service readiness + restart reconciliation, plus authoritative protocol-state discipline.
     topics:
       - Versioned Firmware ABI / Command & Event Namespace
       - Shared-memory / Ring / Mailbox Transport
@@ -165,20 +172,38 @@ owners:
       - FW-centric Init / PM / Reset / HW Scheduler Services
       - FW Health / Logs / Authentication / Measurement
     updates:
-      - title_zh: Xe PMT late binding 证明 firmware-backed service readiness 应独立建模而不是一个全局 fw_ready bit
-        title_en: Xe PMT late binding shows firmware-backed service readiness should be modeled separately from one global fw_ready bit
-        url: https://lwn.net/Articles/1092225/
-        impact_zh: 将 FW generation 内部拆成 CORE/MEMORY/PM/TELEMETRY/SCHED 等 service readiness；reset/restart generation 变化后旧 readiness 自动失效，上层重新等待/negotiation。
-        impact_en: Model CORE/MEMORY/PM/TELEMETRY/SCHED service readiness within an FW generation; reset/restart invalidates old readiness and upper layers re-wait/re-negotiate.
-        priority_zh: 当前 protocol/lifecycle 第一版加入
-        priority_en: Add to the first protocol/lifecycle design
+      - title_zh: Xe mailbox PHASE 修复强调 protocol state 必须有唯一 authoritative truth source
+        title_en: Xe mailbox PHASE fix reinforces one authoritative truth source for protocol state
+        url: https://lore.kernel.org/dri-devel/
+        impact_zh: 对 producer/consumer index、phase/epoch、seq、generation、capability snapshot 明确 ownership；reset/reconnect 时定义 reread、re-handshake、regenerate 与 stale-completion 规则。
+        impact_en: Define ownership for producer/consumer indices, phase/epoch, sequence, generation and capability snapshots; reset/reconnect must specify reread, re-handshake, regenerate and stale-completion rules.
+        priority_zh: 当前 Firmware protocol 第一版
+        priority_en: Current first Firmware protocol design
 
 history:
+  - id: weekly-2026-09-12-5
+    date: "2026-09-12"
+    title_zh: Weekly #5 · VRAM Reclaim / Recovery Escalation / Structured RAS
+    title_en: Weekly #5 · VRAM Reclaim / Recovery Escalation / Structured RAS
+    latest: true
+    summary_zh:
+      - Memory P0 仍是 recoverable fault/HMM；VRAM Pressure + Reclaim/Eviction 正式提升为下一阶段 P1 feature。
+      - RAS 从 Recovery Admission/State/Sequence 继续扩展到 Recovery Scope + Escalation，并关注 cold reset。
+      - Virtualization 通过 Xe multi-queue VF migration 强化 state serialization/restore 边界。
+      - Observability 强化 stable error/event schema；Firmware 强化 authoritative protocol-state 规则。
+    summary_en:
+      - Memory keeps recoverable fault/HMM as P0 while promoting VRAM Pressure + Reclaim/Eviction to the next P1 capability.
+      - RAS extends Recovery Admission/State/Sequence into Recovery Scope + Escalation, including cold reset.
+      - Xe multi-queue VF migration strengthens serialization/restore boundaries for virtualization state.
+      - Observability strengthens stable error/event schemas while Firmware strengthens authoritative protocol-state rules.
+    curated: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/updates/2026-09-12-weekly-5.update.md
+    raw: https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/raw_updates/2026-09-12-weekly-5.raw.md
+
   - id: weekly-2026-09-05-4
     date: "2026-09-05"
     title_zh: Weekly #4 · Recovery Contract / VFIO AER / Telemetry Service
     title_en: Weekly #4 · Recovery Contract / VFIO AER / Telemetry Service
-    latest: true
+    latest: false
     summary_zh:
       - RAS 从 reset gate 深化为通用 Recovery Admission / State / Sequence Contract。
       - VFIO PCI error recovery RFC 为 VMM-visible recovery state、access revoke/guard 和 sequence 提供现实参考。
