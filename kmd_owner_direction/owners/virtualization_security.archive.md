@@ -14,12 +14,19 @@ Own GPU virtualization, tenant/resource isolation and security mechanisms for sa
 - attestation/confidential GPU
 
 ## Current Entry Feature
-SR-IOV PF/VF bring-up + provisioning/isolation + versioned admin control + recovery semantics when ASIC capability exists; otherwise VFIO/reset/ownership assessment.
+SR-IOV PF/VF bring-up + provisioning/isolation + versioned admin control + recovery semantics when ASIC capability exists; define stable logical resource IDs and serialize/restore boundaries for future VF migration. Otherwise keep VFIO/reset/ownership capability assessment.
 
 ### Near-term decision gate
 First confirm ASIC capabilities: SR-IOV extended capability, VF BAR/interrupt model, VMID/resource partitioning, reset semantics, IOMMU isolation and PF↔VF control path. Only then decide whether virtualization is a real feature project or just platform integration.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **Xe VF migration is extending toward multi-queue, making serializable GPU resource state a real design requirement.**
+   - Source: drm-xe-next pull for Linux 7.4 / Xe VF migration work.
+   - Change: migration is no longer only a single isolated queue/device-state problem; queue groups and firmware scheduling relationships join the existing GGTT/MMIO/GuC/VRAM migration state.
+   - KMD impact: if the ASIC supports SR-IOV, the first PF/VF data model should already give VM/page-table, queue-group, doorbell/IRQ, firmware resource and VRAM state stable logical identities plus explicit reset/serialize/restore semantics. Do not assume one queue is always an independent migration unit.
+   - Priority: **Architecture P1; full live migration remains later.**
+
 ### 2026-09-05 · Weekly #4
 1. **VFIO PCI error-recovery RFC turns assigned-device recovery into an explicit userspace-visible state/sequence contract.**
    - Source: https://lwn.net/Articles/1091953/ (2026-09-01)
