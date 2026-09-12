@@ -17,14 +17,21 @@ Own the long-term KMD↔GPU system-firmware control plane. This is not basic fir
 - firmware authentication and measurement mechanisms
 
 ## Current entry feature
-**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation + Raw-ABI Translation/Validation + Service Readiness.**
+**Versioned KMD-Firmware Async Control Protocol + Capability Negotiation + Boot/Reset Generation + Raw-ABI Translation/Validation + Service Readiness + Authoritative Protocol-State Rules.**
 
-Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, explicit parser/validation and translation boundaries, firmware boot/reset phases, per-service readiness, restart detection, generation isolation, re-handshake and state resynchronization.
+Deliver protocol version, capability query, command/event IDs, sequence number, async completion, standard errors/timeouts, unsupported-feature handling, explicit parser/validation and translation boundaries, firmware boot/reset phases, per-service readiness, restart detection, generation isolation, re-handshake, state resynchronization, and explicit ownership/truth-source rules for shared protocol state.
 
 ### Near-term feature path
-Versioned raw message contract → parser/validation → capability/translation → stable internal service API → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → service readiness registry → state reconciliation → resource ownership → HW-management offload.
+Versioned raw message contract → parser/validation → capability/translation → stable internal service API → async request/completion → timeout/error semantics → explicit boot/reset phases → FW generation/restart detection → service readiness registry → authoritative state ownership → state reconciliation → resource ownership → HW-management offload.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **Xe system-controller mailbox PHASE fix shows why shared protocol state needs one authoritative truth source.**
+   - Source: Xe mailbox PHASE-bit fix included in the drm-xe-next pull for Linux 7.4.
+   - Change: the PHASE bit toggles per mailbox message. A software shadow could be reset on error and drift from the hardware/FW state; subsequent messages could then carry the wrong phase. The fix reads the actual hardware PHASE before preparing each frame instead of trying to repair a duplicated software truth.
+   - KMD impact: for every shared ring/mailbox field—producer/consumer indices, phase/epoch, sequence, generation and capability snapshot—define the authoritative owner. Reset/reconnect rules must say which state is reread from HW, re-handshaken with FW, regenerated locally or rejected as stale. This directly applies to MHU/shared-memory protocols.
+   - Priority: **First protocol version.**
+
 ### 2026-09-05 · Weekly #4
 1. **Crescent Island PMT late binding is a concrete example of firmware-backed service readiness.**
    - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
@@ -98,4 +105,4 @@ Versioned raw message contract → parser/validation → capability/translation 
 3. **Firmware is becoming a power/performance control authority.**
 
 ## Living focus
-Expand toward firmware lifecycle, raw-ABI translation/validation, per-service readiness, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
+Expand toward firmware lifecycle, raw-ABI translation/validation, per-service readiness, authoritative protocol-state ownership, resource ownership, HW-management offload and firmware-centric KMD architecture. Reliability owns system-level failure containment/recovery policy; this owner owns firmware communication/lifecycle/state mechanisms.
