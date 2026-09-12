@@ -14,12 +14,19 @@ Own GPU power-state control and performance-management policy from measurement t
 - PCIe ASPM/link power
 
 ## Current Entry Feature
-GPU busy/idle + utilization accounting + asynchronous-access quiesce correctness → basic runtime PM/DVFS.
+GPU busy/idle + utilization accounting + asynchronous-access quiesce correctness → basic runtime PM/DVFS, with explicit capability/readiness/safe-enable lifecycle for firmware-managed PM features.
 
 ### Near-term feature path
 Reliable busy/idle accounting → define all async GPU-register/memory users → quiesce/drain rules → runtime PM correctness → per-engine utilization/frequency telemetry → firmware-controlled DVFS → thermal/power-cap policy.
 
 ## Industry Updates
+### 2026-09-12 · Weekly #5
+1. **AMDGPU UCLK DPM fix shows that a supported PM feature may still be unsafe to enable during the current initialization phase.**
+   - Source: AMDGPU Navi14 UCLK DPM fix, applied 2026-09-10.
+   - Change: enabling UCLK DPM inside the initial `EnableAllSmuFeatures` path could timeout on affected Navi14 systems and prevent DRM device creation; the fix defers UCLK DPM to a later post-init step, while the earliest universally safe point is still not known.
+   - KMD impact: PM/FW interfaces should distinguish capability, dependency readiness, safe enable phase, command acknowledgement, post-enable validation and rollback. `feature_supported` must not be treated as `feature_can_enable_now`.
+   - Priority: **Include in current PM/FW lifecycle design; measurement/lifetime-first remains unchanged.**
+
 ### 2026-09-05 · Weekly #4
 1. **Crescent Island PMT v4 makes telemetry/crashlog/FW callbacks explicit runtime-PM users.**
    - Source: https://lwn.net/Articles/1092225/ (2026-09-01)
