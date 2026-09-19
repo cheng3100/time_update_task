@@ -1,89 +1,69 @@
 {
-  "current_run": "2026-09-12 Weekly #5",
+  "current_run": "2026-09-19 Weekly #6",
   "owners": {
     "memory": [
       {
-        "title_zh": "DMEM + TTM/IGT 把 VRAM pressure/reclaim 推进为可验证的 KMD capability",
-        "title_en": "DMEM + TTM/IGT make VRAM pressure/reclaim a verifiable KMD capability",
-        "url": "https://www.kernel.org/doc/html/v7.0/admin-guide/cgroup-v2.html",
-        "impact_zh": "将 accounting、protection、reclaim mechanism、eviction selection 与 QoS policy 分层；在 recoverable fault/HMM P0 之后，把 VRAM Pressure + Reclaim/Eviction Contract 提升为 Memory P1。",
-        "impact_en": "Separate accounting, protection, reclaim mechanism, eviction selection and QoS policy; after recoverable-fault/HMM P0, promote VRAM Pressure + Reclaim/Eviction Contract to Memory P1.",
-        "priority_zh": "P1；fault/HMM 第一版稳定后立即立项",
-        "priority_en": "P1; start after the first fault/HMM correctness loop"
+        "title_zh": "Xe non-fault scratch VM 修复强化显式 VM fault capability",
+        "title_en": "Xe non-fault scratch VM fix reinforces explicit VM fault capability",
+        "url": "https://git.kernel.org/",
+        "impact_zh": "faultable/scratch/replay/PASID binding 应成为 VM/context 显式属性；fault handler 先做 capability validation，再进入 HMM/migration/replay。",
+        "impact_en": "Model faultable/scratch/replay/PASID binding explicitly and validate capability before HMM/migration/replay.",
+        "priority_zh": "P0 correctness",
+        "priority_en": "P0 correctness"
       },
       {
-        "title_zh": "Xe CPU-bind + ULLS migration queue 将 page-fault latency 作为独立性能目标",
-        "title_en": "Xe CPU-bind + ULLS migration queue treats page-fault latency as a first-class target",
-        "url": "https://lore.kernel.org/dri-devel/",
-        "impact_zh": "fault measurement contract 应覆盖 IRQ→resolve→migration/bind→PTE→TLB→replay 的分段延迟；correctness 稳定后再评估专用低延迟 migration/bind path。",
-        "impact_en": "Measure IRQ→resolve→migration/bind→PTE→TLB→replay latency by stage; evaluate a dedicated low-latency migration/bind path only after correctness is stable.",
-        "priority_zh": "measurement P0；fast path P1",
-        "priority_en": "Measurement P0; fast path P1"
+        "title_zh": "AMDGPU mapping-info ioctl 修复强调 VM introspection 的 ownership/unwind",
+        "title_en": "AMDGPU mapping-info ioctl fix highlights ownership/unwind in VM introspection",
+        "url": "https://lkml.iu.edu/2609.2/00785.html",
+        "impact_zh": "复杂 mapping query 同时持有 GEM ref、exec lock、动态数组时必须统一 cleanup；适用于自研 debug/query uAPI。",
+        "impact_en": "Complex mapping queries holding object refs, exec locks and dynamic arrays need unified cleanup paths.",
+        "priority_zh": "P1 engineering correctness",
+        "priority_en": "P1 engineering correctness"
       }
     ],
     "virt": [
       {
-        "title_zh": "Xe VF migration 向 multi-queue 扩展，强化可序列化 GPU resource state 的需求",
-        "title_en": "Xe VF migration extends toward multi-queue, strengthening the need for serializable GPU resource state",
-        "url": "https://lore.kernel.org/dri-devel/",
-        "impact_zh": "PF/VF 第一版就应为 VM/page-table、queue-group、doorbell/IRQ、FW scheduler/resource、VRAM 与 recovery generation 建立 stable logical ID 和 serialize/restore boundary。",
-        "impact_en": "Early PF/VF design should define stable logical IDs and serialize/restore boundaries for VM/page tables, queue groups, doorbells/IRQs, FW scheduler/resources, VRAM and recovery generations.",
-        "priority_zh": "架构 P1；完整 live migration 后续",
-        "priority_en": "Architecture P1; full live migration later"
+        "title_zh": "SR-IOV VF UVD resume 修复暴露 PF/VF resource capability asymmetry",
+        "title_en": "SR-IOV VF UVD resume fix exposes PF/VF resource capability asymmetry",
+        "url": "https://git.kernel.org/",
+        "impact_zh": "每个 VF resource 显式区分 present/initialized/assigned/active/resettable/migratable，reset/reconcile 只处理实际拥有且初始化成功的对象。",
+        "impact_en": "Track present/initialized/assigned/active/resettable/migratable per VF resource and reconcile only valid resources.",
+        "priority_zh": "P1",
+        "priority_en": "P1"
       }
     ],
-    "power": [
-      {
-        "title_zh": "AMDGPU UCLK DPM 修复说明 capability 不等于当前阶段可安全启用",
-        "title_en": "AMDGPU UCLK DPM fix shows capability does not imply safe enablement at the current phase",
-        "url": "https://lore.kernel.org/amd-gfx/",
-        "impact_zh": "PM/FW interface 要区分 capability、dependency readiness、safe enable phase、ACK、post-enable validation 与 rollback；继续 measurement/lifetime-first。",
-        "impact_en": "PM/FW interfaces should distinguish capability, dependency readiness, safe enable phase, ACK, post-enable validation and rollback while remaining measurement/lifetime-first.",
-        "priority_zh": "当前 PM/FW interface 设计",
-        "priority_en": "Current PM/FW interface design"
-      }
-    ],
+    "power": [],
     "ras": [
       {
-        "title_zh": "Xe cold-reset recovery 将 RAS 从 reset gate 推进到 recovery scope / escalation",
-        "title_en": "Xe cold-reset recovery pushes RAS from a reset gate toward recovery scope/escalation",
-        "url": "https://lore.kernel.org/dri-devel/",
-        "impact_zh": "统一定义 context/queue/engine/FW/device-warm/PCI/cold-reset/permanent-failure 层级，并为每级明确 handle validity、VRAM preservation、replay 与 userspace cooperation。",
-        "impact_en": "Define context/queue/engine/FW/device-warm/PCI/cold-reset/permanent-failure levels with explicit handle validity, VRAM preservation, replay and userspace-cooperation semantics.",
-        "priority_zh": "Recovery Contract 现在",
-        "priority_en": "Recovery Contract now"
+        "title_zh": "AMDGPU KIQ MODE1 reset fence 修复推动 Reset Reconciliation Contract",
+        "title_en": "AMDGPU KIQ MODE1 reset fence fix motivates a Reset Reconciliation Contract",
+        "url": "https://git.kernel.org/",
+        "impact_zh": "reset 后必须逐对象定义 HW/memory/SW/FW state survival、sequence realignment、stale completion 与 post-reset validation。",
+        "impact_en": "Define HW/memory/SW/FW state survival, sequence realignment, stale completion and post-reset validation per object.",
+        "priority_zh": "P0/P1",
+        "priority_en": "P0/P1"
       },
       {
-        "title_zh": "AMDGPU gfx1150 regression 强调验证 recovery outcome 和故障 containment，而不只是 reset 是否执行",
-        "title_en": "AMDGPU gfx1150 regression reinforces validating recovery outcomes and containment, not merely reset execution",
-        "url": "https://lore.kernel.org/amd-gfx/",
-        "impact_zh": "fault-injection matrix 要验证一个 context fault 是否扩散到 MES/KFD/device，并记录 fault scope × recovery scope × unaffected queues × post-reset admission。",
-        "impact_en": "Fault-injection should verify whether a context fault spreads into MES/KFD/device and record fault scope × recovery scope × unaffected queues × post-reset admission.",
-        "priority_zh": "当前 recovery validation P0",
-        "priority_en": "Current recovery-validation P0"
+        "title_zh": "AMDGPU multi-XCC hang bookkeeping 修复强调 topology cardinality correctness",
+        "title_en": "AMDGPU multi-XCC hang bookkeeping fix highlights topology cardinality correctness",
+        "url": "https://git.kernel.org/",
+        "impact_zh": "hang/recovery state 数组必须以真实 XCC/engine/partition cardinality 初始化，避免旧单实例假设泄漏到新拓扑。",
+        "impact_en": "Initialize hang/recovery state from actual XCC/engine/partition cardinality rather than legacy single-instance assumptions.",
+        "priority_zh": "P1 review discipline",
+        "priority_en": "P1 review discipline"
       }
     ],
     "multi": [],
-    "obs": [
-      {
-        "title_zh": "DRM_RAS netlink / error threshold / structured SIGID 推动 GPU error observability 形成稳定 schema",
-        "title_en": "DRM_RAS netlink / error threshold / structured SIGID push GPU error observability toward a stable schema",
-        "url": "https://lore.kernel.org/dri-devel/",
-        "impact_zh": "stable error_id/object identity/severity/source/timestamp/generation/counter/threshold/recovery-result 应成为 trace/eBPF/devcoredump/FW log/management event 共用的数据模型。",
-        "impact_en": "Stable error ID/object identity/severity/source/timestamp/generation/counter/threshold/recovery result should be shared across trace/eBPF/devcoredump/FW logs/management events.",
-        "priority_zh": "P0/P1 schema work",
-        "priority_en": "P0/P1 schema work"
-      }
-    ],
+    "obs": [],
     "fw": [
       {
-        "title_zh": "Xe mailbox PHASE 修复强调 protocol state 必须有唯一 authoritative truth source",
-        "title_en": "Xe mailbox PHASE fix reinforces having one authoritative truth source for protocol state",
-        "url": "https://lore.kernel.org/dri-devel/",
-        "impact_zh": "对 producer/consumer index、phase/epoch、seq、generation、capability snapshot 明确 ownership；reset/reconnect 时定义 reread、re-handshake、regenerate 与 stale-completion 规则。",
-        "impact_en": "Define ownership for producer/consumer indices, phase/epoch, sequence, generation and capability snapshots; reset/reconnect must specify reread, re-handshake, regenerate and stale-completion rules.",
-        "priority_zh": "当前 Firmware protocol 第一版",
-        "priority_en": "Current first Firmware protocol design"
+        "title_zh": "Tyr MappedBo 将 CPU/GPU mapping 与 FW shared-section lifetime 统一",
+        "title_en": "Tyr MappedBo unifies CPU/GPU mapping with FW shared-section lifetime",
+        "url": "https://lkml.iu.edu/2609.1/18699.html",
+        "impact_zh": "FW shared region 应由单一对象管理 CPU VA、device VA、bounds、coherency 与 FW generation，并集中执行 FW-reported address validation。",
+        "impact_en": "Use one owner object for CPU VA, device VA, bounds, coherency and FW generation, with centralized validation of FW-reported addresses.",
+        "priority_zh": "P1 control-plane HLD",
+        "priority_en": "P1 control-plane HLD"
       }
     ]
   }
