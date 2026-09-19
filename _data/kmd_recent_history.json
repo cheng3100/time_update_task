@@ -1,44 +1,49 @@
 {
-  "current_run": "2026-09-12 Weekly #5",
+  "current_run": "2026-09-19 Weekly #6",
   "runs": [
+    {
+      "id": "weekly-2026-09-19-6",
+      "date": "2026-09-19",
+      "title_zh": "Weekly #6 · Fault Capability / Reset Reconciliation / FW Shared Memory",
+      "title_en": "Weekly #6 · Fault Capability / Reset Reconciliation / FW Shared Memory",
+      "latest": true,
+      "intro_zh": "七大 Owner 不变。本期把 VM faultability、reset 后 ring/fence/FW state reconciliation、FW shared-memory ownership 提升为显式 contract；Memory reclaim 继续作为 P1。",
+      "intro_en": "The seven-owner taxonomy stays unchanged. This run promotes VM faultability, post-reset ring/fence/FW reconciliation and FW shared-memory ownership into explicit contracts while keeping Memory reclaim as P1.",
+      "highlights": [
+        {
+          "title_zh": "Memory：VM Fault Capability Contract",
+          "title_en": "Memory: VM Fault Capability Contract",
+          "body_zh": "faultable/scratch/replay/PASID binding 成为显式 VM/context 属性，fault handler 先验证 capability 再进入 HMM/migration/replay。",
+          "body_en": "Make faultable/scratch/replay/PASID binding explicit VM/context properties and validate them before HMM/migration/replay.",
+          "url": "https://git.kernel.org/"
+        },
+        {
+          "title_zh": "RAS/Firmware：Reset Reconciliation Contract",
+          "title_en": "RAS/Firmware: Reset Reconciliation Contract",
+          "body_zh": "KIQ reset fence 案例表明 reset 完成不等于软件世界恢复；逐对象定义 state survival、sequence realignment、stale completion 与 validation。",
+          "body_en": "The KIQ reset-fence case shows reset completion is not software recovery; define state survival, sequence realignment, stale completions and validation per object.",
+          "url": "https://git.kernel.org/"
+        },
+        {
+          "title_zh": "Firmware：MappedBo 统一 CPU/GPU mapping lifetime",
+          "title_en": "Firmware: MappedBo unifies CPU/GPU mapping lifetime",
+          "body_zh": "Tyr 把 persistent CPU vmap 与 KernelBo/GPU mapping 绑定，为 FW-reported address bounds validation 建立自然 ownership boundary。",
+          "body_en": "Tyr binds persistent CPU vmap to KernelBo/GPU mapping, creating a natural ownership boundary for validating FW-reported addresses.",
+          "url": "https://lkml.iu.edu/2609.1/18699.html"
+        }
+      ],
+      "curated": "/kmd_owner_direction/updates/2026-09-19-weekly-6.html",
+      "raw": "/kmd_owner_direction/raw_updates/2026-09-19-weekly-6.html"
+    },
     {
       "id": "weekly-2026-09-12-5",
       "date": "2026-09-12",
       "title_zh": "Weekly #5 · VRAM Reclaim / Recovery Escalation / Structured RAS",
       "title_en": "Weekly #5 · VRAM Reclaim / Recovery Escalation / Structured RAS",
-      "latest": true,
-      "intro_zh": "本期七大 Owner 不变。Memory 保持 recoverable fault/HMM 为 P0，但把 VRAM Pressure + Reclaim/Eviction 正式提升为下一阶段 P1；RAS 从 Recovery Admission/State/Sequence 扩展到 Recovery Scope + Escalation；Virtualization、Observability、Firmware 分别强化 migration-state、stable error schema 与 authoritative protocol state。",
-      "intro_en": "The seven-owner taxonomy stays unchanged. Memory keeps recoverable fault/HMM as P0 while promoting VRAM Pressure + Reclaim/Eviction to P1; RAS expands into Recovery Scope + Escalation; Virtualization, Observability and Firmware strengthen migration-state, stable error schemas and authoritative protocol state.",
-      "highlights": [
-        {
-          "title_zh": "Memory：VRAM Pressure + Reclaim/Eviction 成为下一阶段明确 Feature",
-          "title_en": "Memory: VRAM Pressure + Reclaim/Eviction becomes the next explicit feature",
-          "body_zh": "Linux DMEM/TTM/IGT 已把 device-memory accounting、protection、reclaim 与 eviction 测试推进到工程可验证阶段。建议 fault/HMM 第一版稳定后，复用同一 residency/migration/PTE/TLB/generation primitive 构建 reclaim 闭环。",
-          "body_en": "Linux DMEM/TTM/IGT makes device-memory accounting, protection, reclaim and eviction engineering-verifiable. After fault/HMM stabilizes, reuse the same residency/migration/PTE/TLB/generation primitives for reclaim.",
-          "url": "https://www.kernel.org/doc/html/v7.0/admin-guide/cgroup-v2.html"
-        },
-        {
-          "title_zh": "RAS：Recovery Scope + Escalation 从 engine 延伸到 cold reset",
-          "title_en": "RAS: Recovery Scope + Escalation extends from engines to cold reset",
-          "body_zh": "Xe cold-reset recovery 说明恢复不再只是一个 reset bool，需要 context/queue/engine/FW/device/PCI/cold-reset/permanent-failure 的层级、升级条件、generation 与 userspace 协作语义。",
-          "body_en": "Xe cold-reset recovery shows recovery needs explicit context/queue/engine/FW/device/PCI/cold-reset/permanent-failure levels, escalation conditions, generations and userspace cooperation.",
-          "url": "https://lore.kernel.org/dri-devel/"
-        },
-        {
-          "title_zh": "Virtualization：multi-queue VF migration 强化 state serialization boundary",
-          "title_en": "Virtualization: multi-queue VF migration strengthens state-serialization boundaries",
-          "body_zh": "PF/VF 资源从一开始就应具有 stable logical ID、reset 语义和 serialize/restore boundary；queue-group、FW scheduler、VRAM 与 VM state 都可能参与迁移。",
-          "body_en": "PF/VF resources should have stable logical IDs, reset semantics and serialize/restore boundaries from the beginning; queue groups, FW scheduler, VRAM and VM state may all participate in migration.",
-          "url": "https://lore.kernel.org/dri-devel/"
-        },
-        {
-          "title_zh": "Observability / Firmware：稳定 error identity + authoritative protocol state",
-          "title_en": "Observability / Firmware: stable error identity + authoritative protocol state",
-          "body_zh": "DRM_RAS common event/threshold 与 Xe mailbox PHASE 修复分别强化两个长期原则：错误事件需要稳定 schema；共享 mailbox/ring 协议字段需要唯一 truth source。",
-          "body_en": "DRM_RAS events/thresholds and the Xe mailbox-PHASE fix reinforce two durable rules: errors need a stable schema and shared mailbox/ring protocol state needs one authoritative truth source.",
-          "url": "https://lore.kernel.org/dri-devel/"
-        }
-      ],
+      "latest": false,
+      "intro_zh": "Memory 保持 recoverable fault/HMM 为 P0，并把 VRAM Pressure + Reclaim/Eviction 提升为 P1；RAS 扩展到 Recovery Scope + Escalation。",
+      "intro_en": "Memory keeps recoverable fault/HMM as P0 and promotes VRAM Pressure + Reclaim/Eviction to P1; RAS expands into Recovery Scope + Escalation.",
+      "highlights": [],
       "curated": "/kmd_owner_direction/updates/2026-09-12-weekly-5.html",
       "raw": "/kmd_owner_direction/raw_updates/2026-09-12-weekly-5.html"
     },
@@ -48,46 +53,11 @@
       "title_zh": "Weekly #4 · Recovery Contract / VFIO AER / Telemetry Service",
       "title_en": "Weekly #4 · Recovery Contract / VFIO AER / Telemetry Service",
       "latest": false,
-      "intro_zh": "RAS 从 reset gate 深化为通用 Recovery Admission / State / Sequence Contract；VFIO PCI recovery 和 Xe PMT 分别强化 VMM-visible recovery 与 Telemetry Service/FW readiness。",
-      "intro_en": "RAS deepens the reset gate into a reusable Recovery Admission / State / Sequence Contract, while VFIO PCI recovery and Xe PMT strengthen VMM-visible recovery and Telemetry Service/FW readiness.",
-      "highlights": [
-        {
-          "title_zh": "Recovery Admission / State / Sequence Contract",
-          "title_en": "Recovery Admission / State / Sequence Contract",
-          "body_zh": "恢复期间关闭 admission、drain、推进 sequence、恢复后 publish NORMAL/FAILED，供 Memory/Firmware/Virtualization 共用。",
-          "body_en": "Close admission, drain users, advance the sequence and publish NORMAL/FAILED after recovery for Memory/Firmware/Virtualization consumers.",
-          "url": "https://lwn.net/Articles/1091953/"
-        },
-        {
-          "title_zh": "Telemetry Service + FW readiness",
-          "title_en": "Telemetry Service + FW readiness",
-          "body_zh": "Xe PMT 强化 telemetry 的 PM lifetime、FW readiness、shared-window arbitration 与 VF privilege boundary。",
-          "body_en": "Xe PMT strengthens telemetry PM lifetime, FW readiness, shared-window arbitration and VF privilege boundaries.",
-          "url": "https://lwn.net/Articles/1092225/"
-        }
-      ],
+      "intro_zh": "RAS 深化为 Recovery Admission / State / Sequence Contract。",
+      "intro_en": "RAS deepens into a Recovery Admission / State / Sequence Contract.",
+      "highlights": [],
       "curated": "/kmd_owner_direction/updates/2026-09-05-weekly-4.html",
       "raw": "/kmd_owner_direction/raw_updates/2026-09-05-weekly-4.html"
-    },
-    {
-      "id": "weekly-2026-08-29-3",
-      "date": "2026-08-29",
-      "title_zh": "Weekly #3 · Fabric / Remote Invalidation / Stable FW ABI",
-      "title_en": "Weekly #3 · Fabric / Remote Invalidation / Stable FW ABI",
-      "latest": false,
-      "intro_zh": "DRM Fabric + AMD UALink 把 Multi-GPU 推进到 endpoint/port/peer 与 remote-memory control；Nova r000 强化 raw FW ABI translation/validation。",
-      "intro_en": "DRM Fabric + AMD UALink move Multi-GPU toward endpoint/port/peer and remote-memory control, while Nova r000 strengthens raw-FW-ABI translation/validation.",
-      "highlights": [
-        {
-          "title_zh": "Multi-GPU topology/control model",
-          "title_en": "Multi-GPU topology/control model",
-          "body_zh": "从 GPU×GPU bool matrix 升级到 endpoint/port/peer、directional capability、link state 和 generation。",
-          "body_en": "Move beyond a GPU×GPU boolean matrix toward endpoint/port/peer, directional capabilities, link state and generations.",
-          "url": "https://lkml.iu.edu/2608.3/00335.html"
-        }
-      ],
-      "curated": "/kmd_owner_direction/updates/2026-08-29-weekly-3.html",
-      "raw": "/kmd_owner_direction/raw_updates/2026-08-29-weekly-3.html"
     }
   ]
 }
