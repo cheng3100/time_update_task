@@ -6,73 +6,96 @@ permalink: /kmd_owner_direction/features/memory-recoverable-fault.html
 ---
 # Recoverable GPU Fault + HMM/SVM + Migration + Replay
 
-## 一句话定义
-当 GPU 访问一个当前不可访问、尚未驻留或映射已失效的虚拟地址时，不直接杀死 workload，而是由 KMD 与 Linux MM 协同恢复页面、建立 GPU 映射、完成必要 TLB ordering，最后安全 replay faulting work。
+## 1. 一句话定义
+GPU 访问某个当前没有有效 GPU translation/residency 的 VA 时，不直接终止 workload，而由 KMD 联合 Linux MM/HMM 恢复 backing page、必要时迁移数据、发布 GPU PTE、完成 TLB ordering，并安全 replay 原访问。
 
-## 为什么需要
-基础 GPUVM 只能回答“VA 如何翻译成 PA/IOVA”；Unified Memory 要进一步回答“目标页现在不在 GPU 可访问位置时怎么办”。没有 recoverable fault，UMD 必须提前 pin/map 全部 working set，难以支持超额显存、按需迁移、CPU/GPU 共享地址和未来 multi-GPU UVM。
+## 2. 它在 GPU/KMD 栈中的位置
+基础 GPUVM 解决“已有映射怎样翻译”；recoverable fault 解决“映射暂时不存在、页不在合适位置、或 CPU 页表变化后怎样恢复”。它位于 GPU MMU fault packet 与 Linux MM/HMM、GPUVM/PTE/TLB、DMA migration、FW replay 之间，是 Unified Memory 从静态 pin/map 走向 demand paging 的核心控制面。
 
-## 栈中位置
 ```mermaid
 flowchart LR
-A[GPU Engine] --> B[GPU MMU]
-B -->|fault packet| C[KMD Fault Service]
-C --> D[VM/PASID/Context lookup]
-D --> E[HMM / mmu_notifier]
-E --> F[Residency & Migration]
-F --> G[GPU PTE publish]
-G --> H[TLB invalidate/order]
-H --> I[Replay / terminate]
+E[GPU Engine] --> M[GPU MMU/TLB]
+M -->|fault VA + access + PASID/VM| F[KMD Fault Service]
+F --> R[SVM Range / GPUVM]
+R --> H[HMM + mmu_notifier]
+H --> D[Residency / Migration]
+D --> P[GPU PTE Publish]
+P --> T[TLB Invalidate + Completion]
+T --> G{Generation still valid?}
+G -->|yes| X[Replay]
+G -->|no| Z[Drop / Retry / Kill]
 ```
 
-## 核心对象
-SVM range、GPU VM、PASID/VMID、fault packet、mmu_notifier sequence、residency state、migration unit、GPU PTE、TLB invalidation、context generation、recovery generation。
+## 3. 为了解决什么问题
+没有 recoverable fault，UMD 往往必须在 dispatch 前把 working set 全部 pin/map 到 GPU，显存超额、按需迁移、CPU/GPU shared VA、进程地址变化和 multi-GPU UVM 都很难成立。真正目标不是“写一个 fault ISR”，而是建立一个可恢复的地址访问协议：fault 只是触发器，最终必须闭合到 MM validity、residency、PTE publication、TLB visibility 与 replay。
 
-## 端到端控制流
-1. HW 产生 fault，packet 至少携带 VA、access type、VM/PASID/context identity。
-2. KMD 找到逻辑 SVM range，验证 VM/context/recovery generation。
-3. 与 Linux MM/HMM 协同确认 CPU page 和访问权限；并与 mmu_notifier invalidation 串行化。
-4. 决定页面留在 system memory、迁移到 VRAM，或建立可直接访问的 system-memory mapping。
-5. 完成 DMA/migration 后发布 GPU PTE。
-6. 发出 TLB invalidate，并等待架构要求的 completion/ordering point。
-7. 再验证 generation；只有仍属于当前 VM/context/device world 才 replay。
+## 4. 典型场景
+- GPU 首次访问 CPU malloc/mmap 的共享地址，GPU PTE 尚不存在。
+- 页面当前在 system memory，需要映射或迁移到 VRAM。
+- VRAM oversubscription 后页面被 evict，后续访问再次 fault-in。
+- CPU munmap/mprotect/COW 与 GPU fault/migration 并发。
+- GPU reset/FW restart 发生在 fault worker、migration DMA 或 replay 途中。
+- 未来 multi-device：同一 logical range 在 GPU0/GPU1 有不同 residency/mapping state。
 
-## 最难的问题
-**Race correctness** 是第一难点，不是 HMM API 本身。munmap/mprotect/COW/process exit/context destroy/GPU reset/FW restart 都可能发生在 fault service 中途。第二难点是粒度：fault range、CPU page、migration batch、GPU PTE 和 TLB invalidate unit 不应被强行绑定成 4K。第三是 deadlock：用于解 page fault 的 DMA/PTE update 路径不能依赖已被 faulting traffic 耗尽的 translation/MSHR 资源。
+## 5. 核心对象与术语
+**SVM range** 是逻辑 VA 范围；**CPU page** 是 Linux MM backing；**migration unit** 是搬运粒度；**GPU PTE unit** 是页表表示粒度；**TLB invalidate unit** 是硬件失效粒度。这五者必须解耦。另有 PASID/VMID、GPU VM、fault packet、HMM snapshot、mmu_notifier_seq、residency state、context generation、recovery generation 与 replay token。
 
-## 生命周期与状态
+## 6. 端到端控制流
+1. HW 产生 fault packet，至少带 VA/access type/VM 或 PASID identity。
+2. KMD 定位 GPUVM/SVM range，并先验证 context、VM、recovery generation。
+3. 进入 device-I/O admission domain，防止“检查 healthy 后 reset 才开始”的 TOCTOU。
+4. HMM/MM 查询 CPU mapping、permission 与 backing page，并与 mmu_notifier invalidation 协调。
+5. 决定 direct system-memory mapping、page migration 或拒绝访问。
+6. 如需 migration，DTE/DMA 搬运完成后再发布 GPU PTE。
+7. 发出 TLB invalidation，等待架构要求的 completion/ordering point。
+8. 再验证 notifier/VM/context/recovery generation。
+9. FW/HW replay service ready 且所有 generation 仍匹配才 replay，否则 drop/retry/kill。
+
+## 7. HW / FW / KMD / UMD / Linux MM 边界
+HW 负责 fault detect、packet、PTE/TLB/replay primitive；FW 可负责 fault queue、replay command、TLB service，但不拥有 Linux page lifetime policy；KMD 拥有 range/residency/migration/PTE publication 与 race correctness；Linux MM/HMM 是 CPU VA/PTE/page lifetime 的权威；UMD 负责 allocation/advice/prefetch 等 policy hint，不应自行绕过 KMD/MM correctness。
+
+## 8. 生命周期与状态机
 ```mermaid
 stateDiagram-v2
-[*] --> FaultQueued
-FaultQueued --> Validating
-Validating --> Resolving
-Resolving --> Migrating
-Migrating --> PublishingPTE
-PublishingPTE --> InvalidatingTLB
-InvalidatingTLB --> ReplayReady
-ReplayReady --> Replayed
-Validating --> Dropped
-Resolving --> Dropped
-Migrating --> Dropped
+[*] --> Queued
+Queued --> Validate
+Validate --> ResolveMM
+ResolveMM --> Migrate
+ResolveMM --> PublishPTE
+Migrate --> PublishPTE
+PublishPTE --> InvalidateTLB
+InvalidateTLB --> Revalidate
+Revalidate --> Replay
+Validate --> Drop
+ResolveMM --> Retry
+Migrate --> Drop
+Revalidate --> Drop
+Replay --> [*]
+Drop --> [*]
 ```
 
-## 第一版最小闭环
-单 GPU、单进程；fault-driven；4K correctness 但数据模型不绑定 4K；HMM lookup；system↔VRAM migration；PTE/TLB/replay；覆盖 invalidation、teardown、reset-generation race；提供 fault latency、migration latency、TLB latency、drop/retry reason telemetry。
+## 9. 最难的 correctness / race / lifetime / performance
+第一难点是异步生命周期：munmap/mprotect/process exit/context destroy/reset/FW restart 都可能让“刚才正确”的结果失效，所以一次入口检查不够。建议至少区分 mmu_notifier_seq、vm_generation、context_generation、recovery_generation。第二难点是粒度解耦。第三是 backpressure/fault storm。第四是硬件循环依赖：如果 faulting traffic 占满 L1 TLB MSHR，而用于解 fault 的 DTE PA transaction、页表更新或 migration 仍必须申请同一稀缺 MSHR，就可能死锁；硬件必须明确 PA/bypass transaction 是否需要 translation miss state、是否有 reserved MSHR/escape path、page-table update/DMA 是否可走独立通道。
 
-## 3–6 月
-0–1 月定义对象/锁/generation；1–2 月打通 fault→HMM→PTE→replay；2–3 月加入 migration；3–4 月加入 notifier/teardown/reset race；4–6 月 fault injection、压力测试、measurement contract。
+## 10. 失败模式与 Debug / Observability
+必须区分 invalid VA、permission、OOM/migration failure、TLB timeout、stale generation、device blocked、FW replay timeout、fault storm。trace 至少记录 fault_id、PID/PASID、VM/context、range、VA/access、residency before/after、migration bytes/time、PTE publish time、tlb_issue_time、tlb_completion_time、replay/drop reason、recovery_generation。
 
-## 1–2 年
-range/large page、oversubscription/reclaim、multi-device per-range state、multi-GPU UVM、NUMA/tiered memory、ATS/PRI/SVA integration。
+## 11. 第一版最小能力闭环
+单 GPU、单进程、fault-driven；4K correctness 但数据模型不绑定 4K；HMM lookup；system memory↔VRAM migration；PTE publish + TLB completion + replay；覆盖 invalidation/process teardown/context destroy/reset race；可观测每个阶段 latency/retry/drop reason。
 
-## 边界
-Memory Owner 决定 residency/mapping/replay correctness；RAS 提供 device admission/recovery generation；Firmware 提供 fault/replay protocol 与 readiness；Multi-GPU 提供 peer reachability；Observability 提供稳定 identity/timeline；Power 不能在 fault critical path 中错误 suspend device；Virtualization 提供 PASID/VM/resource isolation。
+## 12. 3–6 月实施
+0–1 月：对象、锁、generation、fault schema、HW capability review。1–2 月：fault→HMM→PTE/TLB→replay。2–3 月：migration。3–4 月：munmap/mprotect/exit/context destroy/reset race。4–6 月：fault storm、memory pressure、reset injection、latency/throughput measurement。
 
-## 原文索引
-- Linux GPU SVM RFC: https://docs.kernel.org/gpu/rfc/index.html
-- Linux HMM: https://docs.kernel.org/mm/hmm.html
-- AMDGPU GPUVM: https://origin.kernel.org/doc/html/latest/gpu/amdgpu/driver-core.html
-- XDC 2026 DRM SVM talk: https://indico.freedesktop.org/event/12/timetable/?view=standard
+## 13. 1–2 年演进
+large/compound page、prefetch、oversubscription/reclaim、NUMA/tiered memory、multi-device per-range state、multi-GPU UVM、ATS/PRI/PASID/SVA 与 CXL memory。
 
-## Open Questions / HW Gates
-fault packet 能否精确关联 PASID/VM/context？replay 粒度是什么？DTE/页表更新是否绕过 faulting translation resource？TLB invalidate completion 如何观察？是否支持 page migration while engines active？
+## 14. 与其它 Owner 的接口
+RAS 提供 admission/recovery generation；Firmware 提供 fault/replay/TLB service readiness；Multi-GPU 提供 peer reachability/topology generation；Observability 提供 stable identity/timeline；Power 必须保证 fault/migration critical path 的 PM lifetime；Virtualization 提供 PASID/IOMMU/tenant isolation。
+
+## 15. Upstream / Vendor 案例与原文索引
+- XDC 2026 DRM SVM：range、native large page、fault/non-fault、multi-device。
+- Linux HMM：CPU MM 与 device memory mirroring/migration 的 canonical model。
+- AMDGPU/KFD SVM 与 Xe SVM/GPUVM：用于比较 fault-driven、range model 与 driver/MM synchronization。
+
+## 16. Open Questions / HW Gates
+fault packet identity 是否足够？fault replay 粒度？DTE PA path 是否绕过 translation MSHR？是否有 reserved escape resource？TLB completion 如何观测？active engine 下能否安全改 PTE/migrate？fault queue overflow 行为？reset 后 fault packet 是否携带 generation？
