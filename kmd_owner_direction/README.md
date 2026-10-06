@@ -98,6 +98,18 @@ Rules:
 
 Stable learning resources live under `resources/<owner>/`. Each stable sub-direction should use one independent `*.resource.md` source-of-truth file so Jekyll presentation pages and durable learning archives remain separate.
 
+## Weekly technical-depth contract
+
+Weekly reports are evidence-driven technical reports, not short owner summaries. For every high-value Industry Update, preserve a primary/original source index and explain, when available: date, series/RFC version and patch count, problem statement, key mechanism/data structure/state machine/API or patch layering, delta from the previous revision, extracted design principle, concrete impact on the self-developed KMD, validation experiments and priority. If no high-value new item exists, say so explicitly.
+
+Every current entry feature listed by the weekly report must link to one stable HLD-like page under `/kmd_owner_direction/features/`. The page is incrementally maintained across runs and must be **problem-first**: explain what the topic is, why it exists, what fails without it, typical scenarios, core objects, end-to-end flow, HW/FW/KMD/UMD/kernel boundaries, lifecycle/state machine, correctness/race/lifetime/performance challenges, failure/debug model, minimum capability loop, 3–6 month implementation path, 1–2 year evolution, cross-Owner contracts, upstream/vendor evidence and hardware/open-question gates. Architecture/sequence/state diagrams should be used when they improve understanding.
+
+The four layers remain distinct:
+1. Stable Owner Guide — long-term taxonomy/boundary;
+2. Feature HLD — stable problem/design explanation for the current entry feature;
+3. Weekly Industry Update — time-sensitive evidence and decisions;
+4. Durable Resources — long-lived learning material.
+
 ## Update model
 
 Each scheduled run should:
