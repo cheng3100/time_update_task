@@ -1,33 +1,24 @@
 {
-  "current_run": "2026-09-19 Weekly #6",
+  "current_run": "2026-10-03 Weekly #8 · Detailed R1",
   "owners": {
     "memory": [
       {
-        "title_zh": "Xe non-fault scratch VM 修复强化显式 VM fault capability",
-        "title_en": "Xe non-fault scratch VM fix reinforces explicit VM fault capability",
-        "url": "https://git.kernel.org/",
-        "impact_zh": "faultable/scratch/replay/PASID binding 应成为 VM/context 显式属性；fault handler 先做 capability validation，再进入 HMM/migration/replay。",
-        "impact_en": "Model faultable/scratch/replay/PASID binding explicitly and validate capability before HMM/migration/replay.",
-        "priority_zh": "P0 correctness",
-        "priority_en": "P0 correctness"
-      },
-      {
-        "title_zh": "AMDGPU mapping-info ioctl 修复强调 VM introspection 的 ownership/unwind",
-        "title_en": "AMDGPU mapping-info ioctl fix highlights ownership/unwind in VM introspection",
-        "url": "https://lkml.iu.edu/2609.2/00785.html",
-        "impact_zh": "复杂 mapping query 同时持有 GEM ref、exec lock、动态数组时必须统一 cleanup；适用于自研 debug/query uAPI。",
-        "impact_en": "Complex mapping queries holding object refs, exec locks and dynamic arrays need unified cleanup paths.",
-        "priority_zh": "P1 engineering correctness",
-        "priority_en": "P1 engineering correctness"
+        "title_zh": "XDC 2026 DRM SVM：range/large-page/fault-mode/multi-device 收敛",
+        "title_en": "XDC 2026 DRM SVM: range, large-page, fault-mode and multi-device convergence",
+        "url": "https://indico.freedesktop.org/event/12/timetable/?view=standard",
+        "impact_zh": "第一版 recoverable fault 数据模型应解耦 SVM range、CPU page、migration unit、GPU PTE 与 TLB 粒度。",
+        "impact_en": "Decouple SVM range, CPU page, migration unit, GPU PTE and TLB granularity from the first recoverable-fault design.",
+        "priority_zh": "P0 architecture compatibility",
+        "priority_en": "P0 architecture compatibility"
       }
     ],
     "virt": [
       {
-        "title_zh": "SR-IOV VF UVD resume 修复暴露 PF/VF resource capability asymmetry",
-        "title_en": "SR-IOV VF UVD resume fix exposes PF/VF resource capability asymmetry",
-        "url": "https://git.kernel.org/",
-        "impact_zh": "每个 VF resource 显式区分 present/initialized/assigned/active/resettable/migratable，reset/reconcile 只处理实际拥有且初始化成功的对象。",
-        "impact_en": "Track present/initialized/assigned/active/resettable/migratable per VF resource and reconcile only valid resources.",
+        "title_zh": "VFIO PCI error recovery RFC v2：16 patches",
+        "title_en": "VFIO PCI error recovery RFC v2: 16 patches",
+        "url": "https://lwn.net/Articles/1097488/",
+        "impact_zh": "PF/host recovery、VF/VMM recovery-state notification 与 recovery-window access gate 应成为显式 contract。",
+        "impact_en": "Make PF/host recovery, VF/VMM recovery-state notification and recovery-window access gating explicit contracts.",
         "priority_zh": "P1",
         "priority_en": "P1"
       }
@@ -35,33 +26,44 @@
     "power": [],
     "ras": [
       {
-        "title_zh": "AMDGPU KIQ MODE1 reset fence 修复推动 Reset Reconciliation Contract",
-        "title_en": "AMDGPU KIQ MODE1 reset fence fix motivates a Reset Reconciliation Contract",
-        "url": "https://git.kernel.org/",
-        "impact_zh": "reset 后必须逐对象定义 HW/memory/SW/FW state survival、sequence realignment、stale completion 与 post-reset validation。",
-        "impact_en": "Define HW/memory/SW/FW state survival, sequence realignment, stale completion and post-reset validation per object.",
+        "title_zh": "Xe wedge isolation v2：15 patches 的 common device-I/O gate",
+        "title_en": "Xe wedge isolation v2: 15-patch common device-I/O gate",
+        "url": "https://www.mail-archive.com/dri-devel%40lists.freedesktop.org/msg638225.html",
+        "impact_zh": "Gate、recovery generation、health state 分离；block new access 后 drain existing readers 再 reset/isolate。",
+        "impact_en": "Separate gate, recovery generation and health state; block new access and drain readers before reset/isolation.",
         "priority_zh": "P0/P1",
         "priority_en": "P0/P1"
-      },
-      {
-        "title_zh": "AMDGPU multi-XCC hang bookkeeping 修复强调 topology cardinality correctness",
-        "title_en": "AMDGPU multi-XCC hang bookkeeping fix highlights topology cardinality correctness",
-        "url": "https://git.kernel.org/",
-        "impact_zh": "hang/recovery state 数组必须以真实 XCC/engine/partition cardinality 初始化，避免旧单实例假设泄漏到新拓扑。",
-        "impact_en": "Initialize hang/recovery state from actual XCC/engine/partition cardinality rather than legacy single-instance assumptions.",
-        "priority_zh": "P1 review discipline",
-        "priority_en": "P1 review discipline"
       }
     ],
-    "multi": [],
-    "obs": [],
+    "multi": [
+      {
+        "title_zh": "PCI/P2PDMA v9：按 TLP class 路由 P2P",
+        "title_en": "PCI/P2PDMA v9: route P2P by TLP class",
+        "url": "https://lwn.net/Articles/1098081/",
+        "impact_zh": "P2P capability 从 topology bool 升级为 direction/TLP/address-type/ATS/ACS-aware matrix；v9 暂移除 dma-buf/mlx5 patch。",
+        "impact_en": "Upgrade P2P from a topology boolean to a direction/TLP/address-type/ATS/ACS-aware matrix; v9 temporarily drops dma-buf/mlx5 patches.",
+        "priority_zh": "P0/P1",
+        "priority_en": "P0/P1"
+      }
+    ],
+    "obs": [
+      {
+        "title_zh": "AMDGPU profiler/SPM UAPI：先定义 resource ownership 再冻结接口",
+        "title_en": "AMDGPU profiler/SPM UAPI: define resource ownership before freezing interface",
+        "url": "https://www.mail-archive.com/amd-gfx%40lists.freedesktop.org/msg151914.html",
+        "impact_zh": "先建模 profiler session 的 partition/identity/buffer/generation/lifetime，再选择 perf_event/ioctl/UMD/FW service。",
+        "impact_en": "Model profiler session partition, identity, buffer, generation and lifetime before choosing perf_event/ioctl/UMD/FW service.",
+        "priority_zh": "P1 architecture",
+        "priority_en": "P1 architecture"
+      }
+    ],
     "fw": [
       {
-        "title_zh": "Tyr MappedBo 将 CPU/GPU mapping 与 FW shared-section lifetime 统一",
-        "title_en": "Tyr MappedBo unifies CPU/GPU mapping with FW shared-section lifetime",
-        "url": "https://lkml.iu.edu/2609.1/18699.html",
-        "impact_zh": "FW shared region 应由单一对象管理 CPU VA、device VA、bounds、coherency 与 FW generation，并集中执行 FW-reported address validation。",
-        "impact_en": "Use one owner object for CPU VA, device VA, bounds, coherency and FW generation, with centralized validation of FW-reported addresses.",
+        "title_zh": "Nova r000 GSP v3：33 patches 的 ABI 迁移",
+        "title_en": "Nova r000 GSP v3: 33-patch ABI migration",
+        "url": "https://patchew.org/linux/20260918010719.1176945-1-jhubbard%40nvidia.com/",
+        "impact_zh": "先建立 firmware-version-independent lower layer，再切换 provider；Transport/Envelope/Service 应分层。",
+        "impact_en": "Build a firmware-version-independent lower layer before switching providers; separate Transport/Envelope/Service.",
         "priority_zh": "P1 control-plane HLD",
         "priority_en": "P1 control-plane HLD"
       }
