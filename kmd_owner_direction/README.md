@@ -64,6 +64,19 @@ The task home additionally renders a top-to-bottom GPU software-stack architectu
 
 The interaction map and sub-direction learning path are intended to make the site usable as a **GPU KMD onboarding technology map**, not only as an Owner planning dashboard. Cross-Owner diagrams describe collaboration contracts; they do not merge ownership domains. The three-step sub-direction route is a concise orientation layer, while the independent `*.resource.md` page remains the durable deep-learning source.
 
+## Current Feature HLD layer
+
+Current entry features are maintained as an independent design/HLD-like presentation layer under `/kmd_owner_direction/features/`.
+
+This layer is intentionally separate from:
+- Stable Owner Guide: long-term domain definition and boundary;
+- Weekly update: time-sensitive evidence and priority changes;
+- Durable resources: stable learning material.
+
+Each current feature keeps a stable URL and is updated incrementally rather than recreated every week. A feature HLD should first make the topic understandable to a reader who does not already know it, then move toward implementation detail. It should cover: definition and motivation; position in the GPU stack; use cases; core objects/terms; architecture and data/control flow; HW/FW/KMD/UMD/kernel boundaries; lifecycle/state machine; correctness/race/lifetime/performance challenges; failure/debug model; minimum capability loop; 3–6 month implementation path; 1–2 year evolution; cross-Owner contracts; upstream/vendor references; and hardware/open-question gates.
+
+Current index: `/kmd_owner_direction/features/`.
+
 ## Three-layer archive model
 
 ### 1. `owners/` — stable owner definitions and long-term roadmaps
