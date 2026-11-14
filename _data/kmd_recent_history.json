@@ -1,12 +1,53 @@
 {
-  "current_run": "2026-09-19 Weekly #6",
+  "current_run": "2026-11-14 Weekly #14",
   "runs": [
+    {
+      "id": "weekly-2026-11-14-14",
+      "date": "2026-11-14",
+      "title_zh": "Weekly #14 · TLB Lifetime / VFIO P2P Test / Engine Reset / SPM Ordering",
+      "title_en": "Weekly #14 · TLB Lifetime / VFIO P2P Test / Engine Reset / SPM Ordering",
+      "latest": true,
+      "intro_zh": "本期最值得关注的是 Memory 的 TLB completion→BO lifetime、VFIO P2P DMA selftest、UserQ→engine soft reset escalation，以及 SPM VMID 的 ring-ordering 修复。",
+      "intro_en": "This run focuses on TLB-completion-to-BO lifetime, VFIO P2P DMA selftests, UserQ-to-engine reset escalation, and SPM VMID ring ordering.",
+      "highlights": [
+        {
+          "title_zh": "Memory：TLB invalidation completion → BO lifetime",
+          "title_en": "Memory: TLB invalidation completion → BO lifetime",
+          "body_zh": "AMDGPU v3 与 7.4 fixes 再次确认 PTE 更新、TLB completion 与 BO 可复用必须分离建模。",
+          "body_en": "AMDGPU v3 and 7.4 fixes reinforce that PTE update, TLB completion and BO reuse must be modeled separately.",
+          "url": "https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155265.html"
+        },
+        {
+          "title_zh": "VFIO/Multi-GPU：P2P DMA selftest matrix",
+          "title_en": "VFIO/Multi-GPU: P2P DMA selftest matrix",
+          "body_zh": "7-patch RFC 覆盖 RAM↔BAR、BAR↔BAR、roundtrip 与 iommufd dma-buf revoke，适合作为自研 P2P executable validation 模板。",
+          "body_en": "A 7-patch RFC covers RAM↔BAR, BAR↔BAR, roundtrip and iommufd dma-buf revocation as an executable P2P validation model.",
+          "url": "https://go.mail-archive.com/dri-devel%40lists.freedesktop.org/msg653091.html"
+        },
+        {
+          "title_zh": "RAS：UserQ→engine soft reset escalation",
+          "title_en": "RAS: UserQ→engine soft reset escalation",
+          "body_zh": "User queue hang 不一定有 guilty kernel ring，reset API 应显式携带 device/scope/queue identity，并支持分级升级。",
+          "body_en": "A user-queue hang may have no guilty kernel ring; reset APIs need explicit device/scope/queue identity and escalation.",
+          "url": "https://mid.mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155234.html"
+        },
+        {
+          "title_zh": "Observability：SPM VMID ring ordering",
+          "title_en": "Observability: SPM VMID ring ordering",
+          "body_zh": "GFXOFF/reset 下 profiler state 需要 desired/submitted/applied generation，而不是把寄存器写入视为立即生效。",
+          "body_en": "Profiler state across GFXOFF/reset needs desired/submitted/applied generations rather than assuming an MMIO write is immediately effective.",
+          "url": "https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155811.html"
+        }
+      ],
+      "curated": "/kmd_owner_direction/updates/2026-11-14-weekly-14.html",
+      "raw": "/kmd_owner_direction/raw_updates/2026-11-14-weekly-14.html"
+    },
     {
       "id": "weekly-2026-09-19-6",
       "date": "2026-09-19",
       "title_zh": "Weekly #6 · Fault Capability / Reset Reconciliation / FW Shared Memory",
       "title_en": "Weekly #6 · Fault Capability / Reset Reconciliation / FW Shared Memory",
-      "latest": true,
+      "latest": false,
       "intro_zh": "七大 Owner 不变。本期把 VM faultability、reset 后 ring/fence/FW state reconciliation、FW shared-memory ownership 提升为显式 contract；Memory reclaim 继续作为 P1。",
       "intro_en": "The seven-owner taxonomy stays unchanged. This run promotes VM faultability, post-reset ring/fence/FW reconciliation and FW shared-memory ownership into explicit contracts while keeping Memory reclaim as P1.",
       "highlights": [
