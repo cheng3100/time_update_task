@@ -63,3 +63,7 @@ Xe wedge isolation v2（15 patches）展示 common DRM SRCU I/O gate；VFIO PCI 
 
 ## 16. Hardware Gates
 reset scope 有哪些？reset 是否破坏 VRAM？FW/engine 能否独立 reset？interrupt/DMA 如何彻底 quiesce？bus mastering/PCI state 如何配合？哪些 snapshot register 在 hang 后仍安全可读？
+
+## 17. Weekly #14 增量：Recovery Escalation Ladder
+
+本周把 recovery scope 明确细化为 `queue → pipe → engine soft reset → partial IP reset → full GPU reset`。User queue hang 不一定存在 guilty kernel ring，因此 reset request 应显式携带 device、scope、queue/context identity，guilty ring 只能是可选证据。
