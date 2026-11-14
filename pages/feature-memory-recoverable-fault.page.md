@@ -99,3 +99,7 @@ RAS 提供 admission/recovery generation；Firmware 提供 fault/replay/TLB serv
 
 ## 16. Open Questions / HW Gates
 fault packet identity 是否足够？fault replay 粒度？DTE PA path 是否绕过 translation MSHR？是否有 reserved escape resource？TLB completion 如何观测？active engine 下能否安全改 PTE/migrate？fault queue overflow 行为？reset 后 fault packet 是否携带 generation？
+
+## 17. Weekly #14 增量：TLB Completion → BO Lifetime
+
+本周 AMDGPU v3/7.4 fixes 再次确认：`PTE update visible`、`TLB invalidate issued`、`TLB invalidate completed`、`outstanding access drained`、`BO reusable` 必须分开建模。第一版建议为每个 VM/BO 记录 last invalidate fence/generation，并在 free/reuse 前证明相关 invalidate 已完成。
