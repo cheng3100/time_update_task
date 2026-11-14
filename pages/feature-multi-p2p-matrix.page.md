@@ -53,3 +53,7 @@ PCI/P2PDMA v9（2026-10-01，18 patches）明确按 TLP class 与方向判断，
 
 ## 16. Hardware Gates
 PCIe topology 是否允许 direct peer route？ACS control 是否可读/可控？ATS/per-mapping ATS？IOMMU peer translation？peer BAR/VRAM aperture？GPU DMA engine 是否支持 peer address？
+
+## 17. Weekly #14 增量：Executable P2P Validation
+
+Capability matrix 后增加可执行验证：RAM→BAR、BAR→RAM、BAR→BAR、roundtrip、IOMMU identity/remap、mapping revoke 后 stale DMA failure，并分别验证 A→B 与 B→A。静态 topology 判断回答“理论可达”，DMA selftest 回答“当前配置真实可用”。
