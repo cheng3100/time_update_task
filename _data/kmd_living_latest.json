@@ -1,24 +1,24 @@
 {
-  "current_run": "2026-10-03 Weekly #8 · Detailed R2",
+  "current_run": "2026-11-14 Weekly #14",
   "owners": {
     "memory": [
       {
-        "title_zh": "XDC 2026 DRM SVM：range/large-page/fault-mode/multi-device 收敛",
-        "title_en": "XDC 2026 DRM SVM: range, large-page, fault-mode and multi-device convergence",
-        "url": "https://indico.freedesktop.org/event/12/timetable/?view=standard",
-        "impact_zh": "第一版 recoverable fault 数据模型应解耦 SVM range、CPU page、migration unit、GPU PTE 与 TLB 粒度。",
-        "impact_en": "Decouple SVM range, CPU page, migration unit, GPU PTE and TLB granularity from the first recoverable-fault design.",
-        "priority_zh": "P0 architecture compatibility",
-        "priority_en": "P0 architecture compatibility"
+        "title_zh": "AMDGPU TLB invalidate completion 与 BO lifetime",
+        "title_en": "AMDGPU TLB invalidate completion and BO lifetime",
+        "url": "https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155265.html",
+        "impact_zh": "把 PTE publish、TLB issue/completion、access drain 与 BO reuse 建成显式 lifetime contract。",
+        "impact_en": "Model PTE publish, TLB issue/completion, access drain and BO reuse as an explicit lifetime contract.",
+        "priority_zh": "P0",
+        "priority_en": "P0"
       }
     ],
     "virt": [
       {
-        "title_zh": "VFIO PCI error recovery RFC v2：16 patches",
-        "title_en": "VFIO PCI error recovery RFC v2: 16 patches",
-        "url": "https://lwn.net/Articles/1097488/",
-        "impact_zh": "PF/host recovery、VF/VMM recovery-state notification 与 recovery-window access gate 应成为显式 contract。",
-        "impact_en": "Make PF/host recovery, VF/VMM recovery-state notification and recovery-window access gating explicit contracts.",
+        "title_zh": "VFIO P2P DMA selftest RFC",
+        "title_en": "VFIO P2P DMA selftest RFC",
+        "url": "https://go.mail-archive.com/dri-devel%40lists.freedesktop.org/msg653091.html",
+        "impact_zh": "将 IOMMU/BAR/revocation/peer access 从 capability query 推进到 executable validation。",
+        "impact_en": "Move IOMMU/BAR/revocation/peer access from capability query to executable validation.",
         "priority_zh": "P1",
         "priority_en": "P1"
       }
@@ -26,47 +26,37 @@
     "power": [],
     "ras": [
       {
-        "title_zh": "Xe wedge isolation v2：15 patches 的 common device-I/O gate",
-        "title_en": "Xe wedge isolation v2: 15-patch common device-I/O gate",
-        "url": "https://www.mail-archive.com/dri-devel%40lists.freedesktop.org/msg638225.html",
-        "impact_zh": "Gate、recovery generation、health state 分离；block new access 后 drain existing readers 再 reset/isolate。",
-        "impact_en": "Separate gate, recovery generation and health state; block new access and drain readers before reset/isolation.",
+        "title_zh": "UserQ → engine soft reset escalation",
+        "title_en": "UserQ → engine soft reset escalation",
+        "url": "https://mid.mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155234.html",
+        "impact_zh": "reset scope 与 guilty object 解耦，并明确 queue→pipe→engine→full reset 的升级梯度。",
+        "impact_en": "Decouple reset scope from guilty-object assumptions and define queue→pipe→engine→full reset escalation.",
         "priority_zh": "P0/P1",
         "priority_en": "P0/P1"
       }
     ],
     "multi": [
       {
-        "title_zh": "PCI/P2PDMA v9：按 TLP class 路由 P2P",
-        "title_en": "PCI/P2PDMA v9: route P2P by TLP class",
-        "url": "https://lwn.net/Articles/1098081/",
-        "impact_zh": "P2P capability 从 topology bool 升级为 direction/TLP/address-type/ATS/ACS-aware matrix；v9 暂移除 dma-buf/mlx5 patch。",
-        "impact_en": "Upgrade P2P from a topology boolean to a direction/TLP/address-type/ATS/ACS-aware matrix; v9 temporarily drops dma-buf/mlx5 patches.",
-        "priority_zh": "P0/P1",
-        "priority_en": "P0/P1"
+        "title_zh": "VFIO P2P DMA executable test matrix",
+        "title_en": "VFIO P2P DMA executable test matrix",
+        "url": "https://go.mail-archive.com/dri-devel%40lists.freedesktop.org/msg653091.html",
+        "impact_zh": "P2P capability matrix 后应增加 RAM↔BAR、BAR↔BAR、roundtrip、revoke 等真实 DMA 验证。",
+        "impact_en": "Add real RAM↔BAR, BAR↔BAR, roundtrip and revoke validation after the P2P capability matrix.",
+        "priority_zh": "P1",
+        "priority_en": "P1"
       }
     ],
     "obs": [
       {
-        "title_zh": "AMDGPU profiler/SPM UAPI：先定义 resource ownership 再冻结接口",
-        "title_en": "AMDGPU profiler/SPM UAPI: define resource ownership before freezing interface",
-        "url": "https://www.mail-archive.com/amd-gfx%40lists.freedesktop.org/msg151914.html",
-        "impact_zh": "先建模 profiler session 的 partition/identity/buffer/generation/lifetime，再选择 perf_event/ioctl/UMD/FW service。",
-        "impact_en": "Model profiler session partition, identity, buffer, generation and lifetime before choosing perf_event/ioctl/UMD/FW service.",
-        "priority_zh": "P1 architecture",
-        "priority_en": "P1 architecture"
+        "title_zh": "SPM VMID update ring ordering",
+        "title_en": "SPM VMID update ring ordering",
+        "url": "https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155811.html",
+        "impact_zh": "profiler session 需要 desired/submitted/applied generation，并在 GFXOFF/reset/resume 后 reconcile。",
+        "impact_en": "Profiler sessions need desired/submitted/applied generations and reconciliation across GFXOFF/reset/resume.",
+        "priority_zh": "P1",
+        "priority_en": "P1"
       }
     ],
-    "fw": [
-      {
-        "title_zh": "Nova r000 GSP v3：33 patches 的 ABI 迁移",
-        "title_en": "Nova r000 GSP v3: 33-patch ABI migration",
-        "url": "https://patchew.org/linux/20260918010719.1176945-1-jhubbard%40nvidia.com/",
-        "impact_zh": "先建立 firmware-version-independent lower layer，再切换 provider；Transport/Envelope/Service 应分层。",
-        "impact_en": "Build a firmware-version-independent lower layer before switching providers; separate Transport/Envelope/Service.",
-        "priority_zh": "P1 control-plane HLD",
-        "priority_en": "P1 control-plane HLD"
-      }
-    ]
+    "fw": []
   }
 }
