@@ -53,3 +53,7 @@ AMDGPU profiler/SPM 12-patch discussion 的重要启示是先定义 profiler res
 
 ## 16. Hardware Gates
 是否有 per-context/VMID counter？SPM buffer/interrupt？counter multiplex？GPU timestamp 与 host clock correlation？FW 是否能附带 stable object IDs？
+
+## 17. Weekly #14 增量：SPM Applied Generation
+
+SPM VMID update 的 ring-emission 修复表明 profiler state 需要区分 desired/submitted/applied generation。GFXOFF、reset、resume 后必须 reconcile，trace 中应记录 profiler_session_id、device_generation、applied_generation。
