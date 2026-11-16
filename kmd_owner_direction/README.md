@@ -2,6 +2,8 @@
 
 This directory is the long-term source-of-truth for the scheduled **GPU KMD owner direction** task.
 
+Before running or modifying this task, read `kmd_owner_direction/UPDATE_RULES.md`. It is the task-local execution/content rule set for GPU KMD Weekly and is intentionally not a repository-global rule file.
+
 ## Stability policy
 
 - `HOME.md` defines the stable owner-domain taxonomy. Update it only when the owner explicitly adds, removes, merges, or redefines a top-level direction.
