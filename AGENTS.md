@@ -6,17 +6,17 @@ Repository instructions for automated agents and scheduled tasks.
 
 Before modifying this repository, an agent must read and follow:
 
-1. `UPDATE_RULES.md` — repository-wide scheduled-update rules plus task-specific rule blocks.
-2. The target task's local README, for example `kmd_owner_direction/README.md`.
+1. The target task's local rules, for GPU KMD: `kmd_owner_direction/UPDATE_RULES.md`.
+2. The target task's local README, for GPU KMD: `kmd_owner_direction/README.md`.
 3. The current Jekyll/source-of-truth files relevant to the requested change, such as `_data/`, `pages/`, `_layouts/`, generators, and workflow files.
 
-When instructions conflict, prefer the more specific current task rule unless it would violate a repository-wide invariant such as canonical raw provenance.
+Task-local rules are authoritative for that task. Do not assume rules from one scheduled task apply to another task.
 
 ## GPU KMD Weekly
 
 For the GPU KMD Weekly task, the current confirmed chat-output and depth-selection rules are defined in:
 
-- `UPDATE_RULES.md` → **Section 11. GPU KMD Weekly — confirmed chat-output depth and structure rules**
+- `kmd_owner_direction/UPDATE_RULES.md` → **Section 11. Confirmed chat-output depth and structure rules**
 
 Important current constraints:
 - Memory/UVM topics default to L4.
