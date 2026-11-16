@@ -161,20 +161,20 @@ The old A–P structure is retired for the chat report. The default weekly conve
 - Usually 2–4 items.
 - Focus on what changed and why this week is worth reading.
 
-#### A. 本周值得关注的 N 个方向变化
-- Replace the old fixed “five features” concept.
-- N is variable.
-- Items may be an upstream architecture evolution, correctness fix, API/UAPI change, implementation pattern, subsystem proposal, hardware/driver interaction change, or other meaningful direction signal.
-- Tag or make the intended depth obvious where useful:
-  - Memory/UVM → normally L4;
-  - DMA-BUF/P2P/Virtualization-memory topics → normally L3;
-  - other topics → normally L1.
-- This section is a radar/selection layer, not a duplicate deep dive.
+#### A. L3/L4 Key Topic List
+- A contains only the week's **L3/L4 candidate topics**.
+- N is variable; do not force a fixed count.
+- Every topic selected for Section B **must also appear in A** and must be placed first, in the **same order** as B.
+- After the B-selected topics, A may include additional L3/L4 candidates that are worth tracking but are not selected for deep dive this week.
+- Each A item should be concise: topic title, 1–3 sentence summary of what changed / why it matters, depth tag (L3/L4), and at least one direct primary/reference link.
+- Do not expand architecture, code paths, race matrices or HLD detail in A; those belong in B.
+- L1 topics do not belong in A.
 
 #### B. Deep Dive：Memory / UVM 与强相关主题
-- Contains only the selected L3/L4 topics.
-- Maximum 3 per run.
+- Select **up to 3 topics from A** for detailed analysis.
+- The selected B topics must be the first items in A and preserve the same order.
 - Merge all deep technical analysis here; do **not** create separate sections for “feature deep dive”, “Leader Memory deep dive”, or similar duplicate analysis.
+- B follows the Key Topic Detail template defined in Section 11.6 and the reference sample at `kmd_owner_direction/sample/web_output/key_topic_detail_demo.md`.
 
 For **L4 Memory/UVM** topics, prefer the following building blocks when relevant:
 - upstream problem statement and concrete bug/limitation;
@@ -197,15 +197,13 @@ For **L3 strongly coupled** topics, prefer:
 - concrete GPU/driver/P2P/IOMMU example;
 - how it connects back to Memory/UVM.
 
-#### C. 其他方向 Radar
-- Collect the remaining L1 topics here.
-- Keep each item concise.
-- Typical item structure:
-  1. what changed;
-  2. why it is worth knowing;
-  3. one implication for GPU KMD / Memory interaction if relevant;
-  4. primary source link.
-- Do not force every Owner to have an item when there is no high-value update.
+#### C. 其他方向 Topic List / Radar
+- C contains the week's **remaining L1 topics**, grouped by direction/Owner.
+- Include all meaningful L1 updates found for those directions; do not force a fixed number per direction.
+- If a direction has no worthwhile update in the weekly time window, **omit that direction entirely** instead of writing “no update”.
+- Each listed topic must include at least **one direct reference link**, preferably the primary patch/RFC/commit/thread or authoritative source.
+- Keep each topic concise: title + short description of what changed / why it matters + reference link.
+- Do not expand C items into deep architecture analysis; promotion to L3/L4 should move the topic into A and potentially B.
 
 #### 总结回顾
 Keep a short review at the end, focused on:
