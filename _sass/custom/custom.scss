@@ -13,6 +13,10 @@
   --site-code-bg: #090d12;
   --site-card-bg: rgba(255,255,255,.015);
   --site-highlight-border: rgba(255,255,255,.07);
+  --site-selection-bg: #2d6a55;
+  --site-selection-text: #ffffff;
+  --site-nav-hover-bg: rgba(255,255,255,.045);
+  --site-nav-active-bg: rgba(87,217,163,.10);
 }
 
 :root[data-theme="light"] {
@@ -27,6 +31,10 @@
   --site-code-bg: #eef2f6;
   --site-card-bg: #ffffff;
   --site-highlight-border: rgba(31,41,55,.10);
+  --site-selection-bg: #b7ead7;
+  --site-selection-text: #10231c;
+  --site-nav-hover-bg: rgba(8,127,91,.07);
+  --site-nav-active-bg: rgba(8,127,91,.12);
 }
 
 html,
@@ -65,6 +73,34 @@ h1, h2, h3, h4, h5, h6,
 .navigation-list-link:hover,
 .navigation-list-link.active,
 a {
+  color: var(--site-link) !important;
+}
+
+
+// Just the Docs is compiled from the dark color scheme (hack.scss imports
+// color_schemes/dark). The runtime light theme therefore must explicitly
+// override interaction states that the base theme otherwise renders with
+// dark-mode colors.
+::selection {
+  background: var(--site-selection-bg) !important;
+  color: var(--site-selection-text) !important;
+}
+
+::-moz-selection {
+  background: var(--site-selection-bg) !important;
+  color: var(--site-selection-text) !important;
+}
+
+.navigation-list-link:hover,
+.navigation-list-link:focus,
+.navigation-list-link:focus-visible {
+  background-color: var(--site-nav-hover-bg) !important;
+  color: var(--site-link) !important;
+}
+
+.navigation-list-link.active,
+.navigation-list-item.active > .navigation-list-link {
+  background-color: var(--site-nav-active-bg) !important;
   color: var(--site-link) !important;
 }
 
