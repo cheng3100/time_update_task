@@ -116,3 +116,126 @@ For tasks with a Pages raw-archive view, provenance must be rendered explicitly 
 
 ## 10. Repository-wide vs task-specific rules
 This file contains cross-task behavior only. Task-specific taxonomy, owner boundaries, report sections and domain-specific sources belong in the task directory/prompt.
+
+## 11. GPU KMD Weekly — confirmed chat-output depth and structure rules
+
+This section is **task-specific to GPU KMD Weekly** and does not automatically apply to other scheduled tasks in this repository.
+
+### 11.1 Depth classification
+
+GPU KMD Weekly does not distribute equal depth across all Owner domains. Depth is selected by relevance to the user's current Memory/UVM ownership and learning value.
+
+- **L4 — Owner Design Transfer**
+  - Default for **Memory / UVM / HMM / SVM / fault / migration / replay / GPUVM / page-table / TLB / residency / reclaim / eviction** topics.
+  - Must go beyond upstream-news explanation into mechanism, Linux/kernel/driver structures, call paths or state/data flow, correctness/race/lifetime analysis, self-developed KMD architecture mapping, and validation/test implications.
+  - Memory/UVM topics default to L4 unless there is a concrete reason to downgrade.
+
+- **L3 — Learning Guide / Deep Technical Background**
+  - Default for topics strongly coupled to Memory, especially **DMA-BUF, PCIe P2P, peer memory, IOMMU/IOMMUFD, VFIO, virtualization memory paths, address-space and mapping models**.
+  - Must first build the reader's mental model before discussing the current patch/proposal.
+  - Prefer architecture diagrams, object relationships, address-space diagrams, legacy/current/planned model comparisons, sequence flows, kernel object/API/callback relationships, and concrete driver examples.
+  - L3 does not always need to become a full self-developed-KMD HLD.
+
+- **L1 — Industry Radar / Awareness**
+  - Default for other domains such as Power, RAS, Observability, Firmware, compiler/runtime, or ecosystem changes when they are not directly coupled to the current Memory/UVM learning goal.
+  - Keep concise: what changed, why it matters, one concrete implication, and primary source links.
+  - Do not mechanically expand these topics into HLD-level treatment.
+
+A topic may be promoted above its default level when it exposes an important knowledge gap or directly changes the Memory/UVM architecture assumptions.
+
+### 11.2 Deep-dive budget
+
+Each weekly chat report should contain **no more than 3 deep-dive topics** at L3/L4.
+
+The purpose is to preserve depth and learning value without turning every weekly update into a broad encyclopedia.
+
+Preferred selection order:
+1. Memory/UVM L4 topics with direct architecture/correctness value;
+2. strongly Memory-coupled L3 topics needed to understand those changes;
+3. only then other unusually high-value topics.
+
+### 11.3 GPU KMD Weekly chat-output skeleton
+
+The old A–P structure is retired for the chat report. The default weekly conversation output should use this simpler structure:
+
+#### Opening — 本期重点
+- Keep a short opening summary of the most important upstream/industry developments.
+- Usually 2–4 items.
+- Focus on what changed and why this week is worth reading.
+
+#### A. 本周值得关注的 N 个方向变化
+- Replace the old fixed “five features” concept.
+- N is variable.
+- Items may be an upstream architecture evolution, correctness fix, API/UAPI change, implementation pattern, subsystem proposal, hardware/driver interaction change, or other meaningful direction signal.
+- Tag or make the intended depth obvious where useful:
+  - Memory/UVM → normally L4;
+  - DMA-BUF/P2P/Virtualization-memory topics → normally L3;
+  - other topics → normally L1.
+- This section is a radar/selection layer, not a duplicate deep dive.
+
+#### B. Deep Dive：Memory / UVM 与强相关主题
+- Contains only the selected L3/L4 topics.
+- Maximum 3 per run.
+- Merge all deep technical analysis here; do **not** create separate sections for “feature deep dive”, “Leader Memory deep dive”, or similar duplicate analysis.
+
+For **L4 Memory/UVM** topics, prefer the following building blocks when relevant:
+- upstream problem statement and concrete bug/limitation;
+- architecture/data-flow diagram;
+- key kernel/driver objects and call path;
+- PTE/TLB/residency/lifetime relationships;
+- state machine or ordering constraints;
+- race/lifetime matrix;
+- mapping to self-developed KMD objects/contracts;
+- validation/fault-injection/test plan;
+- primary source/code references.
+
+For **L3 strongly coupled** topics, prefer:
+- why the legacy model exists;
+- legacy architecture diagram;
+- current architecture/object model;
+- what limitation triggered the new proposal;
+- planned/new architecture diagram;
+- kernel objects/APIs/callbacks and address representation;
+- concrete GPU/driver/P2P/IOMMU example;
+- how it connects back to Memory/UVM.
+
+#### C. 其他方向 Radar
+- Collect the remaining L1 topics here.
+- Keep each item concise.
+- Typical item structure:
+  1. what changed;
+  2. why it is worth knowing;
+  3. one implication for GPU KMD / Memory interaction if relevant;
+  4. primary source link.
+- Do not force every Owner to have an item when there is no high-value update.
+
+#### 总结回顾
+Keep a short review at the end, focused on:
+1. **本周最值得记住什么？**
+2. **本周补了什么关键知识？**
+3. **下一步最值得继续深挖什么？**
+
+### 11.4 Removed/rejected sections for the chat report
+
+Do not restore these as independent mandatory sections unless the user explicitly asks:
+- old Owner radar table;
+- early “all Owners HLD” section;
+- durable-resources delta as a standalone chat section;
+- team-size/project-allocation section;
+- separate feature-deep-dive section;
+- separate VFIO/Power/RAS/Multi-GPU/Observability/Firmware/Future sections;
+- separate Leader Memory section;
+- separate “本期对 Memory Owner 的结论” section.
+
+Relevant conclusions from these areas should be folded into A, B, C, or 总结回顾 as appropriate.
+
+### 11.5 Weekly #13 is the current reference sample
+
+During the current redesign phase, use **2026-11-07 Weekly #13** as the reference sample for iterating the GPU KMD Weekly format.
+
+Do not resume automatic weekly execution merely because this section exists. The automation remains paused until the user explicitly confirms that:
+- chat output format is satisfactory;
+- GitHub Pages presentation is satisfactory;
+- content-selection/depth rules are satisfactory;
+- the finalized rules have been fixed in repository instructions and automation prompt.
+
