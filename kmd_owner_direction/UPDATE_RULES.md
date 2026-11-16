@@ -237,3 +237,146 @@ Do not resume automatic weekly execution merely because this section exists. The
 - content-selection/depth rules are satisfactory;
 - the finalized rules have been fixed in repository instructions and automation prompt.
 
+### 11.6 Key Topic Detail / B-module web-output template
+
+The confirmed reference implementation for B-module deep-dive output is:
+
+- `kmd_owner_direction/sample/web_output/key_topic_detail_demo.md`
+- https://github.com/cheng3100/time_update_task/blob/main/kmd_owner_direction/sample/web_output/key_topic_detail_demo.md
+
+Future L3/L4 Bx sections should use this file as the primary style/content-depth reference unless the user explicitly changes the template.
+
+#### Mandatory opening: problem background + direct links
+
+Every Key Topic must start with a **Section 0** that establishes the problem before entering mechanism or code.
+
+Section 0 should normally answer:
+1. what the problem/change is;
+2. where it appears and what scenario triggers it;
+3. what the impact is;
+4. what the current upstream solution/proposal is;
+5. what revision/status/progress exists within the weekly time window;
+6. which primary sources should be read next.
+
+The reference/index subsection must provide **direct clickable URLs**, not only patch titles, filenames, function names, or vague references.
+
+Preferred reference order:
+1. primary patch/RFC/commit/thread;
+2. review/discussion thread;
+3. relevant upstream source file(s);
+4. later revision(s), clearly marked as outside the current weekly window when applicable.
+
+#### Kernel/KMD implementation grounding
+
+When a topic touches Linux kernel or GPU KMD implementation, the explanation must be grounded in real code locations.
+
+Prefer this pattern:
+- source file path;
+- function / struct / field name;
+- direct source URL;
+- one short explanation of why that location matters.
+
+Use small code excerpts only when they materially explain the mechanism. As a default, keep any one excerpt to roughly **5–15 relevant lines** and avoid copying whole functions. The goal is to expose the critical implementation relationship while leaving the full source available through direct links.
+
+A Key Topic should usually contain no more than a few critical code excerpts. Prefer source-navigation pointers over large code dumps.
+
+#### Mechanism before patch diff
+
+Do not explain a complex patch only from its diff. First build the reader's mental model:
+- architecture/data-flow diagram;
+- object relationship;
+- address-space relationship;
+- state/lifetime/ordering model;
+- legacy behavior when relevant.
+
+Then explain how the current upstream patch changes that model.
+
+ASCII diagrams are acceptable and preferred in chat/web output when they make the mechanism easier to understand.
+
+#### Facts vs derived design guidance
+
+Clearly separate:
+- **upstream facts**: what the patch/source/review actually does;
+- **derived guidance**: implications or recommendations for the self-developed KMD.
+
+Do not present a suggested self-developed structure/field/state machine as though it already exists upstream.
+
+#### Why the change matters
+
+Each Key Topic must extract at least one reusable architecture/design principle. The analysis should not stop at “what lines changed”.
+
+For example, the reference B1 extracts:
+
+```text
+page-table lifetime
+    !=
+translation-cache lifetime
+    !=
+memory-object lifetime
+```
+
+The reusable principle is the main reason the topic is worth retaining beyond the weekly news cycle.
+
+#### L4 Memory/UVM requirements
+
+For L4 Memory/UVM topics, include when relevant:
+- real upstream issue/limitation;
+- key code path and object/state references;
+- lifetime / generation / ordering analysis;
+- race or lifetime matrix;
+- mapping to self-developed KMD contracts or objects;
+- validation / fault-injection plan;
+- required observability/debug state;
+- long-lived invariant/design principle.
+
+These are expected components for L4 unless the topic genuinely does not support one of them.
+
+#### L3 Memory-adjacent requirements
+
+For L3 DMA-BUF/P2P/Virtualization-memory/IOMMU-style topics, emphasize:
+- legacy/current/planned architecture;
+- object model and address representation;
+- why the old abstraction is insufficient;
+- real kernel APIs/callbacks/source locations;
+- concrete GPU/peer-memory example;
+- relationship back to Memory/UVM.
+
+L3 does not require a complete self-developed-KMD HLD or full race matrix unless the topic naturally demands it.
+
+#### Verification and observability
+
+Where the topic describes a correctness or lifetime problem, the Key Topic should explain how to test it:
+- how to enlarge the race window;
+- what to inject/delay/reset;
+- what result would demonstrate the bug;
+- what result would prove the fix;
+- what IDs/generations/timestamps/events should be traced.
+
+#### Source-reading section
+
+A Key Topic should end with a compact source-navigation section when kernel/KMD code is involved.
+
+Preferred form:
+
+```text
+problem
+  ↓
+primary patch/RFC
+  ↓
+critical 5–15 line code excerpt
+  ↓
+source file
+  ↓
+function / struct / field
+  ↓
+review / later revision
+```
+
+This section is a learning index, not a bibliography dump.
+
+#### Time-window integrity
+
+The “current status” of a weekly Key Topic must stop at that weekly run's time boundary.
+
+A later revision may be linked as “follow-up / later progress”, but must not be presented as if it was already current during the historical weekly run.
+
