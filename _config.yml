@@ -25,6 +25,7 @@ aux_links_new_tab: true
 exclude:
   - kmd_owner_direction/HOME.md
   - kmd_owner_direction/README.md
+  - kmd_owner_direction/UPDATE_RULES.md
   - kmd_owner_direction/archive_audit_2026-08-08.md
   - kmd_owner_direction/owners
   - kmd_owner_direction/resources
@@ -33,7 +34,6 @@ exclude:
   - kmd_owner_direction/updates
   - kmd_owner_direction/public_future_topic.md
   - README.md
-  - UPDATE_RULES.md
   - vendor
 
 collections:
