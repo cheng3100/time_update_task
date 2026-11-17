@@ -1,8 +1,8 @@
 tasks:
   - id: kmd_owner_direction
-    title_zh: GPU KMD Owner 方向
+    title_zh: GPU KMD Owner Direction
     title_en: GPU KMD Owner Direction
-    summary_zh: 稳定 Owner 划分、持续演进的切入 Feature、业界最新动态与长期学习资料。
-    summary_en: Stable owner taxonomy, evolving entry features, industry updates and durable learning resources.
+    summary_zh: 以 GPU Memory / Virtual Memory / Unified Memory 为主线的每周技术更新；L3/L4 主题进入 Timeline/Focus，其余方向进入 Other Topic Radar，并保留每期网页原文归档。
+    summary_en: Weekly GPU KMD technical update centered on Memory / Virtual Memory / Unified Memory, with L3/L4 Timeline/Focus, Other Topic radar, and reviewed web-output archives.
     url: /kmd_owner_direction/
-    raw_archive_url: /kmd_owner_direction/raw-updates.html
+    raw_archive_url: /kmd_owner_direction/web-update-archive/
