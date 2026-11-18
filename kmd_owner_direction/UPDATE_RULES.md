@@ -400,3 +400,27 @@ The roles of links are distinct:
 
 Do not use a non-linked date heading on a timeline when a corresponding Web Update Archive page exists.
 
+### 11.8 Web Update Archive must preserve the complete reviewed web output
+
+Each page under **Web Update Archive** is the complete reviewed web-output record for that weekly run, not a summary page.
+
+Rules:
+- preserve the full weekly web output structure and substantive text: Opening / A / B / C / Summary;
+- do not replace the weekly output with a compressed recap, index, or Focus-only summary;
+- direct upstream/reference links from the original web output must remain;
+- internal GitHub Pages navigation links may be added where they improve navigation without changing the meaning of the archived text;
+- in particular, every B/Focus topic must include a direct internal link to its corresponding Focus page;
+- A items selected for B should also include a Focus link when a Focus page exists;
+- these internal links are additive navigation metadata: they must not replace or shorten the original B analysis;
+- Web Update Archive is the canonical **reviewed web-output archive** used by timeline date nodes.
+
+For example:
+
+```markdown
+### B1. TLB invalidation completion 与 BO lifetime
+
+[Open Focus page →]({{ '/kmd_owner_direction/memory/focus/2026-11-07-tlb-bo-lifetime/' | relative_url }})
+
+<the complete original B1 analysis continues here>
+```
+
