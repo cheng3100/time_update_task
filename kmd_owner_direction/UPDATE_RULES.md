@@ -378,3 +378,25 @@ The “current status” of a weekly Key Topic must stop at that weekly run's ti
 
 A later revision may be linked as “follow-up / later progress”, but must not be presented as if it was already current during the historical weekly run.
 
+### 11.7 GitHub Pages timeline date-node linking
+
+For every KMD GitHub Pages timeline page, each dated weekly node must itself be an internal link to that run's complete reviewed **Web Update Archive** page.
+
+Required pattern:
+
+```markdown
+## [2026-11-07 · Weekly #13]({{ '/kmd_owner_direction/web-update-archive/2026-11-07-weekly-13/' | relative_url }})
+```
+
+This applies to:
+- GPU Memory / Virtual Memory / Unified Memory → Timeline;
+- Other Topic → Timeline;
+- any future timeline introduced under this KMD task.
+
+The roles of links are distinct:
+- **date / weekly node** → internal Web Update Archive for the complete reviewed weekly output;
+- **topic title** → direct primary/upstream/reference source;
+- **Focus →** → internal detailed L3/L4 Focus page when that topic was selected for Section B.
+
+Do not use a non-linked date heading on a timeline when a corresponding Web Update Archive page exists.
+
