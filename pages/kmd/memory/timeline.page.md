@@ -8,9 +8,9 @@ permalink: "/kmd_owner_direction/memory/timeline/"
 
 # Memory / UVM Timeline
 
-按每次更新日期追加。标题直接指向 primary/upstream reference；若该条进入当期 B Deep Dive，则额外提供 **Focus →**。
+按每次更新日期追加。**每个时间节点标题链接到对应的 Web Update Archive 原始记录**；每个 topic 标题直接指向 primary/upstream reference；若该条进入当期 B Deep Dive，则额外提供 **Focus →**。
 
-## 2026-11-07 · Weekly #13
+## [2026-11-07 · Weekly #13]({{ '/kmd_owner_direction/web-update-archive/2026-11-07-weekly-13/' | relative_url }})
 
 ### [AMDGPU: TLB invalidation completion 与 BO lifetime](https://mail-archive.com/amd-gfx%40lists.freedesktop.org/msg155047.html)
 
