@@ -8,7 +8,9 @@ permalink: "/kmd_owner_direction/other-topic/timeline/"
 
 # Other Topic Timeline
 
-## 2026-11-07 · Weekly #13
+每个时间节点标题都链接到对应的 Web Update Archive 原始记录。
+
+## [2026-11-07 · Weekly #13]({{ '/kmd_owner_direction/web-update-archive/2026-11-07-weekly-13/' | relative_url }})
 
 ### RAS / Recovery — [GFX11 engine-level soft reset v4](https://www.mail-archive.com/amd-gfx%40lists.freedesktop.org/msg154928.html)
 
