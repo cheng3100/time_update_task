@@ -256,3 +256,142 @@ hr {
     gap: .5rem;
   }
 }
+
+
+// Reusable technical architecture diagrams for Focus pages.
+.arch-diagram {
+  margin: 1.4rem 0;
+  padding: 1.15rem;
+  border: 1px solid var(--site-border);
+  border-radius: 12px;
+  background: var(--site-surface-soft);
+  overflow-x: auto;
+}
+
+.arch-diagram.compact { padding: .9rem; }
+
+.arch-title {
+  margin-bottom: 1rem;
+  color: var(--site-heading);
+  font-weight: 700;
+  font-size: .92rem;
+}
+
+.arch-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  min-width: max-content;
+}
+
+.arch-flow.vertical {
+  flex-direction: column;
+  min-width: 0;
+}
+
+.arch-node {
+  min-width: 9.5rem;
+  max-width: 15rem;
+  padding: .72rem .85rem;
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+  background: var(--site-surface);
+  text-align: center;
+  box-shadow: 0 1px 0 var(--site-highlight-border);
+}
+
+.arch-node strong,
+.arch-node span { display: block; }
+
+.arch-node span {
+  margin-top: .25rem;
+  color: var(--site-muted);
+  font-size: .78rem;
+  line-height: 1.35;
+}
+
+.arch-node.arch-accent {
+  border-color: var(--site-link);
+  box-shadow: inset 0 0 0 1px var(--site-highlight-border);
+}
+
+.arch-arrow {
+  flex: 0 0 auto;
+  color: var(--site-link);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.arch-arrow.large { font-size: 1.5rem; }
+
+.arch-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+
+.arch-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arch-column.arch-stack {
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.arch-column.center {
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(10rem, 1fr));
+  gap: .7rem;
+}
+
+.arch-result {
+  margin: 1rem auto 0;
+  max-width: 32rem;
+  padding: .65rem .8rem;
+  border-radius: 8px;
+  background: var(--site-surface);
+  text-align: center;
+  color: var(--site-text);
+}
+
+.arch-label {
+  margin-bottom: .25rem;
+  color: var(--site-link);
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+@media (max-width: 50rem) {
+  .arch-flow:not(.vertical) {
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .arch-flow:not(.vertical) .arch-arrow,
+  .arch-column.center .arch-arrow {
+    transform: rotate(90deg);
+  }
+
+  .arch-columns,
+  .arch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-node {
+    width: 100%;
+    max-width: 24rem;
+  }
+}
